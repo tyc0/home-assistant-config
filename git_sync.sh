@@ -15,7 +15,7 @@ if git diff --cached --quiet; then
 fi
 
 # Commit and push
-if git commit -m "Sync: $(date '+%Y-%m-%d %H:%M:%S')" >> /config/git_sync_result.txt 2>&1 && \
+if git commit -m "Manual sync via dashboard button" >> /config/git_sync_result.txt 2>&1 && \
    git push origin main >> /config/git_sync_result.txt 2>&1; then
   echo -e "\n✅ Git sync successful." >> /config/git_sync_result.txt
 else
