@@ -1,1 +1,1 @@
-Git sync failed!
+No changes to sync.

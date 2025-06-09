@@ -1,16 +1,24 @@
 #!/bin/bash
-cd /config
+cd /config || exit 1
 
-git add .
+# Stage all changes, including new and deleted files
+git add -A
+
+# Debug: List what's staged
+echo "Staged files:" > /config/git_sync_result.txt
+git diff --cached --name-only >> /config/git_sync_result.txt
+
+# If nothing is staged, exit early
 if git diff --cached --quiet; then
-  echo "Nothing to commit."
-  echo "No changes to sync." > /config/git_sync_result.txt
+  echo -e "\nNothing to commit." >> /config/git_sync_result.txt
   exit 0
 fi
 
-if git commit -m "Sync: $(date '+%Y-%m-%d %H:%M:%S')" && git push origin main; then
-  echo "Git sync successful." > /config/git_sync_result.txt
+# Commit and push
+if git commit -m "Sync: $(date '+%Y-%m-%d %H:%M:%S')" >> /config/git_sync_result.txt 2>&1 && \
+   git push origin main >> /config/git_sync_result.txt 2>&1; then
+  echo -e "\n✅ Git sync successful." >> /config/git_sync_result.txt
 else
-  echo "Git sync failed!" > /config/git_sync_result.txt
+  echo -e "\n❌ Git sync failed!" >> /config/git_sync_result.txt
   exit 1
 fi
