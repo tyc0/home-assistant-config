@@ -1,0 +1,332 @@
+# | START: daily_routines.yaml
+# | PATH: /config/packages/time/daily_routines.yaml
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Night Mode - Toggle
+#   Activates and deactivates night mode
+  - id: '1711656147198'
+    alias: Night Mode - Toggle
+    description: Toggles night mode on and off based on time
+    triggers:
+    - platform: time
+      at: '22:30:00'
+      id: night_start
+    - platform: time
+      at: 07:00:00
+      id: night_end
+    actions:
+    - choose:
+      - conditions:
+        - condition: trigger
+          id: night_start
+        sequence:
+        - service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.night_mode
+      - conditions:
+        - condition: trigger
+          id: night_end
+        sequence:
+        - service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.night_mode
+    mode: single
+
+# ➔ Daily Routines - Weekday Morning
+#   Manages morning routines on weekdays
+  - id: '1711656147199'
+    alias: Daily Routines - Weekday Morning
+    description: Manages various aspects of the morning routine
+    triggers:
+    - platform: time
+      at: 07:10:00
+      id: morn_start
+    conditions:
+    - condition: time
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+    actions:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.night_mode
+    - service: scene.turn_on
+      target:
+        entity_id: scene.bedroom_daylight
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: binary_sensor.fp2_01_all
+          state: 'on'
+        sequence:
+        - service: light.turn_on
+          target:
+            entity_id: light.bedroom
+          data:
+            brightness_pct: 65
+            transition: 120
+    mode: single
+
+# ➔ Daily Routines - Evening Wind Down
+#   Manages evening routines
+  - id: '1711656147200'
+    alias: Daily Routines - Evening Wind Down
+    description: Starts evening wind-down routines
+    triggers:
+    - platform: time
+      at: '20:30:00'
+      id: evening_start
+    conditions:
+    - condition: state
+      entity_id: input_boolean.anyone_home
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.night_mode
+      state: 'off'
+    actions:
+    - service: scene.turn_on
+      target:
+        entity_id: scene.evening_lights
+      data: {}
+    - service: tts.cloud_say
+      data:
+        entity_id: media_player.living_room_speaker
+        message: It's time to start winding down for the evening.
+        cache: true
+    mode: single
+
+# ➔ Daily Routines - Deep Night
+#   Manages late night/early morning behavior
+  - id: '1711656147201'
+    alias: Daily Routines - Deep Night
+    description: Special handling for deep night hours
+    triggers:
+    - platform: time
+      at: '01:30:00'
+      id: deep_night
+    conditions:
+    - condition: state
+      entity_id: binary_sensor.night_mode
+      state: 'on'
+    actions:
+    - service: light.turn_off
+      target:
+        entity_id:
+        - light.living_room_lamp
+        - light.hallway_light
+        - light.signe_gradient_table_1
+    - service: scene.turn_on
+      target:
+        entity_id: scene.sleep_mode
+    - service: climate.set_temperature
+      data:
+        entity_id: climate.bedroom_thermostat
+        temperature: 19
+    mode: single
+
+# ➔ Daily Routines - Weekend Morning
+#   Manages morning routines on weekends
+  - id: '1711656147202'
+    alias: Daily Routines - Weekend Morning
+    description: Weekend morning routines with longer sleep
+    triggers:
+    - platform: time
+      at: 09:00:00
+      id: weekend_morning
+    conditions:
+    - condition: time
+      weekday:
+      - sat
+      - sun
+    actions:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.night_mode
+    - service: climate.set_temperature
+      data:
+        entity_id: climate.bedroom_thermostat
+        temperature: 21
+    - choose:
+      - conditions:
+        - condition: state
+          entity_id: binary_sensor.fp2_01_all
+          state: 'on'
+        sequence:
+        - service: light.turn_on
+          target:
+            entity_id: light.bedroom
+          data:
+            brightness_pct: 50
+            transition: 300
+    mode: single
+
+# ➔ Scheduled Tasks - Weekly
+#   Performs weekly system maintenance
+  - id: '1711656147203'
+    alias: Scheduled Tasks - Weekly
+    description: Runs weekly maintenance tasks
+    triggers:
+    - platform: time
+      at: '03:00:00'
+      id: weekly_tasks
+    conditions:
+    - condition: time
+      weekday:
+      - sun
+    actions:
+    - service: automation.trigger
+      data:
+        entity_id: automation.backup_database
+        skip_condition: true
+    - service: system_log.clear
+      data: {}
+    - service: recorder.purge
+      data:
+        keep_days: 30
+        repack: true
+    mode: single
+
+# ➔ Time - Work Schedule
+#   Manages typical work day schedule
+  - id: '1711656147204'
+    alias: Time - Work Schedule
+    description: Handles work schedule reminders and automations
+    triggers:
+    - platform: time
+      at: 08:45:00
+      id: work_morning
+    - platform: time
+      at: '17:30:00'
+      id: work_end
+    conditions:
+    - condition: time
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+    - condition: state
+      entity_id: binary_sensor.workday_sensor
+      state: 'on'
+    actions:
+    - choose:
+      - conditions:
+        - condition: trigger
+          id: work_morning
+        - condition: state
+          entity_id: person.cam
+          state: home
+        sequence:
+        - service: event.fire
+          data:
+            title: Work Reminder
+            message: Work day starts soon. Don't forget your laptop and charger.
+            priority: high
+            tag: schedule
+          target:
+            event_type: notify_e_or_c
+      - conditions:
+        - condition: trigger
+          id: work_end
+        - condition: state
+          entity_id: person.cam
+          state: not_home
+        sequence:
+        - service: event.fire
+          data:
+            title: End of Work Day
+            message: Time to head home soon.
+            priority: normal
+            tag: schedule
+          target:
+            event_type: notify_e_or_c
+    mode: single
+
+# ➔ Time - E Schedule
+#   Manages E's schedule
+  - id: '1711656147205'
+    alias: Time - E Schedule
+    description: Handles E's schedule reminders
+    triggers:
+    - platform: time
+      at: 08:15:00
+      id: e_morning
+    - platform: time
+      at: '12:00:00'
+      id: e_lunch
+    - platform: time
+      at: '18:00:00'
+      id: e_evening
+    conditions:
+    - condition: time
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+    - condition: state
+      entity_id: binary_sensor.workday_sensor
+      state: 'on'
+    actions:
+    - choose:
+      - conditions:
+        - condition: trigger
+          id: e_morning
+        - condition: state
+          entity_id: person.enhy
+          state: home
+        sequence:
+        - service: event.fire
+          data:
+            title: Morning Schedule
+            message: Time to start preparing for the day.
+            priority: normal
+            tag: schedule
+            targets: enhy
+          target:
+            event_type: notify_e_or_c
+      - conditions:
+        - condition: trigger
+          id: e_lunch
+        - condition: state
+          entity_id: person.enhy
+          state: not_home
+        sequence:
+        - service: event.fire
+          data:
+            title: Lunch Time
+            message: Don't forget to take a lunch break.
+            priority: normal
+            tag: schedule
+            targets: enhy
+          target:
+            event_type: notify_e_or_c
+      - conditions:
+        - condition: trigger
+          id: e_evening
+        - condition: state
+          entity_id: person.enhy
+          state: not_home
+        sequence:
+        - service: event.fire
+          data:
+            title: Evening Reminder
+            message: Would you like me to prepare dinner tonight?
+            priority: normal
+            tag: schedule
+            targets: enhy
+          target:
+            event_type: notify_e_or_c
+    mode: single
+
+# | END: daily_routines.yaml

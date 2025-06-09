@@ -1,0 +1,175 @@
+
+# | START: rotating_messages_card.yaml
+# | PATH: /config/templates/custom_button_card_templates/olympus_cards/rotating_messages_card/rotating_messages_card.yaml
+
+
+
+# | EXAMPLE USAGE
+
+# ➔ REQUIRED:
+# type: custom:button-card
+# template: rotating_messages_card
+
+# ➔ OPTIONAL:
+# variables:
+#   morning_messages:
+#     - Good morning! Hope you slept well.
+#     - Rise and shine!
+#     - Morning has broken. Have a great day!
+#     - Top of the morning to you!
+#   afternoon_messages:
+#     - Good afternoon! Hope you're having a great day.
+#     - Afternoon check‑in: how's your day so far?
+#     - Make the most of your afternoon!
+#   evening_messages:
+#     - Good evening! Time to wind down and relax.
+#     - Evening has arrived. Time for some you‑time.
+#   night_messages:
+#     - Sleep tight!
+#     - Sweet dreams ahead.
+#     - Time to rest and recharge.
+#     - Wishing you a peaceful night.
+
+
+
+  rotating_messages_card:
+
+    variables:
+
+      morning_messages:
+        - Good morning! Hope you slept well.
+        - Rise and shine!
+        - Morning has broken. Have a great day!
+        - Top of the morning to you!
+
+      afternoon_messages:
+        - Good afternoon!
+        - Hope your day is going well!
+        - "Afternoon check‑in: how's your day so far?"
+        - Make the most of your afternoon!
+
+      evening_messages:
+        - Good evening!
+        - Time to wind down and relax.
+        - Evening has arrived. Time for some you‑time.
+        - How was your day?
+
+      night_messages:
+        - Sleep tight!
+        - Sweet dreams ahead.
+        - Time to rest and recharge.
+        - Wishing you a peaceful night.
+
+      display_time: 5000                   # Duration of each message
+      char_delay: 0.06                     # Delay between characters
+      fade_duration: 2                     # Fade in/out duration
+      fade_in_delay: -0.4                  # Delay before first fade in
+
+
+    styles:
+
+      card:
+        - background: none
+        - animation: slide 2s .8s both
+        - position: relative
+        - box-shadow: none
+        - "--mdc-ripple-color": rgba(0,0,0,0)
+        - "--mdc-ripple-fg-opacity": 0
+        - width: 100%
+        - min-height: 100px
+        - transform-style: preserve-3d
+        - perspective: 1000px
+
+      name:
+        - font-size: 1.2rem
+        - justify-self: start
+        - align-self: center
+        - text-align: left
+        - overflow: hidden
+        - overflow-wrap: break-word
+        - word-break: break-word
+        - font-family: SF Pro Text, Roboto, system-ui
+        - padding: 0 10px
+        - width: 500px
+        - transition: transform .3s ease-out
+        - line-height: 1
+
+
+    entity: sensor.fake   # Placeholder entity, can be any entity
+    show_icon: false
+    show_name: true
+    long_press: false
+    triggers_update: all
+    tap_action: none
+
+
+    extra_styles: >
+      @keyframes textfadeoutro{0%{transform:translateX(0)scaleX(1);filter:blur(0);opacity:1}100%{transform:translateX(25px)scaleX(.9);filter:blur(4px);opacity:0}}
+      @keyframes textfadeintro{0%{transform:translateX(-25px)scaleX(.9);filter:blur(4px);opacity:0}100%{transform:translateX(0)scaleX(1);filter:blur(0);opacity:1}}
+      @keyframes slide{0%{transform:translateX(3%);opacity:0}}
+
+
+    name: |
+      [[[ // Get hour-based messages
+      const h = new Date().getHours();
+      let msgs = h < 5 || h >= 22 ? [...variables.night_messages] :
+                h < 12 ? [...variables.morning_messages] :
+                h < 17 ? [...variables.afternoon_messages] :
+                        [...variables.evening_messages];
+
+      // Add dynamic system messages
+      const trainState = states['input_text.train_service_summary']?.state;
+      const weatherState = states['input_text.ai_weather_clothing_suggestion']?.state;
+
+      if (trainState?.length > 8) msgs.push(trainState);
+      if (weatherState?.length > 8) msgs.push(weatherState);
+
+      if (!msgs.length) return 'No messages found.';
+
+      // Configure timing variables
+      const now = Date.now();
+      const {display_time, fade_duration, char_delay, fade_in_delay} = variables;
+
+      // Find longest message for animation timing
+      const maxLen = Math.max(...msgs.map(t => t.length));
+      const maxAnimTime = (fade_duration + char_delay * maxLen) * 1000;
+      const cycleDuration = display_time + maxAnimTime;
+
+      // Calculate current and next message
+      const idx = Math.floor((now / cycleDuration) % msgs.length);
+      const curMsg = msgs[idx];
+      const nextMsg = msgs[(idx + 1) % msgs.length];
+      const isAnimating = now % cycleDuration > display_time;
+
+      // Animation string builder - reused for efficiency
+      const buildSpans = (text, isIncoming = false) => {
+        const opacity = isIncoming ? 0 : 1;
+        const animType = isIncoming ? 'textfadeintro' : 'textfadeoutro';
+        const delayBase = isIncoming ? fade_in_delay : 0;
+
+        return [...text].map((char, i) => {
+          const delay = delayBase + i * char_delay;
+          return `<span style="display:inline-block;opacity:${opacity};
+                  animation:${animType} ${fade_duration}s cubic-bezier(.4,0,.2,1) forwards;
+                  animation-delay:${delay}s">${char === ' ' ? '&nbsp;' : char}</span>`;
+        }).join('');
+      };
+
+      // Common styles
+      const containerStyle = 'position:relative;min-height:1.5em';
+      const absStyle = 'position:absolute;inset:0';
+
+      // Return either static or animating view
+      return isAnimating
+        ? `<div style="${containerStyle}">
+             <div style="${absStyle};z-index:1">${buildSpans(curMsg)}</div>
+             <div style="${absStyle};z-index:2">${buildSpans(nextMsg, true)}</div>
+           </div>`
+        : `<div style="${containerStyle}">
+             <div style="${absStyle}">${curMsg}</div>
+           </div>`;
+      ]]]
+
+
+
+# | END: rotating_messages_card.yaml

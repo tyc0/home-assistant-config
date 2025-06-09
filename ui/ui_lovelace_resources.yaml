@@ -1,0 +1,361 @@
+
+# | START: ui_lovelace_resources.yaml
+# |  PATH: /config/ui/ui_lovelace_resources.yaml
+
+
+#  ╭────────────────────╮
+#  │   MY JS
+#  ╰────────────────────╯
+# ➔ WhatsApp Chat History Card
+  - url: /local/my-chat-bubble-card.js
+    type: module
+
+# ➔ Notification bar card (animates the intro/outro of notifications)
+  - url: /local/flip-animator.js
+    type: module
+  - url: /local/flip-animator-card.js
+    type: module
+
+# ➔ ???
+  - url: /local/marked.min.js?v=4.2.1
+    type: module
+
+# ➔ JS for paralax effect on Custom Button Card
+  - url: /local/vanilla-tilt.min.js?v=1.7.3
+    type: module
+
+# ➔ Loads custom fonts to frontend
+  - url: /local/myfont.css
+    type: css
+
+# ➔ Adds item to shopping list
+  - url: /local/add_item.js
+    type: module
+
+# ➔ Old whatsapp chat card (never worked)
+  - url: /local/whatsapp-chat-history-card.js
+    type: module
+
+# ➔ GSAP library
+  - url: /local/gsap/gsap.min.js
+    type: module
+
+# ➔ GSAP plugin for drawing SVGs
+  - url: /local/gsap/DrawSVGPlugin.min.js
+    type: module
+
+# ➔ Card to show popular times at supermarket
+  - url: /local/popular-times-card.js
+    type: module
+
+
+
+#  ╭────────────────────╮
+#  │   HACS STUFF
+#  ╰────────────────────╯
+
+# ➔ Gallery card
+  - url: /hacsfiles/gallery-card/gallery-card.js
+    type: module
+
+
+# ➔ Calendar Pro Card
+  - url: /hacsfiles/calendar-card-pro/calendar-card-pro.js
+    type: module
+
+
+
+# ➔ Lunar phase Card
+  - url: /hacsfiles/lunar-phase-card/lunar-phase-card.js
+    type: module
+
+
+# ➔ Horizon Card (sun position)
+  - url: /hacsfiles/lovelace-horizon-card/lovelace-horizon-card.js
+    type: module
+
+
+# ➔ Mushroom strategy Card
+  - url: /hacsfiles/mushroom-strategy/mushroom-strategy.js
+    type: module
+
+# ➔ Mushroom strategy Card
+  - url: /local/mushroom-strategy.js
+    type: module
+
+# ➔ Apexcharts library (for the card)
+  - url: https://cdn.jsdelivr.net/npm/apexcharts@3.28.3/dist/apexcharts.min.js
+    type: module
+
+# ➔ Apexcharts card
+  - url: /local/apexcharts-card.js
+    type: module
+
+# ➔ Apexcharts card
+  - url: /hacsfiles/apexcharts-card/apexcharts-card.js
+    type: module
+
+# ➔ Atomic calendar revive
+  - url: /hacsfiles/atomic-calendar-revive/atomic-calendar-revive.js
+    type: module
+
+# ➔ Auto entities
+  - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
+    type: module
+  - url: /hacsfiles/lovelace-auto-entities/rollup.config.js
+    type: module
+
+# ➔ Bar card
+  - url: /hacsfiles/bar-card/bar-card.js
+    type: module
+
+# ➔ Better moment card
+  - url: /hacsfiles/better-moment-card/better-moment-card.js
+    type: module
+
+# ➔ Bubble card
+  - url: /hacsfiles/Bubble-Card/bubble-card.js
+    type: module
+
+# ➔ Button card
+  - url: /hacsfiles/button-card/button-card.js
+    type: module
+
+# ➔ Canary
+  - url: /hacsfiles/lovelace-canary/canary.js
+    type: module
+
+# ➔ Card mod
+  - url: /hacsfiles/lovelace-card-mod/card-mod.js
+    type: module
+
+# ➔ Card templater
+  - url: /hacsfiles/lovelace-card-templater/lovelace-card-templater.js
+    type: module
+  - url: /hacsfiles/lovelace-card-templater/webpack.config.js
+    type: module
+
+# ➔ Card tools
+  - url: /hacsfiles/lovelace-card-tools/card-tools.js
+    type: module
+  - url: /hacsfiles/lovelace-card-tools/webpack.config.js
+    type: module
+
+# ➔ Circular timer card
+  - url: /hacsfiles/circular-timer-card/circular-timer-card.js
+    type: module
+
+# ➔ Config template card
+  - url: /hacsfiles/config-template-card/config-template-card.js
+    type: module
+
+# ➔ Custom brand icons
+  - url: /hacsfiles/custom-brand-icons/custom-brand-icons.js
+    type: module
+
+# ➔ Decluttering card
+  - url: /hacsfiles/decluttering-card/decluttering-card.js
+    type: module
+
+# ➔ Entities btn group
+  - url: /hacsfiles/lovelace-entities-btn-group/entities-btn-group.js
+    type: module
+
+# ➔ Expander card
+  - url: /hacsfiles/lovelace-expander-card/expander-card.js
+    type: module
+
+# ➔ Flex table card
+  - url: /hacsfiles/flex-table-card/flex-table-card.js
+    type: module
+
+# ➔ Fold entity row
+  - url: /hacsfiles/lovelace-fold-entity-row/fold-entity-row.js
+    type: module
+  - url: /hacsfiles/lovelace-fold-entity-row/rollup.config.js
+    type: module
+
+# ➔ Hass bha icons
+  - url: /hacsfiles/hass-bha-icons/hass-bha-icons.js
+    type: module
+
+# ➔ Hass hue icons
+  - url: /hacsfiles/hass-hue-icons/hass-hue-icons.js
+    type: module
+
+# ➔ History explorer card
+  - url: /hacsfiles/history-explorer-card/history-explorer-card.js
+    type: module
+
+# ➔ Honeycomb menu
+  - url: /hacsfiles/lovelace-honeycomb-menu/honeycomb-menu.js
+    type: module
+
+# ➔ Hourly weather
+  - url: /hacsfiles/lovelace-hourly-weather/hourly-weather.js
+    type: module
+
+# ➔ Kiosk mode
+  - url: /hacsfiles/kiosk-mode/kiosk-mode.js
+    type: module
+
+# ➔ ???
+  - url: /hacsfiles/lovelace-hui-element/hui-element.js
+    type: module
+  - url: /hacsfiles/lovelace-hui-element/rollup.config.js
+    type: module
+
+# ➔ HTML card
+  - url: /hacsfiles/lovelace-html-card/html-card.js
+    type: module
+
+# ➔ Layout card
+  - url: /hacsfiles/lovelace-layout-card/layout-card.js
+    type: module
+  - url: /hacsfiles/lovelace-layout-card/rollup.config.js
+    type: module
+
+# ➔ Last changed element
+  - url: /hacsfiles/last-changed-element/last-changed-element.js
+    type: module
+
+# ➔ Light popup card
+  - url: /hacsfiles/light-popup-card/light-popup-card.js
+    type: module
+
+# ➔ Cover popup card
+  - url: /hacsfiles/cover-popup-card/cover-popup-card.js
+    type: module
+
+# ➔ List card
+  - url: /hacsfiles/list-card/list-card.js
+    type: module
+
+# ➔ Logbook card
+  - url: /hacsfiles/logbook-card/logbook-card.js
+    type: module
+
+# ➔ Mini graph card
+  - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+    type: module
+
+# ➔ Mini media player
+  - url: /hacsfiles/mini-media-player/mini-media-player-bundle.js
+    type: module
+
+# ➔ More info card
+  - url: /hacsfiles/lovelace-more-info-card/more-info-card.js
+    type: module
+  - url: /hacsfiles/lovelace-more-info-card/rollup.config.js
+    type: module
+
+# ➔ Multiple entity row
+  - url: /hacsfiles/lovelace-multiple-entity-row/multiple-entity-row.js
+    type: module
+
+# ➔ Mushroom
+  - url: /hacsfiles/lovelace-mushroom/mushroom.js
+    type: module
+
+# ➔ Not actually my cards, but they're called "My..."
+  - url: /hacsfiles/my-cards/my-slider-v2.js
+    type: module
+  - url: /hacsfiles/my-cards/my-slider.js
+    type: module
+  - url: /hacsfiles/my-cards/my-button.js
+    type: module
+  - url: /hacsfiles/my-cards/my-cards.js
+    type: module
+
+# ➔ Paper buttons row
+  - url: /hacsfiles/lovelace-paper-buttons-row/paper-buttons-row.js
+    type: module
+
+# ➔ Plotly graph card
+  - url: /hacsfiles/lovelace-plotly-graph-card/plotly-graph-card.js
+    type: module
+
+# ➔ Secondaryinfo entity row
+  - url: /hacsfiles/secondaryinfo-entity-row/secondaryinfo-entity-row.js
+    type: module
+
+# ➔ Select list card
+  - url: /hacsfiles/select-list-card/select-list-card.js
+    type: module
+
+# ➔ Simple clock card
+  - url: /hacsfiles/simple-clock-card/simple-clock-card.js
+    type: module
+
+# ➔ Slider button card
+  - url: /hacsfiles/slider-button-card/slider-button-card.js
+    type: module
+
+# ➔ Slider entity row
+  - url: /hacsfiles/lovelace-slider-entity-row/slider-entity-row.js
+    type: module
+
+# ➔ Stack in card
+  - url: /hacsfiles/stack-in-card/stack-in-card.js
+    type: module
+  - url: /hacsfiles/lovelace-state-switch/rollup.config.js
+    type: module
+
+# ➔ State switch
+  - url: /hacsfiles/lovelace-state-switch/state-switch.js
+    type: module
+
+# ➔ Swipe card
+  - url: /hacsfiles/swipe-card/swipe-card.js
+    type: module
+
+# ➔ Swiss army knife card
+  - url: /hacsfiles/swiss-army-knife-card/SVGInjector.min.js
+    type: module
+  - url: /hacsfiles/swiss-army-knife-card/swiss-army-knife-card.js
+    type: module
+
+# ➔ Tabbed card
+  - url: /hacsfiles/tabbed-card/tabbed-card.js
+    type: module
+
+# ➔ Tailwindcss template card
+  - url: /hacsfiles/tailwindcss-template-card/tailwindcss-template-card.js
+    type: module
+
+# ➔ Template entity row
+  - url: /hacsfiles/lovelace-template-entity-row/template-entity-row.js
+    type: module
+  - url: /hacsfiles/lovelace-template-entity-row/rollup.config.js
+    type: module
+
+# ➔ Text input row
+  - url: /hacsfiles/lovelace-text-input-row/lovelace-text-input-row.js
+    type: module
+
+# ➔ Timer bar card
+  - url: /hacsfiles/timer-bar-card/timer-bar-card.js
+    type: module
+
+# ➔ Time picker card
+  - url: /hacsfiles/lovelace-time-picker-card/time-picker-card.js
+    type: module
+
+# ➔ Uptime card
+  - url: /hacsfiles/uptime-card/uptime-card.js
+    type: module
+
+# ➔ Vertical slider cover card
+  - url: /hacsfiles/lovelace-vertical-slider-cover-card/vertical-slider-cover-card.js
+    type: module
+
+# ➔ Vertical stack in card
+  - url: /hacsfiles/vertical-stack-in-card/vertical-stack-in-card.js
+    type: module
+
+# ➔ Weather card
+  - url: /hacsfiles/weather-card/weather-card.js
+    type: module
+
+
+# | END: ui_lovelace_resources.yaml

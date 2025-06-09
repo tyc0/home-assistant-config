@@ -1,0 +1,83 @@
+# | START: generate_text.yaml
+# |  PATH: /config/packages/ai/generate_text.yaml
+
+
+# ╭────────────────────╮
+# │ INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+# ➔ AI text system content input field
+#   Input field for the AI text system content
+  ai_text_system_content:
+    name: 'What type of AI am I?'
+    max: 255
+
+# ➔ AI text user query input field
+#   Input field for the AI text user query
+  ai_text_user_query:
+    name: 'How can I help?'
+    max: 255
+
+
+
+# ╭────────────────────╮
+# │ INPUT NUMBER
+# ╰────────────────────╯
+input_number:
+
+# ➔ AI temperature input field
+#   Input field for the AI temperature
+  ai_temperature:
+    name: AI Temperature
+    initial: 0.5
+    min: 0.0
+    max: 1.0
+    step: 0.1
+
+# ➔ AI max tokens input field
+#   Input field for the AI max tokens
+  ai_max_tokens:
+    name: AI Max Tokens
+    initial: 500
+    min: 100
+    max: 2000
+    step: 50
+
+
+
+# ╭────────────────────╮
+# │ SENSOR
+# ╰────────────────────╯
+sensor:
+
+# ➔ AI text response sensor
+#   Sensor for the AI text response
+  - platform: rest
+    name: AI text response
+    resource: 'https://api.openai.com/v1/chat/completions'
+    method: POST
+    headers:
+      Authorization: !secret openai_api_key
+      Content-Type: 'application/json'
+    value_template: "{{ value_json.choices[0].message.content }}"
+    payload: >
+      {
+        "model": "gpt-4",
+        "messages": [
+          {
+            "role": "system",
+            "content": "you are a cowboy"
+          },
+          {
+            "role": "user",
+            "content": "how many types of birds are there"
+          }
+        ],
+        "max_tokens": 150,
+        "temperature": 0.7
+      }
+    scan_interval: 86400
+
+
+# |   END: generate_text.yaml

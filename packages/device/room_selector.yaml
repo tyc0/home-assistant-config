@@ -1,0 +1,63 @@
+
+# | START: room_selector.yaml
+# |  PATH: /config/packages/device/room_selector.yaml
+
+
+#  ╭────────────────────╮
+#  │   INPUT SELECT
+#  ╰────────────────────╯ 
+input_select:
+
+# ➔ Room Selector
+#   Selector for the current room
+  room_selector:
+    name: Room Selector
+    options:
+      - Bedroom
+      - Office
+      - Hallway
+      - Bathroom
+      - Lounge
+    initial: Bedroom
+
+
+
+#  ╭────────────────────╮
+#  │   TEMPLATE SENSOR
+#  ╰────────────────────╯
+template:
+
+# ➔ Current Room Temperature Entity
+#   Template sensor for the current room temperature
+  sensor:
+    - name: current_room_temp_entity
+      unique_id: current_room_temp_entity
+      state: >
+        {% set room = states('input_select.room_selector') | lower %}
+        {% set mappings = {
+          'bedroom': 'sensor.t01_temperature',
+          'office': 'sensor.t02_temperature',
+          'hallway': 'sensor.t03_temperature',
+          'bathroom': 'sensor.t01_temperature',
+          'lounge': 'sensor.t01_temperature'
+        } %}
+        {{ mappings[room] }}
+
+# ➔ Current Room Humidity Entity
+#   Template sensor for the current room humidity
+  sensor:
+    - name: current_room_humidity_entity
+      unique_id: current_room_humidity_entity 
+      state: >
+        {% set room = states('input_select.room_selector') | lower %}
+        {% set mappings = {
+          'bedroom': 'sensor.t01_humidity',
+          'office': 'sensor.t02_humidity',
+          'hallway': 'sensor.t03_humidity',
+          'bathroom': 'sensor.t01_humidity',
+          'lounge': 'sensor.t01_humidity'
+        } %}
+        {{ mappings[room] }}
+
+
+# |  END: room_selector.yaml

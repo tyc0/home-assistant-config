@@ -1,0 +1,513 @@
+
+# | START: whatsapp_config.yaml
+# | PATH: /config/packages/communication/whatsapp_config.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT SELECT
+# ╰────────────────────╯
+input_select:
+
+  whatsapp_contacts:
+    name: "Select Contact"
+    options:
+      - "Enhy"
+      - "Dad"
+      - "Ben"
+      - "Ange"
+    initial: "Enhy"
+
+
+
+# ╭────────────────────╮
+# │   INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+  whatsapp_c_message_to_send:
+    name: "Type a message"
+    max: 255
+    initial: ""
+
+  whatsapp_c_outbound_bodytext:
+    name: "Outbound Message Text"
+    max: 255
+
+  whatsapp_c_inbound_single_bodytext:
+    name: "Inbound Message Text"
+    max: 255
+
+  whatsapp_c_inbound_single_sendername:
+    name: "Inbound Sender Name"
+    max: 255
+
+
+
+# ╭────────────────────╮
+# │   INPUT NUMBER
+# ╰────────────────────╯
+input_number:
+
+  whatsapp_c_unread_count:
+    name: "Unread Messages"
+    min: 0
+    max: 99
+    step: 1
+    mode: box
+
+  whatsapp_c_unread_count_contact01:
+    name: "Enhy Unread Count"
+    min: 0
+    max: 99
+    step: 1
+    mode: box
+
+  whatsapp_c_unread_count_contact02:
+    name: "Dad Unread Count"
+    min: 0
+    max: 99
+    step: 1
+    mode: box
+
+  whatsapp_c_unread_count_contact03:
+    name: "Ben Unread Count"
+    min: 0
+    max: 99
+    step: 1
+    mode: box
+
+  whatsapp_c_unread_count_contact04:
+    name: "Ange Unread Count"
+    min: 0
+    max: 99
+    step: 1
+    mode: box
+
+
+
+# ╭────────────────────╮
+# │   INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+  whatsapp_c_unread_exists:
+    name: "C Has Unread Messages"
+    initial: false
+
+  whatsapp_c_message_translator:
+    name: "C Message Translator"
+    initial: false
+    icon: "mdi:translate"
+
+  whatsapp_c_unread_contact01:
+    name: "Enhy Has Unread Messages"
+    initial: false
+
+  whatsapp_c_unread_contact02:
+    name: "Dad Has Unread Messages"
+    initial: false
+
+  whatsapp_c_unread_contact03:
+    name: "Ben Has Unread Messages"
+    initial: false
+
+  whatsapp_c_unread_contact04:
+    name: "Ange Has Unread Messages"
+    initial: false
+
+
+
+# ╭────────────────────╮
+# │   SHELL COMMAND
+# ╰────────────────────╯
+shell_command:
+
+  append_whatsapp_message: >-
+    /bin/bash -c 'echo -e "{{ message | replace("'", "'\\''") | replace('"', '\\"') | replace('\n', '\\n') }}" >> /config/www/whatsapp_histories/{{ file }}'
+
+
+
+# ╭────────────────────╮
+# │   TEMPLATE SENSOR
+# ╰────────────────────╯
+template:
+  - sensor:
+      - name: "whatsapp_selected_history"
+        unique_id: whatsapp_selected_history
+        state: >
+          {{ states('sensor.whatsapp_chat_history_' ~ (states('input_select.whatsapp_contacts') | lower | replace(' ', '_'))) }}
+
+      - name: "WhatsApp Last Sender"
+        unique_id: whatsapp_last_sender
+        state: >
+          {% if state_attr('sensor.phone_c_last_notification', 'package') == 'com.whatsapp' %}
+            {{ state_attr('sensor.phone_c_last_notification', 'android.title') }}
+          {% else %}
+            "None"
+          {% endif %}
+
+      - name: "whatsapp_newest_message"
+        unique_id: whatsapp_newest_message
+        state: >
+          {% set newest = namespace(text="No messages", time=as_datetime('1970-01-01T00:00:00+00:00')) %}
+          {% for s in states.sensor if 'sensor.whatsapp_chat_history_' in s.entity_id %}
+            {% if s.last_updated > newest.time %}
+              {% set newest.text = s.state %}
+              {% set newest.time = s.last_updated %}
+            {% endif %}
+          {% endfor %}
+          {{ newest.text }}
+        attributes:
+          sender_name: >
+            {% set newest = namespace(sender="Unknown", time=as_datetime('1970-01-01T00:00:00+00:00')) %}
+            {% for s in states.sensor if 'sensor.whatsapp_chat_history_' in s.entity_id %}
+              {% if s.last_updated > newest.time %}
+                {% set newest.sender = s.attributes.sender_name %}
+                {% set newest.time = s.last_updated %}
+              {% endif %}
+            {% endfor %}
+            {{ newest.sender }}
+          time_received: >
+            {% set newest = namespace(time="Unknown", updated=as_datetime('1970-01-01T00:00:00+00:00')) %}
+            {% for s in states.sensor if 'sensor.whatsapp_chat_history_' in s.entity_id %}
+              {% if s.last_updated > newest.updated %}
+                {% set newest.time = s.last_updated %}
+                {% set newest.updated = s.last_updated %}
+              {% endif %}
+            {% endfor %}
+            {{ newest.time }}
+
+      - name: "whatsapp_contacts_config"
+        unique_id: whatsapp_contacts_config
+        state: "{{ states('input_select.whatsapp_contacts') }}"
+        attributes:
+          contacts_by_name: >-
+            {
+              "Enhy": {
+                "file": "contact01.txt",
+                "unread_boolean": "input_boolean.whatsapp_c_unread_contact01",
+                "unread_count": "input_number.whatsapp_c_unread_count_contact01",
+                "phone": "447308254154@s.whatsapp.net",
+                "full_name": "Enhy Cardenas-Duque"
+              },
+              "Dad": {
+                "file": "contact02.txt",
+                "unread_boolean": "input_boolean.whatsapp_c_unread_contact02",
+                "unread_count": "input_number.whatsapp_c_unread_count_contact02",
+                "phone": "447590262866@s.whatsapp.net",
+                "full_name": "Dad"
+              },
+              "Ben": {
+                "file": "contact03.txt",
+                "unread_boolean": "input_boolean.whatsapp_c_unread_contact03",
+                "unread_count": "input_number.whatsapp_c_unread_count_contact03",
+                "phone": "447840843359@s.whatsapp.net",
+                "full_name": "Ben Tarrant"
+              },
+              "Ange": {
+                "file": "contact04.txt",
+                "unread_boolean": "input_boolean.whatsapp_c_unread_contact04",
+                "unread_count": "input_number.whatsapp_c_unread_count_contact04",
+                "phone": "447805454165@s.whatsapp.net",
+                "full_name": "Angela Young"
+              }
+            }
+          phone_to_name: >-
+            {
+              "447308254154@s.whatsapp.net": "Enhy",
+              "447590262866@s.whatsapp.net": "Dad",
+              "447840843359@s.whatsapp.net": "Ben",
+              "447805454165@s.whatsapp.net": "Ange"
+            }
+          full_name_to_name: >-
+            {
+              "Enhy Cardenas-Duque": "Enhy",
+              "Dad": "Dad",
+              "Ben Tarrant": "Ben",
+              "Angela Young": "Ange"
+            }
+
+
+# ╭────────────────────╮
+# │   SCRIPT + AUTOMATION
+# ╰────────────────────╯
+script:
+
+  whatsapp_translate_and_send_message:
+    alias: "Translate and Send WhatsApp Message (C)"
+    sequence:
+      - service: system_log.write
+        data:
+          message: "Translating outgoing message: {{ message }}"
+          level: debug
+
+      - service: ha_text_ai.ask_question
+        data:
+          context_messages: 1
+          max_tokens: 4000
+          instance: "sensor.ha_text_ai_translator_c"
+          question: >
+            Translate the following text to the opposite language (if English, translate to Spanish; if Spanish, translate to English). Provide only the translated text: {{ message }}
+
+      - delay: 2
+
+      - variables:
+          contacts: "{{ state_attr('sensor.whatsapp_contacts_config', 'contacts_by_name') | from_json }}"
+          selected_contact: "{{ states('input_select.whatsapp_contacts') }}"
+          contact: "{{ contacts[selected_contact] }}"
+      - service: whatsapp.send_message
+        data:
+          clientId: "c"
+          to: "{{ contact.phone }}"
+          body:
+            text: "{{ state_attr('sensor.ha_text_ai_translator_c', 'response') }}"
+
+      - service: shell_command.append_whatsapp_message
+        data:
+          file: "{{ contact.file }}"
+          message: "{{ now().strftime('%H:%M') }} - Me: (Translated) {{ state_attr('sensor.ha_text_ai_translator_c', 'response') }}"
+
+      - service: homeassistant.update_entity
+        data:
+          entity_id: "sensor.whatsapp_chat_history_{{ (selected_contact | lower | replace(' ', '_')) }}"
+
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.whatsapp_c_message_to_send
+          value: ""
+
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.whatsapp_c_unread_exists
+
+      - service: input_number.set_value
+        data:
+          entity_id: input_number.whatsapp_c_unread_count
+          value: 0
+
+  whatsapp_translate_incoming_message:
+    alias: "Translate Incoming WhatsApp Message (C)"
+    sequence:
+      - service: system_log.write
+        data:
+          message: "Translating incoming message: {{ message }}"
+          level: debug
+
+      - service: ha_text_ai.ask_question
+        data:
+          context_messages: 1
+          max_tokens: 4000
+          instance: "sensor.ha_text_ai_translator_c"
+          question: >
+            Translate the following text to the opposite language (if English, translate to Spanish; if Spanish, translate to English). Provide only the translated text: {{ message }}
+
+      - delay: 2
+
+      - service: shell_command.append_whatsapp_message
+        data:
+          file: "{{ file }}"
+          message: "{{ now().strftime('%H:%M') }} - {{ sender }} (Translated): {{ state_attr('sensor.ha_text_ai_translator_c', 'response') }}"
+
+      - service: homeassistant.update_entity
+        data:
+          entity_id: "sensor.whatsapp_chat_history_{{ (states('input_select.whatsapp_contacts') | lower | replace(' ', '_')) }}"
+
+
+
+automation:
+
+  - id: "whatsapp_send_message"
+    alias: "Send WhatsApp Message"
+    trigger:
+      - platform: state
+        entity_id: input_text.whatsapp_c_message_to_send
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state|default('') != '' }}"
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.whatsapp_c_message_translator
+                state: "on"
+            sequence:
+              - service: script.whatsapp_translate_and_send_message
+                data:
+                  message: "{{ trigger.to_state.state }}"
+        default:
+          - service: system_log.write
+            data:
+              message: "WhatsApp message triggered: {{ trigger.to_state.state }}"
+              level: debug
+          - variables:
+              contacts: "{{ state_attr('sensor.whatsapp_contacts_config', 'contacts_by_name') | from_json }}"
+              selected_contact: "{{ states('input_select.whatsapp_contacts') }}"
+              contact: "{{ contacts[selected_contact] }}"
+          - service: whatsapp.send_message
+            data:
+              clientId: "c"
+              to: "{{ contact.phone }}"
+              body:
+                text: "{{ trigger.to_state.state }}"
+          - service: shell_command.append_whatsapp_message
+            data:
+              file: "{{ contact.file }}"
+              message: "{{ now().strftime('%H:%M') }} - Me: {{ trigger.to_state.state }}"
+          - service: homeassistant.update_entity
+            data:
+              entity_id: "sensor.whatsapp_chat_history_{{ (selected_contact | lower | replace(' ', '_')) }}"
+          - service: input_text.set_value
+            data:
+              entity_id: input_text.whatsapp_c_message_to_send
+              value: ""
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.whatsapp_c_unread_exists
+          - service: input_number.set_value
+            data:
+              entity_id: input_number.whatsapp_c_unread_count
+              value: 0
+          - service: input_boolean.turn_off
+            target:
+              entity_id: "{{ contact.unread_boolean }}"
+          - service: input_number.set_value
+            data:
+              entity_id: "{{ contact.unread_count }}"
+              value: 0
+
+  - id: "whatsapp_contact_change"
+    alias: "WhatsApp Contact Change"
+    trigger:
+      - platform: state
+        entity_id: input_select.whatsapp_contacts
+    action:
+      - variables:
+          contacts: "{{ state_attr('sensor.whatsapp_contacts_config', 'contacts_by_name') | from_json }}"
+          selected_contact: "{{ trigger.to_state.state }}"
+          contact: "{{ contacts[selected_contact] }}"
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.whatsapp_c_unread_exists
+      - service: input_number.set_value
+        data:
+          entity_id: input_number.whatsapp_c_unread_count
+          value: 0
+      - service: input_boolean.turn_off
+        target:
+          entity_id: "{{ contact.unread_boolean }}"
+      - service: input_number.set_value
+        data:
+          entity_id: "{{ contact.unread_count }}"
+          value: 0
+
+  - id: "whatsapp_handle_incoming_messages"
+    alias: "Handle Incoming Messages"
+    trigger:
+      - platform: event
+        event_type: new_whatsapp_message
+    condition:
+      - condition: template
+        value_template: >
+          {{ 'status@broadcast' not in trigger.event.data.key.remoteJid and '@g.us' not in trigger.event.data.key.remoteJid }}
+    action:
+      - variables:
+          contacts: "{{ state_attr('sensor.whatsapp_contacts_config', 'contacts_by_name') | from_json }}"
+          phone_to_name: "{{ state_attr('sensor.whatsapp_contacts_config', 'phone_to_name') | from_json }}"
+          remote_jid: "{{ trigger.event.data.key.remoteJid.replace('+','') }}"
+          contact_name: "{{ phone_to_name.get(remote_jid) }}"
+          contact: "{{ contacts[contact_name] if contact_name else None }}"
+          message_text: >-
+            {% if trigger.event.data.type == 'conversation' %}
+              {{ trigger.event.data.message.conversation }}
+            {% elif trigger.event.data.type == 'extendedTextMessage' %}
+              {{ trigger.event.data.message.extendedTextMessage.text }}
+              {% if trigger.event.data.message.extendedTextMessage.contextInfo
+                    and trigger.event.data.message.extendedTextMessage.contextInfo.quotedMessage %}
+                (Quoted: {{ trigger.event.data.message.extendedTextMessage.contextInfo.quotedMessage.conversation }})
+              {% endif %}
+            {% else %}
+              Unknown message type
+            {% endif %}
+      - service: system_log.write
+        data:
+          message: "Incoming WhatsApp message from {{ remote_jid }}: {{ message_text }}"
+          level: debug
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ contact is not none }}"
+            sequence:
+              - service: input_number.increment
+                target:
+                  entity_id: input_number.whatsapp_c_unread_count
+              - service: input_number.increment
+                target:
+                  entity_id: "{{ contact.unread_count }}"
+              - choose:
+                  - conditions:
+                      - condition: state
+                        entity_id: input_boolean.whatsapp_c_message_translator
+                        state: "on"
+                    sequence:
+                      - service: script.whatsapp_translate_incoming_message
+                        data:
+                          message: "{{ message_text }}"
+                          file: "{{ contact.file }}"
+                          sender: "{{ trigger.event.data.pushName }}"
+                default:
+                  - service: shell_command.append_whatsapp_message
+                    data:
+                      file: "{{ contact.file }}"
+                      message: "{{ now().strftime('%H:%M') }} - {{ trigger.event.data.pushName }}: {{ message_text }}"
+                  - service: input_boolean.turn_on
+                    target:
+                      entity_id: input_boolean.whatsapp_c_unread_exists
+        default:
+          - service: system_log.write
+            data:
+              message: "Received message from unknown number: {{ remote_jid }}"
+              level: warning
+
+  - id: "whatsapp_unread_status_per_contact"
+    alias: "Update WhatsApp Unread Status Per Contact"
+    trigger:
+      - platform: state
+        entity_id: sensor.phone_c_last_notification
+    condition:
+      - condition: template
+        value_template: "{{ state_attr('sensor.phone_c_last_notification', 'package') == 'com.whatsapp' }}"
+    action:
+      - variables:
+          contacts: "{{ state_attr('sensor.whatsapp_contacts_config', 'contacts_by_name') | from_json }}"
+          full_name_to_name: "{{ state_attr('sensor.whatsapp_contacts_config', 'full_name_to_name') | from_json }}"
+          full_sender_name: "{{ state_attr('sensor.phone_c_last_notification', 'android.title') }}"
+          sender: "{{ full_name_to_name[full_sender_name] if full_sender_name in full_name_to_name else full_sender_name }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ sender in contacts }}"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: "{{ contacts[sender].unread_boolean }}"
+
+  - id: "clear_whatsapp_unread_when_checked"
+    alias: "Clear WhatsApp Unread When Checked"
+    trigger:
+      - platform: state
+        entity_id: sensor.phone_c_last_notification
+        to: "unknown"
+    action:
+      - variables:
+          contacts: "{{ state_attr('sensor.whatsapp_contacts_config', 'contacts_by_name') | from_json }}"
+      - service: input_boolean.turn_off
+        target:
+          entity_id: >-
+            {% set entities = [] %}
+            {% for contact in contacts.values() %}
+              {% set entities = entities + [contact.unread_boolean] %}
+            {% endfor %}
+            {{ entities }}
+
+
+# | END: whatsapp_config.yaml

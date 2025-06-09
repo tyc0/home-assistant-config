@@ -1,0 +1,18 @@
+
+
+# | START: battery_notes.yaml
+# |  PATH: /config/packages/battery_notes.yaml
+
+
+battery_notes:
+  enable_autodiscovery: true
+  show_all_devices: false
+  enable_replaced: false
+  default_battery_low_threshold: 10
+  battery_increase_threshold: 25
+  hide_battery: true
+  round_battery: true
+
+
+
+# |   END: battery_notes.yaml

@@ -1,0 +1,1054 @@
+
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰ 
+
+
+#     ___ ____      _____                       
+#    / _ |___ \    |  __ \                      
+#   | | | |__) |   | |__) _____      _____ _ __ 
+#   | | | |__ <    |  ___/ _ \ \ /\ / / _ | '__|
+#   | |_| ___) _   | |  | (_) \ V  V |  __| |   
+#    \___|____(_)  |_|   \___/ \_/\_/ \___|_|   
+#                                               
+#                                               
+
+
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰ 
+
+
+
+#────────┨  Title  ║  Info  ┠──────────────────────────────────────────────────┒
+
+#──────────────────────────────────────────────────────────────────────────────┚
+
+
+
+#                                               #
+#   >>  PAGE INFO
+#                                               #
+
+title: 'Power'
+path: '03'
+icon: fapro:duotone_plug_circle_bolt
+
+theme: cams_theme
+subview: false
+type: custom:vertical-layout
+badges: []
+cards:
+
+#                                               #
+#   >>  HEADER CARD
+#                                               #
+
+  - type: custom:button-card
+    template:
+      - page_header
+
+
+
+
+
+
+
+
+  - type: entities
+    entities:
+      - entity: switch.mpm01_matter
+        secondary_info: entity-id
+      - entity: switch.mpm02_matter
+        secondary_info: entity-id
+      - entity: switch.mpm03_matter
+        secondary_info: entity-id
+      - entity: switch.mpm04_matter
+        secondary_info: entity-id
+      - entity: switch.mpm05_matter
+        secondary_info: entity-id
+      - entity: switch.mpm06_matter
+        secondary_info: entity-id
+      - entity: switch.mpm07_matter
+        secondary_info: entity-id
+      - entity: switch.mpm08_matter
+        secondary_info: entity-id
+      - entity: switch.mpm09_matter
+        secondary_info: entity-id
+      - entity: switch.mpm10_matter
+        secondary_info: entity-id
+      - entity: switch.mpm11_matter
+        secondary_info: entity-id
+      - entity: switch.mpm12_matter
+        secondary_info: entity-id
+      - entity: switch.mpm13_matter
+        secondary_info: entity-id
+      - entity: switch.mpm14_matter
+        secondary_info: entity-id
+      - entity: switch.u02
+        secondary_info: entity-id
+    title: Device plugs
+    state_color: true
+    show_header_toggle: false
+
+
+#------------------------------------------------------------------------------#
+#-------------->> EX 01  <<----------------------------------------------------#
+
+  - type: custom:mod-card
+    style: |
+      ha-card {
+        padding:              20px;
+        margin:               8px;
+        background:           var(--card-background-color);
+      }
+
+    card:
+      type: vertical-stack
+      cards:
+        - type: markdown
+          content: >
+            <font size=2>EX</font><font color=#7fffd8>01</font>
+    
+    
+            <font size=2><ha-icon icon='fapro:duotone_location_dot'></ha-icon>      
+            ⠀⠀PC desk</font>
+          card_mod:
+            style: |
+              ha-card {
+                background: none;
+                box-shadow: none;
+                border: none;
+                width: 160px;
+                font-weight: 300;
+                line-height: 14px;
+                white-space: nowrap;
+                font-size: 1.8em;
+                color: var(--contrast17);
+              }
+        - square: false
+          type: grid
+          cards:
+            - type: tile
+              entity: switch.ex01_01
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex01_02
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex01_03
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex01_04
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex01_05
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex01_06
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+          columns: 2
+
+
+#------------------------------------------------------------------------------#
+#-------------->> EX 02  <<----------------------------------------------------#
+
+  - type: custom:mod-card
+    style: |
+      ha-card {
+        padding:              20px;
+        margin:               8px;
+        background:           var(--card-background-color);
+      }
+    card:
+      type: vertical-stack
+      cards:
+        - type: markdown
+          content: >
+            <font size=2>EX</font><font color=#7fffd8>02</font>
+    
+    
+            <font size=2><ha-icon icon='fapro:duotone_location_dot'></ha-icon>      
+            ⠀⠀PC desk</font>
+          card_mod:
+            style: |
+              ha-card {
+                background: none;
+                box-shadow: none;
+                border: none;
+                width: 160px;
+                font-weight: 300;
+                line-height: 14px;
+                white-space: nowrap;
+                font-size: 1.8em;
+                color: var(--contrast17);
+              }
+        - square: false
+          type: grid
+          cards:
+            - type: tile
+              entity: switch.ex02_01
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex02_02
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex02_03
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex02_04
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex02_05
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex02_06
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+          columns: 2
+
+
+#------------------------------------------------------------------------------#
+#-------------->> EX 03  <<----------------------------------------------------#
+
+  - type: custom:mod-card
+    style: |
+      ha-card {
+        padding:              20px;
+        margin:               8px;
+        background:           var(--card-background-color);
+      }
+    card:
+      type: vertical-stack
+      cards:
+        - type: markdown
+          content: >
+            <font size=2>EX</font><font color=#7fffd8>03</font>
+    
+    
+            <font size=2><ha-icon icon='fapro:duotone_location_dot'></ha-icon>      
+            ⠀⠀Fan area</font>
+          card_mod:
+            style: |
+              ha-card {
+                background: none;
+                box-shadow: none;
+                border: none;
+                width: 160px;
+                font-weight: 300;
+                line-height: 14px;
+                white-space: nowrap;
+                font-size: 1.8em;
+                color: var(--contrast17);
+              }
+        - square: false
+          type: grid
+          cards:
+            - type: tile
+              entity: switch.ex03_01
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex03_02
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex03_03
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex03_04
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex03_05
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex03_06
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+          columns: 2
+
+
+#------------------------------------------------------------------------------#
+#-------------->> EX 04  <<----------------------------------------------------#
+
+  - type: custom:mod-card
+    style: |
+      ha-card {
+        padding:              20px;
+        margin:               8px;
+        background:           var(--card-background-color);
+      }
+    card:
+      type: vertical-stack
+      cards:
+        - type: markdown
+          content: >
+            <font size=2>EX</font><font color=#7fffd8>04</font>
+    
+    
+            <font size=2><ha-icon icon='fapro:duotone_location_dot'></ha-icon>      
+            ⠀⠀Bed (E-side)</font>
+          card_mod:
+            style: |
+              ha-card {
+                background: none;
+                box-shadow: none;
+                border: none;
+                width: 160px;
+                font-weight: 300;
+                line-height: 14px;
+                white-space: nowrap;
+                font-size: 1.8em;
+                color: var(--contrast17);
+              }
+        - square: false
+          type: grid
+          cards:
+            - type: tile
+              entity: switch.ex04_01
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex04_02
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex04_03
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex04_04
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex04_05
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex04_06
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+          columns: 2
+
+
+#------------------------------------------------------------------------------#
+#-------------->> EX 05  <<----------------------------------------------------#
+
+  - type: custom:mod-card
+    style: |
+      ha-card {
+        padding:              20px;
+        margin:               8px;
+        background:           var(--card-background-color);
+      }
+    card:
+      type: vertical-stack
+      cards:
+        - type: markdown
+          content: >
+            <font size=2>EX</font><font color=#7fffd8>05</font>
+    
+    
+            <font size=2><ha-icon icon='fapro:duotone_location_dot'></ha-icon>      
+            ⠀⠀Window</font>
+          card_mod:
+            style: |
+              ha-card {
+                background: none;
+                box-shadow: none;
+                border: none;
+                width: 160px;
+                font-weight: 300;
+                line-height: 14px;
+                white-space: nowrap;
+                font-size: 1.8em;
+                color: var(--contrast17);
+              }
+        - square: false
+          type: grid
+          cards:
+            - type: tile
+              entity: switch.ex05_01
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex05_02
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex05_03
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex05_04
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+          columns: 2
+
+
+#------------------------------------------------------------------------------#
+#-------------->> EX 06  <<----------------------------------------------------#
+
+  - type: custom:mod-card
+    style: |
+      ha-card {
+        padding:              20px;
+        margin:               8px;
+        background:           var(--card-background-color);
+      }
+    card:
+      type: vertical-stack
+      cards:
+        - type: markdown
+          content: >
+            <font size=2>EX</font><font color=#7fffd8>06</font>
+    
+    
+            <font size=2><ha-icon icon='fapro:duotone_location_dot'></ha-icon>      
+            ⠀⠀Door</font>
+          card_mod:
+            style: |
+              ha-card {
+                background: none;
+                box-shadow: none;
+                border: none;
+                width: 160px;
+                font-weight: 300;
+                line-height: 14px;
+                white-space: nowrap;
+                font-size: 1.8em;
+                color: var(--contrast17);
+              }
+        - square: false
+          type: grid
+          cards:
+            - type: tile
+              entity: switch.ex06_01
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex06_02
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex06_03
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex06_04
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+          columns: 2
+
+
+#------------------------------------------------------------------------------#
+#-------------->> EX 07  <<----------------------------------------------------#
+
+  - type: custom:mod-card
+    style: |
+      ha-card {
+        padding:              20px;
+        margin:               8px;
+        background:           var(--card-background-color);
+      }
+    card:
+      type: vertical-stack
+      cards:
+        - type: markdown
+          content: >
+            <font size=2>EX</font><font color=#7fffd8>07</font>
+    
+    
+            <font size=2><ha-icon icon='fapro:duotone_location_dot'></ha-icon>      
+            ⠀⠀Fan area</font>
+          card_mod:
+            style: |
+              ha-card {
+                background: none;
+                box-shadow: none;
+                border: none;
+                width: 160px;
+                font-weight: 300;
+                line-height: 14px;
+                white-space: nowrap;
+                font-size: 1.8em;
+                color: var(--contrast17);
+              }
+        - square: false
+          type: grid
+          cards:
+            - type: tile
+              entity: switch.ex07_01
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex07_02
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex07_03
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex07_04
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+          columns: 2
+
+
+#------------------------------------------------------------------------------#
+#-------------->> EX 08  <<----------------------------------------------------#
+
+  - type: custom:mod-card
+    style: |
+      ha-card {
+        padding:              20px;
+        margin:               8px;
+        background:           var(--card-background-color);
+      }
+    card:
+      type: vertical-stack
+      cards:
+        - type: markdown
+          content: >
+            <font size=2>EX</font><font color=#7fffd8>08</font>
+    
+    
+            <font size=2><ha-icon icon='fapro:duotone_location_dot'></ha-icon>      
+            ⠀⠀Bed area (C-side)</font>
+          card_mod:
+            style: |
+              ha-card {
+                background: none;
+                box-shadow: none;
+                border: none;
+                width: 160px;
+                font-weight: 300;
+                line-height: 14px;
+                white-space: nowrap;
+                font-size: 1.8em;
+                color: var(--contrast17);
+              }
+        - square: false
+          type: grid
+          cards:
+            - type: tile
+              entity: switch.ex08_01
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex08_02
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex08_03
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+            - type: tile
+              entity: switch.ex08_04
+              tap_action:
+                action: toggle
+                haptic: success
+              icon_tap_action:
+                action: toggle
+                haptic: success
+              double_tap_action:
+                action: more-info
+                haptic: success
+              hold_action:
+                action: more-info
+                haptic: success
+              color: green
+              hide_state: true
+
+          columns: 2
+
+
+#------------------------------------------------------------------------------#
+
+
+
+
+
+#                                               #
+#                                               #
+#################################################
+

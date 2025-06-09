@@ -1,0 +1,48 @@
+
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰ 
+
+
+#                   _                 _   _                 
+#       /\         (_)               | | (_)                
+#      /  \   _ __  _ _ __ ___   __ _| |_ _  ___  _ __  ___ 
+#     / /\ \ | '_ \| | '_ ` _ \ / _` | __| |/ _ \| '_ \/ __|
+#    / ____ \| | | | | | | | | | (_| | |_| | (_) | | | \__ \
+#   /_/    \_|_| |_|_|_| |_| |_|\__,_|\__|_|\___/|_| |_|___/
+#                                                           
+#                                                           
+
+
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰ 
+
+
+
+#────────┨  Title  ║  Info  ┠──────────────────────────────────────────────────┒
+
+#──────────────────────────────────────────────────────────────────────────────┚
+
+
+alert_animation_bounce:
+  extra_styles: |
+    @keyframes card_bounce {
+      0% {      transform: scale(1);      }
+      10% {     transform: scale(0.94);   }
+      20% {     transform: scale(1.03);   }
+      30% {     transform: scale(0.98);   }
+      50% {     transform: scale(1.01);   }
+      70% {     transform: scale(0.995);  }
+      100% {    transform: scale(1);      }
+    }
+  card_mod:
+    style: |
+      ha-card:hover {
+        animation: card_bounce 0.5s ease;
+        transition: 0.2s;
+      }
+      ha-card {
+        transform: scale(1.0);
+        transition: 0.2s;
+      }
+      ha-card:after {
+        transform: scale(1.0);
+        transition: 0.2s;
+      }

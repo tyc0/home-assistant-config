@@ -1,0 +1,700 @@
+#####################################################################################################
+#
+#     >>  C THEME | Ver 2.0
+
+
+c_theme_v2:
+
+  lovelace-background: 'center / cover no-repeat fixed url("/local/media/image/svg/animated/looped/background/spotlight.svg")'
+
+#
+#####################################################################################################
+
+
+
+
+
+#####################################################################################################
+#
+#     >>  COLOURS
+#
+
+
+
+#     |  BASE COLOURS
+
+
+#     HEX definitions
+
+  alt-cyan: "#8be9fd"                                                            #default: '#8be9fd'
+  alt-green: "#7fffd8" # No good in Light Mode "#7fffd8"                         #default: '#50fa7b'
+  alt-orange: "#ffb86c"                                                          #default: '#ffb86c'
+  alt-pink: "#ff79c6"                                                            #default: '#ff79c6'
+  alt-purple: "#bd93f9"                                                          #default: '#bd93f9'
+  alt-red: "#ff5555"                                                             #default: '#ff5555'
+  alt-yellow: "#f1fa8c"                                                          #default: '#f1fa8c'
+  alt-blue: "#6272a4"                                                            #default: '#6272a4'
+
+
+#     RGB definitions
+
+  alt-cyan-rgb: 139, 233, 253                                                    #default: 139, 233, 253
+  alt-green-rgb: 127, 255, 216                                                   #default: 127, 255, 216
+  alt-orange-rgb: "#ffb86c"                                                          #default: '#ffb86c'
+  alt-pink-rgb: "#ff79c6"                                                            #default: '#ff79c6'
+  alt-purple-rgb: "#bd93f9"                                                          #default: '#bd93f9'
+  alt-red-rgb: "#ff5555"                                                             #default: '#ff5555'
+  alt-yellow-rgb: "#f1fa8c"                                                          #default: '#f1fa8c'
+  alt-blue-rgb: "#6272a4"                                                            #default: '#6272a4'
+
+
+      #  HEX GRAYSCALE                                                          | Hex Definitions
+
+  black: "#000000"                                                               #default: '#000000'
+  black1: "#000000"                                                              #default: '#000000'
+  black2: "#111318"                                                              #default: '#111318'
+  black3: "#171A21"                                                              #default: '#171A21'
+  black4: "#1C1F27"                                                              #default: '#1C1F27'
+  black5: "#262A35"                                                              #default: '#262A35'
+  black6: "#353946"                                                              #default: '#353946'
+  black7: "#434856"                                                              #default: '#434856'
+  black8: "#535865"                                                              #default: '#535865'
+  black9: "#636774"                                                              #default: '#636774'
+  black10: "#777A83"                                                             #default: '#777A83'
+  white10: "#898C94"                                                             #default: '#898C94'
+  white9: "#969AA6"                                                              #default: '#969AA6'
+  white8: "#A4A9B6"                                                              #default: '#A4A9B6'
+  white7: "#B3B8C6"                                                              #default: '#B3B8C6'
+  white6: "#C3C8D5"                                                              #default: '#C3C8D5'
+  white5: "#D4D8E2"                                                              #default: '#D4D8E2'
+  white4: "#E1E5EF"                                                              #default: '#E1E5EF'
+  white3: "#EAEDF6"                                                              #default: '#EAEDF6'
+  white2: "#F4F6FB"                                                              #default: '#F4F6FB'
+  white1: "#FFFFFF"                                                              #default: '#FFFFFF'
+  white: "#FFFFFF"                                                               #default: '#FFFFFF'
+
+
+      #  rgb GRAYSCALE                                                          | RGB Definitions
+
+  black-rgb: 0,0,0
+  black1-rgb: 0,0,0
+  black2-rgb: 17, 19, 24
+  black3-rgb: 23, 26, 33
+  black4-rgb: 28, 31, 39
+  black5-rgb: 38, 42, 53
+  black6-rgb: 53, 57, 70
+  black7-rgb: 67, 72, 86
+  black8-rgb: 83, 88, 101
+  black9-rgb: 99, 103, 116
+  black10-rgb: 119, 122, 131
+  white10-rgb: 137, 140, 148
+  white9-rgb: 150, 154, 166
+  white8-rgb: 164, 169, 182
+  white7-rgb: 179, 184, 198
+  white6-rgb: 195, 200, 213 
+  white5-rgb: 212, 216, 226
+  white4-rgb: 225, 229, 239
+  white3-rgb: 234, 237, 246
+  white2-rgb: 244, 246, 251
+  white1-rgb: 255, 255, 255 
+  white-rgb: 255, 255, 255   
+
+
+
+
+
+      #  DEFAULT COLOURS                                                        | Hex Definitions
+
+
+
+
+  transparency-rgb: "0.3"
+  
+
+  # Color tints
+  purple-tint: rgba(var(--purple-rgb),var(--transparency-rgb))
+  yellow-tint: rgba(var(--yellow-rgb),var(--transparency-rgb))
+  orange-tint: rgba(var(--orange-rgb),var(--transparency-rgb))
+  red-tint: rgba(var(--red-rgb),var(--transparency-rgb))
+  green-tint: rgba(var(--green-rgb),var(--transparency-rgb))
+  blue-tint: rgba(var(--blue-rgb),var(--transparency-rgb))
+  # Color dark
+  purple-dark: rgb(var(--purple-dark-rgb))
+  yellow-dark: rgb(var(--yellow-dark-rgb))
+  orange-dark: rgba(var(--orange-dark-rgb))
+  red-dark: rgb(var(--red-dark-rgb))
+  green-dark: rgb(var(--green-dark-rgb))
+  blue-dark: rgb(var(--blue-dark-rgb))
+  # Gradients
+  brightness: linear-gradient(90deg, rgba(var(--brightness-low-rgb), 0.4) 0%, rgba(var(--brightness-high-rgb), 1) 100%)
+  brightness-tint: linear-gradient(90deg, rgba(var(--brightness-low-rgb), 0.06) 0%, rgba(var(--brightness-high-rgb), var(--transparency-rgb)) 100%)
+  temperature: linear-gradient(90deg, rgba(var(--temperature-low-rgb), 01) 0%, rgba(var(--temperature-high-rgb), 1) 100%)
+  temperature-tint: linear-gradient(90deg, rgba(var(--temperature-low-rgb), var(--transparency-rgb)) 0%, rgba(var(--temperature-high-rgb), var(--transparency-rgb)) 100%)
+
+  orange-color: var(--orange)
+  green-color: var(--green)
+  blue-color: var(--blue)
+  red-color: var(--red)
+  purple-color: var(--purple)
+  yellow-color: var(--yellow)
+  grey-color: var(--contrast10)
+
+  purple: rgb(var(--purple-rgb))
+  yellow: rgb(var(--yellow-rgb))
+  orange: rgb(var(--orange-rgb))
+  red: rgb(var(--red-rgb))
+  green: rgb(var(--green-rgb))
+  blue: rgb(var(--blue-rgb))
+
+  # Color RGB variables
+  purple-rgb: 239, 177, 255
+  yellow-rgb: 255, 218, 120
+  orange-rgb: 255, 181, 129
+  red-rgb: 255, 145, 138
+  green-rgb: 127, 255, 216
+  blue-rgb: 144, 191, 255
+  
+  
+  devicegreen-rgb: 127, 255, 216
+  deviceblue-rgb: 146, 192, 254
+  deviceorange-rgb: 255, 181, 129
+  deviceyellow-rgb: 255, 218, 120
+  devicepink-rgb: 255, 192, 254
+  devicered-rgb: 255, 145, 138
+  
+  
+
+  purple-dark-rgb: 139, 77, 155
+  yellow-dark-rgb: 61, 56, 40
+  orange-dark-rgb: 61, 49, 43
+  red-dark-rgb: 155, 45, 38
+  green-dark-rgb: 51, 61, 46
+  blue-dark-rgb: 39, 50, 66
+
+
+
+
+  ##### Common Definitions #####
+  # Global Accent Colors
+  overlay2: "#9399b2" #reserved                                                  #default: '#9399b2'
+  overlay1: "#7f849c" #reserved                                                  #default: '#7f849c'
+
+
+
+  # Main Interface colors
+  primary-color: '#41a8ff'
+  light-primary-color: var(--primary-color)
+  primary-background-color: var(--mantle)
+  secondary-background-color: var(--crust)
+  code-editor-background-color: var(--crust)
+  accent-color: var(--peach)
+
+  # Text
+  primary-text-color: var(--text)
+  secondary-text-color: var(--subtext1)
+  text-primary-color: var(--text)
+  divider-color: var(--primary-background-color)
+  disabled-text-color: var(--surface0)
+
+  # Buttons
+  paper-item-icon-color: var(--subtext0)
+  paper-item-icon-active-color: var(--primary-color)
+  mdc-button-outline-color: var(--overlay0)
+
+  # States and Badges
+  state-icon-color: var(--lavender)
+  state-icon-active-color: var(--primary-color)
+  state-icon-unavailable-color: var(--disabled-text-color)
+  state-light-active-color: var(--yellow)
+
+  # Sliders
+  paper-slider-knob-color: var(--primary-color)
+  paper-slider-knob-start-color: var(--paper-slider-knob-color)
+  paper-slider-pin-color: var(--paper-slider-knob-color)
+  paper-slider-active-color: var(--light-primary-color)
+  paper-slider-secondary-color: var(--light-primary-color)
+
+  # Labels
+  label-badge-background-color: var(--surface0)
+  label-badge-text-color: var(--text)
+  label-badge-red: var(--red)
+  label-badge-green: var(--green)
+  label-badge-blue: var(--blue)
+  label-badge-yellow: var(--yellow)
+  label-badge-gray: var(--overlay1)
+
+  # Cards
+  card-background-color: rgba(var(--contrast1-rgb), 0.1)
+  ha-card-background: var(--card-background-color)
+  ha-card-border-color: var(--card-background-color)
+  ha-card-border-radius: "15px"
+  ha-card-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.16)
+  ha-card-border-width: "0px"
+  paper-dialog-background-color: var(--overlay0)
+  paper-listbox-background-color: var(--overlay0)
+  paper-card-background-color: var(--card-background-color)
+
+  # Switches
+  switch-checked-button-color: var(--green)
+  switch-checked-track-color: var(--surface2)
+  switch-checked-color: var(--green)
+  switch-unchecked-button-color: var(--surface1)
+  switch-unchecked-track-color: var(--surface2)
+  switch-unchecked-color: var(--surface3)
+
+  # Toggles
+  paper-toggle-button-checked-button-color: var(--switch-checked-button-color)
+  paper-toggle-button-checked-bar-color: var(--switch-checked-track-color)
+  paper-toggle-button-unchecked-button-color: var(--switch-unchecked-button-color)
+  paper-toggle-button-unchecked-bar-color: var(--switch-unchecked-track-color)
+
+  # Tables
+  table-row-background-color: var(--primary-background-color)
+  table-row-alternative-background-color: var(--secondary-background-color)
+  data-table-background-color: var(--primary-background-color)
+
+  # Dropdowns
+  material-background-color: var(--primary-background-color)
+  material-secondary-background-color: var(--secondary-background-color)
+  mdc-theme-surface: var(--primary-background-color)
+
+  # Pre/Code
+  markdown-code-background-color: var(--surface0)
+  #code-editor-background-color: var(--primary-background-color)
+
+  # Checkboxes
+  mdc-checkbox-unchecked-color: var(--surface0)
+  mdc-checkbox-disable-color: var(--disabled-text-color)
+  mdc-select-fill-color: rgba(var(--crust),1)
+  mdc-select-ink-color: var(--text)
+  mdc-select-label-ink-color: var(--subtext1)
+  mdc-select-idle-line-color: var(--text)
+  mdc-select-dropdown-icon-color: var(--secondary-text-color)
+  mdc-select-hover-line-color: var(--accent-color)
+  mdc-text-field-fill-color: var(--mdc-select-fill-color)
+  mdc-radio-unchecked-color: var(--subtext1)
+  # Inputs
+  input-fill-color: var(--secondary-background-color)
+  input-dropdown-icon-color: var(--secondary-text-color)
+  input-ink-color: var(--primary-text-color)
+  input-label-ink-color: var(--secondary-text-color)
+  input-idle-line-color: var(--primary-text-color)
+  input-hover-line-color: var(--accent-color)
+
+  # Toast
+  paper-toast-background-color: var(--overlay0)
+
+  # Colors for Items
+  error-color: var(--red)
+  warning-color: var(--yellow)
+  success-color: var(--green)
+  info-color: var(--lavender)
+  state-on-color: var(--rgb-green)
+  state-off-color: var(--rgb-red)
+  rgb-primary-text-color: var(--orange)
+  # Breaks Highlighting Code
+  #rgb-primary-color: "#f5c2e7ff"
+  rgb-accent-color: var(--mauve)
+  rgb-state-switch-color: var(--green-rgb)
+  rgb-state-light-color: var(--rgb-accent-color)
+  rgb-state-fan-color: var(--rgb-accent-color)
+  rgb-state-script-color: var(--rgb-accent-color)
+  rgb-state-vacuum-color: var(--rgb-accent-color)
+  rgb-state-remote-color: var(--rgb-accent-color)
+  rgb-state-input-boolean-color: var(--rgb-accent-color)
+  rgb-state-humidifier-color: var(--rgb-accent-color)
+  rgb-state-cover-color: var(--rgb-accent-color)
+  rgb-state-light: var(--rgb-yellow)
+
+  # State Colors - Assorted
+  state-update-on-color: var(--green)
+  state-update-active-color: var(--green)
+  #state-inactive-color: var(--rgb-state-light)
+  state-update-off-color: var(--green)
+  default-light-green: var(--alt-green)
+  state-active-color: var(--primary-colour)
+  state-red-color: var(--red)
+  state-green-color: var(--green)
+  state-orange-color: var(--peach)
+  state-alarm_control_panel-armed_away-color: "var(--state-green-color)"
+  state-alarm_control_panel-armed_custom_bypass-color: "var(--state-green-color)"
+  state-alarm_control_panel-armed_home-color: "var(--state-green-color)"
+  state-alarm_control_panel-armed_night-color: "var(--state-green-color)"
+  state-alarm_control_panel-armed_vacation-color: "var(--state-green-color)"
+  state-alarm_control_panel-arming-color: "var(--state-orange-color)"
+  state-alarm_control_panel-disarming-color: "var(--state-orange-color)"
+  state-alarm_control_panel-pending-color: "var(--state-orange-color)"
+  state-alarm_control_panel-triggered-color: "var(--state-red-color)"
+  state-alert-off-color: var(--paper-item-icon-color)
+  state-alert-on-color: "var(--state-red-color)"
+  state-automation-active-color: "var(--accent-color)"
+  state-binary_sensor-active-color: "var(--accent-color)"
+  state-binary_sensor-battery-on-color: "var(--state-red-color)"
+  state-binary_sensor-carbon_monoxide-on-color: "var(--state-red-color)"
+  state-binary_sensor-gas-on-color: "var(--state-red-color)"
+  state-binary_sensor-heat-on-color: "var(--state-red-color)"
+  state-binary_sensor-lock-on-color: "var(--state-red-color)"
+  state-binary_sensor-moisture-on-color: "var(--state-red-color)"
+  state-binary_sensor-problem-on-color: var(--state-red-color)
+  state-binary_sensor-safety-on-color: "var(--state-red-color)"
+  state-binary_sensor-smoke-on-color: "var(--state-red-color)"
+  state-binary_sensor-sound-on-color: "var(--state-red-color)"
+  state-binary_sensor-tamper-on-color: "var(--state-red-color)"
+  state-climate-auto-color: "var(--accent-color)"
+  state-climate-cool-color: "var(--accent-color)"
+  state-climate-dry-color: "var(--accent-color)"
+  state-climate-fan_only-color: "var(--accent-color)"
+  state-climate-heat-color: "var(--state-orange-color)"
+  state-climate-heat-cool-color: "var(--accent-color)"
+  state-cover-active-color: "var(--accent-color)"
+  state-device_tracker-active-color: "var(--accent-color)"
+  state-device_tracker-home-color: "var(--accent-color)"
+  state-fan-active-color: "var(--accent-color)"
+  state-group-active-color: "var(--accent-color)"
+  state-humidifier-active-color: "var(--accent-color)"
+  state-input_boolean-active-color: "var(--accent-color)"
+  state-lock-jammed-color: "var(--state-red-color)"
+  state-lock-locked-color: "var(--accent-color)"
+  state-lock-pending-color: "var(--state-orange-color)"
+  state-lock-unlocked-color: var(--paper-item-icon-color)
+  state-media_player-active-color: "var(--accent-color)"
+  state-person-active-color: "var(--accent-color)"
+  state-person-home-color: "var(--accent-color)"
+  state-plant-active-color: "var(--state-red-color)"
+  state-siren-active-color: "var(--state-red-color)"
+  state-sun-above_horizon-color: "var(--amber-color)"
+  state-sun-below_horizon-color: "var(--indigo-color)"
+  state-switch-active-color: "var(--accent-color)"
+  state-vacuum-active-color: "var(--accent-color)"
+  state-sensor-battery-high-color: "var(--accent-color)"
+  state-sensor-battery-low-color: "var(--state-red-color)"
+  state-sensor-battery-medium-color: "var(--state-orange-color)"
+  # Mushroom Colors
+  mush-rgb-red: 255, 085, 085
+  mush-rgb-pink: 255, 121, 198
+  mush-rgb-purple: 172, 146, 196
+  mush-rgb-deep-purple: 219, 089, 161 #Uses mauve
+  mush-rgb-indigo: 099, 144, 164
+  mush-rgb-blue: 097, 143, 202
+  mush-rgb-light-blue: 117, 199, 235
+  mush-rgb-cyan: 125, 208, 227
+  mush-rgb-teal: 131, 207, 207
+  mush-rgb-green: 074, 216, 104 #c_theme_v2-light-green
+  mush-rgb-light-green: 083, 213, 119 #c_theme_v2-dark-green
+  mush-rgb-lime: 083, 213, 119 #c_theme_v2-green
+  mush-rgb-yellow: 252, 223, 093
+  mush-rgb-amber: 251, 182, 108
+  mush-rgb-orange: 251, 182, 71
+  mush-rgb-deep-orange: 255, 156, 26
+  mush-rgb-brown: 121, 85, 72
+  mush-rgb-grey: 127, 132, 156 #overlay1
+  mush-rgb-blue-grey: 98, 114, 164 #c_theme_v2-comment
+  mush-rgb-black: 33, 34, 44 #dark-crust
+  mush-rgb-white: 248, 248, 242 #c_theme_v2-white
+
+  #Mushroom Card States
+  mush-rgb-info: var(--mush-rgb-blue)
+  mush-rgb-success: var(--mush-rgb-green)
+  mush-rgb-warning: var(--mush-rgb-orange)
+  mush-rgb-danger: var(--mush-rgb-red)
+
+  mush-rgb-state-fan: var(--mush-rgb-green)
+  mush-rgb-state-light: var(--mush-rgb-orange)
+  mush-rgb-state-entity: var(--mush-rgb-blue)
+  mush-rgb-state-switch: var(--mush-rgb-blue)
+
+  mush-rgb-state-alarm-disarmed: var(--mush-rgb-info)
+  mush-rgb-state-alarm-armed: var(--mush-rgb-success)
+  mush-rgb-state-alarm-triggered: var(--mush-rgb-danger)
+
+  mush-rgb-state-person-home: var(--mush-rgb-success)
+  mush-rgb-state-person-not-home: var(--mush-rgb-danger)
+  mush-rgb-state-person-zone: var(--mush-rgb-info)
+  mush-rgb-state-person-unknown: var(--mush-rgb-grey)
+
+  mush-rgb-state-cover-open: var(--mush-rgb-blue)
+  mush-rgb-state-cover-closed: var(--mush-rgb-disabled)
+
+  mush-rgb-state-climate-auto: var(--mush-rgb-green);
+  mush-rgb-state-climate-cool: var(--mush-rgb-blue);
+  mush-rgb-state-climate-dry: var(--mush-rgb-orange);
+  mush-rgb-state-climate-fan-only: var(--mush-rgb-blue-grey);
+  mush-rgb-state-climate-heat: var(--mush-rgb-deep-orange);
+  mush-rgb-state-climate-heat-cool: var(--mush-rgb-green);
+  mush-rgb-state-climate-idle: var(--mush-rgb-grey);
+  mush-rgb-state-climate-off: var(--mush-rgb-disabled);
+
+
+
+
+
+#####################################################################################################
+#
+#     >>  TEXT
+
+
+      #  FONT                                                                    (Defined by user)
+
+# primary-font-family: SF Pro Text, Roboto, system-ui                           #
+  primary-font-family: Poppins, Raleway, SF Pro Text, sans-serif, system-ui     #
+
+      #  FONT FAMILIES                                                           (Defined by user)
+  paper-font-common-base_-_font-family: var(--primary-font-family)
+  paper-font-common-code_-_font-family: var(--primary-font-family)
+  paper-font-body1_-_font-family: var(--primary-font-family)
+  paper-font-subhead_-_font-family: var(--primary-font-family)
+  paper-font-headline_-_font-family: var(--primary-font-family)
+  paper-font-caption_-_font-family: var(--primary-font-family)
+  paper-font-title_-_font-family: var(--primary-font-family)
+  ha-card-header-font-family: var(--primary-font-family)
+  mdc-typography-body1-font-family: var(--primary-font-family)
+  mdc-typography-font-family: var(--primary-font-family)
+
+#
+#
+#####################################################################################################
+
+
+
+
+
+#####################################################################################################
+#
+#     >>  LIGHT THEME
+
+
+  modes:
+    light:
+
+
+      #  COLOURS                                                                 (Defined by user)
+
+      text: "#474A54"                                                            #default: '#474A54'
+      text-dark: "#6272a4"                                                       #default: '#6272a4'
+      subtext1: "#72778a"                                                        #default: '#72778a'
+      subtext0: "#a6adc8"                                                        #default: '#a6adc8'
+      overlay0: "#e8e8e3"                                                        #default: '#e8e8e3'
+      surface2: "#45475Da"                                                        #default: '#45475a'
+      surface1: "#585b70"                                                        #default: '#585b70'
+      surface0: "#e0e0dc" #same as crust                                         #default: '#e0e0dc'
+      base: "#ffffff"                                                            #default: '#f0f0eb'
+      mantle: "#24273a"                                                          #default: '#e8e8e3'
+      crust: "#e0e0dc"                                                           #default: '#e0e0dc'
+      rosewater: "#ffcce9"                                                       #default: '#ffcce9'
+      flamingo: "#ffb0dd"                                                        #default: '#ffb0dd'
+      pink: "#ff79c6"                                                            #default: '#ff79c6'
+      mauve: "#db5ba1"                                                           #default: '#db5ba1'
+      red: "#ff5555"                                                             #default: '#ff5555'
+      maroon: "#db5c5c"                                                          #default: '#db5c5c'
+      peach: "#ffb86c"                                                           #default: '#ffb86c'
+      yellow: "#fcdf5d"                                                          #default: '#fcdf5d'
+      green: "#4ad868"                                                           #default: '#4ad868'
+      teal: "#84d0cf"                                                            #default: '#84d0cf'
+      sky: "#7dd0e3"                                                             #default: '#7dd0e3'
+      sapphire: "#74c7ec"                                                        #default: '#74c7ec'
+      blue: "#5e91d6"                                                            #default: '#5e91d6'
+      lavender: "#bd93f9"                                                        #default: '#bd93f9'
+
+
+      #  HEX GREYSCALE                                                          | Hex variables
+
+      contrast1: var(--white1)
+      contrast2: var(--white2)
+      contrast3: var(--white3)
+      contrast4: var(--white4)
+      contrast5: var(--white5)
+      contrast6: var(--white6)
+      contrast7: var(--white7)
+      contrast8: var(--white8)
+      contrast9: var(--white9)
+      contrast10: var(--white10)
+      contrast11: var(--black10)
+      contrast12: var(--black9)
+      contrast13: var(--black8)
+      contrast14: var(--black7)
+      contrast15: var(--black6)
+      contrast16: var(--black5)
+      contrast17: var(--black4)
+      contrast18: var(--black3)
+      contrast19: var(--black2)
+      contrast20: var(--black1)
+
+
+      #  RGB GREYSCALE                                                          | RGB variables
+
+      contrast1-rgb: var(--white1-rgb)
+      contrast2-rgb: var(--white2-rgb)
+      contrast3-rgb: var(--white3-rgb)
+      contrast4-rgb: var(--white4-rgb)
+      contrast5-rgb: var(--white5-rgb)
+      contrast6-rgb: var(--white6-rgb)
+      contrast7-rgb: var(--white7-rgb)
+      contrast8-rgb: var(--white8-rgb)
+      contrast9-rgb: var(--white9-rgb)
+      contrast10-rgb: var(--white10-rgb)
+      contrast11-rgb: var(--black10-rgb)
+      contrast12-rgb: var(--black9-rgb)
+      contrast13-rgb: var(--black8-rgb)
+      contrast14-rgb: var(--black7-rgb)
+      contrast15-rgb: var(--black6-rgb)
+      contrast16-rgb: var(--black5-rgb)
+      contrast17-rgb: var(--black4-rgb)
+      contrast18-rgb: var(--black3-rgb)
+      contrast19-rgb: var(--black2-rgb)
+      contrast20-rgb: var(--black1-rgb)
+
+
+      #  TEXT                                                                    (Set with variable)
+
+      primary-text-color: var(--text-dark)
+      secondary-text-color: var(--text-dark)
+      text-primary-color: var(--text)
+      divider-color: var(--primary-background-color)
+      disabled-text-color: var(--surface0)
+
+
+      #  HEADER                                                                  (Set with variable)
+
+      app-header-background-color: var(--base)
+      app-header-text-color: var(--subtext0)
+      app-header-selection-bar-color: var(--primary-color)
+      app-header-edit-background-color: var(--crust)
+      app-header-edit-text-color: var(--text-dark)
+
+
+      #  SIDEBAR                                                                 (Set with variable)
+
+      sidebar-background-color: var(--crust)
+      sidebar-selected-background-color: var(--primary-background-color)
+      sidebar-icon-color: var(--text-dark)
+      sidebar-text-color: var(--text-dark)
+      sidebar-selected-icon-color: var(--primary-color)
+      sidebar-selected-text-color: var(--primary-color)
+      sidebar-menu-button-text-color: var(--text-dark)
+
+#
+#
+#####################################################################################################
+
+
+
+
+
+#####################################################################################################
+#
+#     >>  DARK THEME
+
+
+    dark:
+
+
+      #  COLOURS                                                                 (Defined by user)
+
+      text: "#f8f8f2"                                                            #default: "#f8f8f2"
+      text-dark: "#6272a4"                                                       #default: "#6272a4"
+      subtext1: "#5c5d5e"                                                        #default: "#e8e8e3"
+      subtext0: "#a6adc8"                                                        #default: "#a6adc8"
+      overlay0: "#6c7086"                                                        #default: "#6c7086"
+      surface2: "#585b70"                                                        #default: "#585b70"
+      surface1: "#45475a"                                                        #default: "#45475a"
+      surface0: "#313244"                                                        #default: "#313244"
+      base: "#1e2030"                                                            #default: "#343746"
+      mantle: "#282a36"                                                          #default: "#282a36"
+      crust: "#21222c"                                                           #default: "#21222c"
+      surface: "#70708a"                                                         #default: "#70708a"
+      #c_theme_v2-Dark Colours
+      rosewater: "#ffcce9"                                                       #default: '#ffcce9'
+      flamingo: "#ffb0dd"                                                        #default: '#ffb0dd'
+      pink: "#ff79c6"                                                            #default: '#ff79c6'
+      mauve: "#db5ba1"                                                           #default: '#db5ba1'
+      red: "#ff5555"                                                             #default: '#ff5555'
+      maroon: "#db5ba1"                                                          #default: '#db5ba1'
+      peach: "#ffb86c"                                                           #default: '#ffb86c'
+      yellow: "#fae47f"                                                          #default: '#fae47f'
+      green: "#7fffd8"                                                           #default: '#7fffd8'
+      teal: "#9bd6cf"                                                            #default: '#9bd6cf'
+      sky: "#8be9fd"                                                             #default: '#8be9fd'
+      sapphire: "#74c7ec"                                                        #default: '#74c7ec'
+      blue: "#5e91d6"                                                            #default: '#5e91d6'
+      lavender: "#bd93f9"                                                        #default: '#bd93f9'
+
+
+      #  HEX GREYSCALE                                                          | Hex variables
+
+      contrast20: var(--white1)
+      contrast19: var(--white2)
+      contrast18: var(--white3)
+      contrast17: var(--white4)
+      contrast16: var(--white5)
+      contrast15: var(--white6)
+      contrast14: var(--white7)
+      contrast13: var(--white8)
+      contrast12: var(--white9)
+      contrast11: var(--white10)
+      contrast10: var(--black10)
+      contrast9: var(--black9)
+      contrast8: var(--black8)
+      contrast7: var(--black7)
+      contrast6: var(--black6)
+      contrast5: var(--black5)
+      contrast4: var(--black4)
+      contrast3: var(--black3)
+      contrast2: var(--black2)
+      contrast1: var(--black1)
+
+
+      #  RGB GREYSCALE                                                          | RGB variables
+
+      contrast20-rgb: var(--white1-rgb)
+      contrast19-rgb: var(--white2-rgb)
+      contrast18-rgb: var(--white3-rgb)
+      contrast17-rgb: var(--white4-rgb)
+      contrast16-rgb: var(--white5-rgb)
+      contrast15-rgb: var(--white6-rgb)
+      contrast14-rgb: var(--white7-rgb)
+      contrast13-rgb: var(--white8-rgb)
+      contrast12-rgb: var(--white9-rgb)
+      contrast11-rgb: var(--white10-rgb)
+      contrast10-rgb: var(--black10-rgb)
+      contrast9-rgb: var(--black9-rgb)
+      contrast8-rgb: var(--black8-rgb)
+      contrast7-rgb: var(--black7-rgb)
+      contrast6-rgb: var(--black6-rgb)
+      contrast5-rgb: var(--black5-rgb)
+      contrast4-rgb: var(--black4-rgb)
+      contrast3-rgb: var(--black3-rgb)
+      contrast2-rgb: var(--black2-rgb)
+      contrast1-rgb: var(--black1-rgb)
+
+
+      #  HEADER                                                                  (Set with variable)
+
+      app-header-background-color: var(--base)
+      app-header-text-color: var(--subtext0)
+      app-header-selection-bar-color: var(--primary-color)
+      app-header-edit-background-color: var(--crust)
+      app-header-edit-text-color: var(--subtext1)
+
+
+      #  SIDEBAR                                                                 (Set with variable)
+
+      sidebar-background-color: var(--crust)
+      sidebar-selected-background-color: var(--primary-background-color)
+      sidebar-icon-color: var(--text-dark)
+      sidebar-text-color: var(--subtext0)
+      sidebar-selected-icon-color: var(--primary-color)
+      sidebar-selected-text-color: var(--primary-color)
+      sidebar-menu-button-text-color: var(--text-dark)
+
+#
+#
+#####################################################################################################
+
+
+
+
+
+
+
+
+

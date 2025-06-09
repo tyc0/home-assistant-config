@@ -1,0 +1,325 @@
+# | START: notifications.yaml
+# | PATH: /config/packages/communication/notifications.yaml
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Notify E or C
+#   Dynamic notification based on location and device
+  - id: '1713539891321'
+    alias: Notify E or C
+    description: ''
+    triggers:
+    - platform: event
+      event_type: notify_e_or_c
+    conditions: []
+    actions:
+    - variables:
+        notify_title: '{{ trigger.event.data.title|default(''Home Assistant'') }}'
+        notify_message: '{{ trigger.event.data.message|default(''Message sent without
+          text'') }}'
+        notify_priority: '{{ trigger.event.data.priority|default(''normal'') }}'
+        notify_tag: '{{ trigger.event.data.tag|default(''home_assistant'') }}'
+        notify_image: '{{ trigger.event.data.image|default('''') }}'
+        notify_sound: '{{ trigger.event.data.sound|default('''') }}'
+        source: '{{ trigger.event.data.source|default(''ha'') }}'
+        allow_priority_override: '{{ trigger.event.data.allow_priority_override|default(true) }}'
+        url: '{{ trigger.event.data.url }}'
+        targets: '{{ trigger.event.data.targets|default(none) }}'
+        device_ids: '{{ trigger.event.data.device_ids|default(none) }}'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ targets == ''everyone'' or targets == ''both'' or targets
+            is none }}'
+        - condition: template
+          value_template: "{% set c_at_home = is_state('person.cam', 'home') %}\n{%
+            set e_at_home = is_state('person.enhy', 'home') %}\n{{ c_at_home and e_at_home
+            }}\n"
+        sequence:
+        - service: script.notify_cam_and_enhy_dynamic
+          data:
+            title: '{{ notify_title }}'
+            message: '{{ notify_message }}'
+            priority: '{{ notify_priority }}'
+            tag: '{{ notify_tag }}'
+            image: '{{ notify_image }}'
+            sound: '{{ notify_sound }}'
+            source: '{{ source }}'
+            url: '{{ url }}'
+            allow_priority_override: '{{ allow_priority_override }}'
+            device_ids: '{{ device_ids }}'
+        alias: Both at home
+      - conditions:
+        - condition: template
+          value_template: "{% set recipients = [] %}\n{% if targets == 'everyone' or
+            targets == 'both' or targets == 'cam' or targets is none %}\n  {% set recipients
+            = recipients + ['cam'] %}\n{% endif %}\n{% if targets == 'everyone' or targets
+            == 'both' or targets == 'enhy' or targets is none %}\n  {% set recipients
+            = recipients + ['enhy'] %}\n{% endif %}\n{{ 'cam' in recipients and is_state('person.cam',
+            'home') and not is_state('person.enhy', 'home') }}\n"
+        sequence:
+        - service: script.notify_cam_dynamic
+          data:
+            title: '{{ notify_title }}'
+            message: '{{ notify_message }}'
+            priority: '{{ notify_priority }}'
+            tag: '{{ notify_tag }}'
+            image: '{{ notify_image }}'
+            sound: '{{ notify_sound }}'
+            source: '{{ source }}'
+            url: '{{ url }}'
+            allow_priority_override: '{{ allow_priority_override }}'
+            device_ids: '{{ device_ids }}'
+        alias: C at home
+      - conditions:
+        - condition: template
+          value_template: "{% set recipients = [] %}\n{% if targets == 'everyone' or
+            targets == 'both' or targets == 'enhy' or targets is none %}\n  {% set recipients
+            = recipients + ['enhy'] %}\n{% endif %}\n{% if targets == 'everyone' or
+            targets == 'both' or targets == 'cam' or targets is none %}\n  {% set recipients
+            = recipients + ['cam'] %}\n{% endif %}\n{{ 'enhy' in recipients and is_state('person.enhy',
+            'home') and not is_state('person.cam', 'home') }}\n"
+        sequence:
+        - service: script.notify_enhy_dynamic
+          data:
+            title: '{{ notify_title }}'
+            message: '{{ notify_message }}'
+            priority: '{{ notify_priority }}'
+            tag: '{{ notify_tag }}'
+            image: '{{ notify_image }}'
+            sound: '{{ notify_sound }}'
+            source: '{{ source }}'
+            url: '{{ url }}'
+            allow_priority_override: '{{ allow_priority_override }}'
+            device_ids: '{{ device_ids }}'
+        alias: E at home
+      - conditions:
+        - condition: template
+          value_template: "{% set recipients = [] %}\n{% if targets == 'everyone' or
+            targets == 'both' or targets == 'cam' or targets is none %}\n  {% set recipients
+            = recipients + ['cam'] %}\n{% endif %}\n{% if targets == 'everyone' or targets
+            == 'both' or targets == 'enhy' or targets is none %}\n  {% set recipients
+            = recipients + ['enhy'] %}\n{% endif %}\n{{ 'cam' in recipients and not
+            is_state('person.cam', 'home') }}\n"
+        sequence:
+        - service: script.notify_cam_dynamic
+          data:
+            title: '{{ notify_title }}'
+            message: '{{ notify_message }}'
+            priority: '{{ notify_priority }}'
+            tag: '{{ notify_tag }}'
+            image: '{{ notify_image }}'
+            sound: '{{ notify_sound }}'
+            source: '{{ source }}'
+            url: '{{ url }}'
+            allow_priority_override: '{{ allow_priority_override }}'
+            device_ids: '{{ device_ids }}'
+        alias: C away
+      - conditions:
+        - condition: template
+          value_template: "{% set recipients = [] %}\n{% if targets == 'everyone' or
+            targets == 'both' or targets == 'enhy' or targets is none %}\n  {% set recipients
+            = recipients + ['enhy'] %}\n{% endif %}\n{% if targets == 'everyone' or
+            targets == 'both' or targets == 'cam' or targets is none %}\n  {% set recipients
+            = recipients + ['cam'] %}\n{% endif %}\n{{ 'enhy' in recipients and not
+            is_state('person.enhy', 'home') }}\n"
+        sequence:
+        - service: script.notify_enhy_dynamic
+          data:
+            title: '{{ notify_title }}'
+            message: '{{ notify_message }}'
+            priority: '{{ notify_priority }}'
+            tag: '{{ notify_tag }}'
+            image: '{{ notify_image }}'
+            sound: '{{ notify_sound }}'
+            source: '{{ source }}'
+            url: '{{ url }}'
+            allow_priority_override: '{{ allow_priority_override }}'
+            device_ids: '{{ device_ids }}'
+        alias: E away
+      - conditions:
+        - condition: template
+          value_template: '{{ targets == ''cam'' }}'
+        sequence:
+        - service: script.notify_cam_dynamic
+          data:
+            title: '{{ notify_title }}'
+            message: '{{ notify_message }}'
+            priority: '{{ notify_priority }}'
+            tag: '{{ notify_tag }}'
+            image: '{{ notify_image }}'
+            sound: '{{ notify_sound }}'
+            source: '{{ source }}'
+            url: '{{ url }}'
+            allow_priority_override: '{{ allow_priority_override }}'
+            device_ids: '{{ device_ids }}'
+        alias: C only
+      - conditions:
+        - condition: template
+          value_template: '{{ targets == ''enhy'' }}'
+        sequence:
+        - service: script.notify_enhy_dynamic
+          data:
+            title: '{{ notify_title }}'
+            message: '{{ notify_message }}'
+            priority: '{{ notify_priority }}'
+            tag: '{{ notify_tag }}'
+            image: '{{ notify_image }}'
+            sound: '{{ notify_sound }}'
+            source: '{{ source }}'
+            url: '{{ url }}'
+            allow_priority_override: '{{ allow_priority_override }}'
+            device_ids: '{{ device_ids }}'
+        alias: E only
+      default: []
+    mode: parallel
+
+# ➔ Notification Check
+#   Weekly notification test
+  - id: '1711295291343'
+    alias: Notification Check
+    triggers:
+    - platform: time
+      at: 12:00:00
+    conditions:
+    - condition: template
+      value_template: '{{ is_state(''input_boolean.weekly_notification_tested'', ''off'')
+        and now().weekday() == 1 }}'
+    actions:
+    - service: event.fire
+      data:
+        title: Weekly Notification Check
+        message: All notification systems operational
+        priority: high
+      target:
+        event_type: notify_e_or_c
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id: input_boolean.weekly_notification_tested
+    mode: single
+
+# ➔ Reset Notification Weekly Check
+#   Reset the weekly check flag every Sunday night
+  - id: '1711308889223'
+    alias: Reset Notification Weekly Check
+    description: ''
+    triggers:
+    - platform: time
+      at: '22:00:00'
+    conditions:
+    - condition: time
+      weekday:
+      - sun
+    actions:
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.weekly_notification_tested
+
+# ➔ Home Assistant Alerts
+#   Various system notifications
+  - id: '1716222857109'
+    alias: Home Assistant Alerts
+    description: Sends notifications when systems go offline and more.
+    triggers:
+    - platform: numeric_state
+      entity_id: sensor.cpu_temperature
+      above: 78
+      id: cpu_temp_high
+    - platform: numeric_state
+      entity_id: sensor.disk_use_percent
+      above: 90
+      id: disk_high
+    - platform: state
+      entity_id:
+      - binary_sensor.rpi_power_status
+      to: 'on'
+      id: rpi_power
+    - platform: state
+      entity_id:
+      - update.home_assistant_update
+      from: 'off'
+      to: 'on'
+      id: ha_update
+    actions:
+    - choose:
+      - conditions:
+        - condition: trigger
+          id: cpu_temp_high
+        sequence:
+        - service: event.fire
+          data:
+            title: CPU Temperature Critical
+            message: CPU Temperature has exceeded 78°C ({{ states('sensor.cpu_temperature')
+              }}°C)
+            priority: critical
+            tag: ha_system
+            sound: critical_sound
+          target:
+            event_type: notify_e_or_c
+      - conditions:
+        - condition: trigger
+          id: disk_high
+        sequence:
+        - service: event.fire
+          data:
+            title: Disk Space Critical
+            message: The disk is over 90% full ({{ states('sensor.disk_use_percent')
+              }}%)
+            priority: critical
+            tag: ha_system
+            sound: critical_sound
+          target:
+            event_type: notify_e_or_c
+      - conditions:
+        - condition: trigger
+          id: rpi_power
+        sequence:
+        - service: event.fire
+          data:
+            title: Raspberry Pi Power Warning
+            message: The Raspberry Pi is experiencing power issues. Check the power supply.
+            priority: critical
+            tag: ha_system
+            sound: critical_sound
+          target:
+            event_type: notify_e_or_c
+      - conditions:
+        - condition: trigger
+          id: ha_update
+        sequence:
+        - service: event.fire
+          data:
+            title: Home Assistant Update Available
+            message: Home Assistant update {{ state_attr('update.home_assistant_update',
+              'latest_version') }} is available
+            priority: normal
+            tag: ha_system
+          target:
+            event_type: notify_e_or_c
+    mode: single
+
+# ➔ Server Start Notifications
+#   Notification when HA restarts
+  - id: '1682264118382'
+    alias: Server Start Notifications
+    description: ''
+    triggers:
+    - platform: homeassistant
+      event: start
+    actions:
+    - service: event.fire
+      data:
+        title: Home Assistant Started
+        message: System has been restarted at {{ states('sensor.time') }}
+        priority: high
+        tag: ha_system
+      target:
+        event_type: notify_e_or_c
+
+# | END: notifications.yaml

@@ -1,0 +1,74 @@
+
+
+# | START: ip_and_mac_address_mapping.yaml
+# |  PATH: /config/packages/network/ip_and_mac_address_mapping.yaml
+
+
+#  ╭─────────────────────╮
+#  │ CUSTOM INTEGRATION  │
+#  ╰─────────────────────╯
+network_scanner:
+
+  ip_range: "192.168.4.0/24" 
+
+  mac_mapping_1: "bc:14:14:f1:81:1b;Brother Printer;Cloud Network Technology Singapore Pte. Ltd."
+  mac_mapping_2: "b1:81:11:31:a1:b1;My iPhone;Apple"
+  mac_mapping_3: "E4:5F:01:ED:73:C8;HA server;Raspberry Pi"
+  mac_mapping_4: "EC:71:DB:79:85:44;C09;Reolink"
+  mac_mapping_5: "EC:71:DB:C3:F2:C4;C08;Reolink"
+  mac_mapping_6: "EC:B5:FA:94:DB:1A;Phillips Hue Bridge;Philips"
+  mac_mapping_7: "00:E0:4C:68:02:40;C PC;MSI"
+  mac_mapping_8: "BC:DD:C2:03:37:BC;ESP_0337BC;Espressif"
+  mac_mapping_9: "54:EF:44:51:00:B4;Presence-Sensor-FP2-00B4;Aqara"
+  mac_mapping_10: "54:EF:44:50:07:A0;FP2.03;Aqara"
+  mac_mapping_11: "48:E1:E9:A5:55:5B;Meross Smart Switch;Meross"
+  mac_mapping_12: "FA:D7:02:34:6A:2B;iPad;Apple"
+  mac_mapping_13: "F8:5B:6E:BC:C2:B3;Aa-s-M23;Samsung"
+  mac_mapping_14: "48:E1:E9:A9:E5:A4;Meross Smart Switch;Meross"
+  mac_mapping_15: "CC:F9:E4:E7:CC:3C;LAPTOP-UVL4TKO5;Intel"
+  mac_mapping_16: "30:B5:C2:15:F5:E6;A;Unknown"
+  mac_mapping_17: "72:9F:24:BE:53:24;iPad;Apple"
+  mac_mapping_18: "B0:B2:1C:97:C7:18;ESPresense - room_01;Espressif"
+  mac_mapping_19: "3C:6A:9D:18:EA:D9;Elgato Key Light;Elgato"
+  mac_mapping_20: "3C:6A:9D:19:43:FD;Elgato Key Light;Elgato"
+  mac_mapping_21: "54:EF:44:49:3A:83;E1 hub;Aqara"
+  mac_mapping_22: "60:74:F4:30:0C:7E;Unknown;Private"
+  mac_mapping_23: "48:E1:E9:A5:4B:0A;EX 02;Meross"
+  mac_mapping_24: "48:E1:E9:A5:53:1F;EX 06;Meross"
+  mac_mapping_25: "48:55:19:0D:88:8A;SwitchBot hub mini;SwitchBot"
+  mac_mapping_26: "E8:9F:6D:78:39:1C;Air purifier;Levoit"
+  mac_mapping_27: "48:E1:E9:DC:AD:50;MPM 12;Meross"
+  mac_mapping_28: "48:E1:E9:E5:35:88;MPM 10;Meross"
+  mac_mapping_29: "48:E1:E9:E5:33:09;MPM 13;Meross"
+  mac_mapping_30: "48:E1:E9:A5:4A:78;EX 01;Meross"
+  mac_mapping_31: "64:E8:33:E7:F0:EC;SwitchBot hub 2;SwitchBot"
+  mac_mapping_32: "54:EF:44:50:17:80;FP2.01;Aqara"
+  mac_mapping_33: "54:EF:44:4F:9C:35;FP2.02;Aqara"
+  mac_mapping_34: "D4:A6:51:F1:22:6D;wlan0;Tuya"
+  mac_mapping_35: "D4:A6:51:F1:31:FD;wlan0;Tuya"
+  mac_mapping_36: "A8:6E:84:BB:85:A5;Archer_MR600;TP-Link"
+  mac_mapping_37: "38:42:0B:7D:9C:5C;Sonos speaker;Sonos"
+  mac_mapping_38: "B4:6D:C2:C7:2D:E6;Meross_Smart_Plug;Reolink"
+  mac_mapping_39: "48:E1:E9:A9:E5:A4;EX 04;Meross"
+  mac_mapping_40: "2A:56:20:42:01:D3;Mobile;Unknown"
+  mac_mapping_41: "48:E1:E9:B1:F4:D6;Meross_Smart_Plug;Meross"
+  mac_mapping_42: "48:E1:E9:BA:8B:AB;EX 09;Meross"
+  mac_mapping_43: "48:E1:E9:BA:90:49;Meross_Smart_Plug-2;Meross"
+  mac_mapping_44: "F0:21:E0:90:A2:2D;Eero Router;Amazon"
+  mac_mapping_45: "48:E1:E9:A5:48:0A;MPM 04;Meross"
+  mac_mapping_46: "48:E1:E9:E5:48:0A;MPM 11;Meross"
+  mac_mapping_47: "54:EF:44:4F:50:36;FP2.05;Aqara"
+  mac_mapping_48: "54:EF:44:50:07:45;Work Laptop;DWP"
+  mac_mapping_49: "72:9F:24:BF:53:51;iPad;Apple"
+  mac_mapping_50: "30:05:C2:95:F7:65;C05;Reolink"
+  mac_mapping_51: "80:FA:5B:97:77:67;Echo 4G Matter Hub;Amazon"
+  mac_mapping_52: "80:FA:5B:97:77:85;Eero Extender;Amazon"
+  mac_mapping_53: "48:E1:E9:A5:33:78;MPM 08;Meross"
+  mac_mapping_54: "48:E1:E9:A5:33:88;MPM 02;Meross"
+  mac_mapping_55: "48:E1:E9:A5:33:87;MPM 01;Meross"
+  mac_mapping_56: "48:E1:E9:A5:33:86;MPM 06;Meross"
+  mac_mapping_57: "48:E1:E9:A5:33:84;Echo Show 15;Amazon"
+  mac_mapping_58: "48:E1:E9:A5:33:78;MPM 14;Meross"
+
+
+# |   END: ip_and_mac_address_mapping.yaml

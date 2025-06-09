@@ -1,0 +1,166 @@
+
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰ 
+
+
+#    _      _       _     _                       _ 
+#   | |    (_)     | |   | |                     | |
+#   | |     _  __ _| |__ | |_    ___ __ _ _ __ __| |
+#   | |    | |/ _` | '_ \| __|  / __/ _` | '__/ _` |
+#   | |____| | (_| | | | | |_  | (_| (_| | | | (_| |
+#   |______|_|\__, |_| |_|\__|  \___\__,_|_|  \__,_|
+#              __/ |                                
+#             |___/                                 
+
+
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰ 
+
+
+
+#────────┨  Title  ║  Info  ┠──────────────────────────────────────────────────┒
+
+#──────────────────────────────────────────────────────────────────────────────┚
+
+
+#################################################
+#
+#   >>   INFO
+#
+
+#  The "user" variable must be the name of an
+#  account with location attributes and should
+#  be entered in  lowercase.
+#
+#  this code uses both the first letter and
+#  the full word for entity referencing via
+#  this format:
+#
+#  if the user is "Cam", the below format should be
+#  used:
+#
+#  For the Mobile App integration:
+#  sensor.phone_c_geocoded_location
+#
+#  For the Places integration:
+#  sensor.location_cam_phone
+#
+#################################################
+
+
+#################################################
+#
+#   >>   USAGE
+#
+
+#    - entity: light.room_02
+#      template: room_light
+#      tap_action:
+#        action: toggle
+#      icon: fapro:duotone_person_dress_fairy
+#      type: custom:button-card
+#      styles:
+#        icon:
+#          - right: 35%
+#        card:
+#          - border-top-right-radius: 100%
+#          - box-shadow: |
+#              [[[
+#                if (entity.state == 'on')
+#                return "-10px 10px 30px -14px var(--button-card-light-color) inset, 2px -2px 10px -4px var(--button-card-light-color)";
+#                return "none";
+#              ]]]    
+#        custom_fields:
+#          info:
+#            - left: 4%
+#            - top: 72%
+
+#
+#################################################
+
+
+#################################################
+#
+#   >>   CODE START
+#
+
+light_card:
+  aspect_ratio: 1/1
+  show_icon: true
+  show_name: false
+  extra_styles: |
+    @keyframes card_bounce {
+      0% {      transform: scale(1);      }
+      10% {     transform: scale(0.94);   }
+      20% {     transform: scale(1.03);   }
+      30% {     transform: scale(0.98);   }
+      50% {     transform: scale(1.01);   }
+      70% {     transform: scale(0.995);  }
+      100% {    transform: scale(1);      }
+    }    
+  card_mod:
+    style: |
+      ha-card:hover {                    
+        animation: card_bounce 0.5s ease;
+        transition: 0.2s;        
+      }  
+      ha-card {                    
+        transform: scale(1.0);
+        transition: 0.2s;    
+      }  
+      ha-card:after {
+        transform: scale(1.0);
+        transition: 0.2s; 
+      }       
+  tap_action:
+    action: |
+      [[[    
+        if (entity.state == 'off')
+            return "toggle";
+            return "more-info";    
+      ]]]
+    haptic: success
+  hold_action:
+    action: more-info
+    haptic: success
+  double_tap_action:
+    action: more-info
+    haptic: success
+  styles:
+    icon:
+      - color: |
+          [[[
+            if (entity.state == 'on')
+            return "var(--button-card-light-color)";
+            return "rgba(var(--contrast3-rgb), 0.6)";
+          ]]]
+      - filter: |
+          [[[
+            if (entity.state == 'on')
+            return "drop-shadow(0px 0px 10px var(--button-card-light-color))";
+            return "none";
+          ]]]
+      - transition: 0.2s
+      - height: 36.4%
+    card:
+      - transition: 0.2s
+      - cursor: pointer
+      - '--mdc-ripple-color': none
+      - backdrop-filter: blur(2px)
+      - '-webkit-backdrop-filter': blur(2px)
+    custom_fields:
+      info:
+        - position: absolute
+        - width: 22%
+        - transition: 0.2s
+  custom_fields:
+    info: |
+      [[[ if (entity.state == 'on' && entity.attributes.brightness) {
+          const brightness = Math.round(entity.attributes.brightness/2.54);
+          const radius = 20.5; const circumference = radius * 2 * Math.PI;
+          return `<svg viewBox="0 0 50 50"><circle cx="25" cy="25" r="${radius}"
+          stroke="var(--button-card-light-color)" stroke-width="2" fill="none"
+          style="transform: rotate(-90deg); transform-origin: 50% 50%;
+          stroke-dasharray: ${circumference};
+          stroke-dashoffset: ${circumference - brightness / 100 * circumference};" />
+          <text x="50%" y="54%" fill="var(--contrast18)" font-size="14" 
+          text-anchor="middle" alignment-baseline="middle">
+          ${brightness}<tspan font-size="10">%</tspan></text></svg>`;} ]]]

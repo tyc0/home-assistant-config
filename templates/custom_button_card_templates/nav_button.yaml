@@ -1,0 +1,19 @@
+
+nav_button:
+  tap_action:
+    action: call-service
+    service: input_select.select_option
+    service_data:
+      entity_id: input_select.dashboard_card
+      option: '[[[ return variables.card_id ]]]'
+  show_icon: false
+  show_name: true
+  styles:
+    card:
+      - font-size: 1.2em
+      - padding: 10px
+      - text-align: center
+    grid:
+      - grid-template-areas: '"n"'
+      - grid-template-columns: 1fr
+      - grid-template-rows: 1fr

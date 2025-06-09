@@ -1,0 +1,44 @@
+
+# | START: alerts.yaml
+# |  PATH: /config/packages/light/alerts.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+# ➔ Room Alert Flash Mode
+  room_alert_flash_mode:
+    name: Room alerts - Enable light flash alerts
+    initial: on
+
+# ➔ Room Alert Dim Mode
+  room_alert_dim_mode:
+    name: Room alerts - Enable dim-mode
+    initial: off
+
+# ➔ Room Alert Sound Mode
+  room_alert_sound_mode:
+    name: Room alerts - Enable sound alerts
+    initial: on
+
+
+
+# ╭────────────────────╮
+# │   INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+# ➔ Room Alert Light ID
+  room_alert_light_id:
+    name: Default light for alerts
+    max: 255
+
+# ➔ Room Alert Speaker ID
+  room_alert_speaker_id:
+    name: Default speaker for alerts
+    max: 255
+
+
+# |   END: alerts.yaml

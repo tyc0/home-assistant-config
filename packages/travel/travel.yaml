@@ -1,0 +1,42 @@
+
+# | START: travel.yaml
+# |  PATH: /config/packages/travel/travel.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+# ➔ C Travel Time - Destination
+#   Input text for the C travel time destination
+  c_travel_time_destination:
+    name: "C Travel Time - Destination"
+    icon: mdi:map-marker
+
+# ➔ E Travel Time - Destination
+#   Input text for the E travel time destination
+  e_travel_time_destination:
+    name: "E Travel Time - Destination"
+    icon: mdi:map-marker
+
+# ➔ Google Travel Time 01 Origin
+#   Input text for the Google travel time 01 origin
+  google_travel_time_01_origin:
+    name: From
+    max: 255
+
+# ➔ Google Travel Time 01 Destination
+#   Input text for the Google travel time 01 destination
+  google_travel_time_01_destination:
+    name: To
+    max: 255
+
+# ➔ Failure Messages
+#   Input text for the failure messages
+  failure_messages:
+    name: "device failures when C leaves home"
+    initial: ''
+
+
+# |   END: travel.yaml

@@ -1,0 +1,179 @@
+
+# | START: switchbot.yaml
+# |  PATH: /config/packages/device/switchbot.yaml
+
+
+# Command Line Sensor for SwitchBot API Signature
+command_line:
+  - sensor:
+      name: switchbot_sign
+      command: >
+          python3 -c 'import hashlib;import base64;import hmac;import time;nonce = "";token = "{{ secrets("switchbot_token") }}";secret = "{{ secrets("switchbot_secret") }}";t = int(round(time.time() * 1000));string_to_sign = "{}{}".format(token, t);string_to_sign = bytes(string_to_sign, "utf-8");secret = bytes(secret, "utf-8");sign = base64.b64encode(hmac.new(secret, msg=string_to_sign, digestmod=hashlib.sha256).digest());print("{\"sign\":\"" + format(str(sign, "utf-8")) + "\",\"t\":\"" + format(t) + "\"}")'
+      json_attributes:
+        - 't'
+      value_template: "{{ value_json.sign }}"
+      scan_interval: 60
+
+
+# REST Sensors for SwitchBot
+rest:
+  # Fetch all devices from SwitchBot API
+  - resource: https://api.switch-bot.com/v1.0/devices
+    scan_interval: 3600  # Refresh every hour
+    headers:
+      Authorization: "{{ states('input_text.switchbot_token') }}"
+      sign: "{{ states('sensor.switchbot_sign') }}"
+      t: "{{ state_attr('sensor.switchbot_sign','t') }}"
+      Content-Type: "application/json"
+      nonce: ""
+    sensor:
+      - name: "SwitchBot All Devices"
+        unique_id: switchbot_all_devices
+        value_template: 'OK'
+        json_attributes:
+          - body
+
+
+  # Fetch temperature and humidity from SwitchBot Hub 2
+  - resource: https://api.switch-bot.com/v1.1/devices/E5BE1CC88AB7/status
+    scan_interval: 300
+    headers:
+      Authorization: "{{ states('input_text.switchbot_token') }}"
+      sign: "{{ states('sensor.switchbot_sign') }}"
+      t: "{{ state_attr('sensor.switchbot_sign','t') }}"
+      Content-Type: "application/json"
+      nonce: ""
+    sensor:
+      - name: "SwitchBot Hub 2 Temperature"
+        unique_id: switchbot_hub_2_temperature
+        value_template: "{{ value_json.body.temperature }}"
+        unit_of_measurement: "°C"
+        device_class: temperature
+      - name: "SwitchBot Hub 2 Humidity"
+        unique_id: switchbot_hub_2_humidity
+        value_template: "{{ value_json.body.humidity }}"
+        unit_of_measurement: "%"
+        device_class: humidity
+
+
+  # Fetch curtain position from SwitchBot API
+  - resource: https://api.switch-bot.com/v1.1/devices/E00C2BDFA659/status
+    scan_interval: 300
+    headers:
+      Authorization: "{{ states('input_text.switchbot_token') }}"
+      sign: "{{ states('sensor.switchbot_sign') }}"
+      t: "{{ state_attr('sensor.switchbot_sign','t') }}"
+      Content-Type: "application/json"
+      nonce: ""
+    sensor:
+      - name: "Curtain Position"
+        unique_id: curtain_position
+        value_template: "{{ value_json.body.slidePosition }}"
+        unit_of_measurement: "%"
+
+
+# REST Commands for SwitchBot
+rest_command:
+  # General command for SwitchBot devices
+  switchbot_device_command:
+    url: "https://api.switch-bot.com/v1.0/devices/{{ deviceId }}/commands"
+    method: post
+    content_type: "application/json"
+    headers:
+      Authorization: !secret switchbot_api
+    payload: '{"command": "{{ command }}","parameter": "{{ parameter }}"}'
+
+  # Command for controlling IR devices
+  switchbot_irdevice_command:
+    url: 'https://api.switch-bot.com/v1.0/devices/{{ deviceId }}/commands'
+    method: post
+    content_type: 'application/json'
+    headers:
+      Authorization: !secret switchbot_api
+    payload: '{"command": "{{ command }}","parameter": "default", "commandType": "customize"}'
+
+
+# Cover Configuration for SwitchBot Curtains
+cover:
+  # Right-side Curtain
+  - platform: template
+    covers:
+      bedroom_curtains_right:
+        device_class: curtain
+        friendly_name: "Curtains Right"
+        position_template: "{{ states('sensor.curtainright_curtain_position') }}"
+        open_cover:
+          service: rest_command.switchbot_device_command
+          data:
+            deviceId: !secret switchbot_curtainright_deviceId
+            command: "turnOn"
+        close_cover:
+          service: rest_command.switchbot_device_command
+          data:
+            deviceId: !secret switchbot_curtainright_deviceId
+            command: "turnOff"
+        stop_cover:
+          service: rest_command.switchbot_device_command
+          data:
+            deviceId: !secret switchbot_curtainright_deviceId
+            command: "turnOff"
+        set_cover_position:
+          service: rest_command.switchbot_device_command
+          data:
+            deviceId: !secret switchbot_curtainright_deviceId
+            command: "setPosition"
+            parameter: "0,ff,{{position}}"
+
+
+  # Curtains Quiet Mode
+  - platform: template
+    covers:
+      curtains_quiet:
+        friendly_name: "Curtains Quiet"
+        device_class: curtain
+        set_cover_position:
+          service: script.curtains_set_position_quiet
+          data:
+            position: "{{ 100 - position }}"
+        position_template: >-
+          {% set perc_pos = 100-states('sensor.curtain_position')|int(0) %}
+          {% if perc_pos > 95 %}
+            100
+          {% elif perc_pos < 5 %}
+            0
+          {% else %}
+            {{ perc_pos }}
+          {% endif %}
+
+
+  # Left-side Curtain
+  - platform: template
+    covers:
+      bedroom_curtains_left:
+        device_class: curtain
+        friendly_name: "Curtains Left"
+        position_template: "{{ states('sensor.curtainleft_curtain_position') }}"
+        open_cover:
+          service: rest_command.switchbot_device_command
+          data:
+            deviceId: !secret switchbot_curtainleft_deviceId
+            command: "turnOn"
+        close_cover:
+          service: rest_command.switchbot_device_command
+          data:
+            deviceId: !secret switchbot_curtainleft_deviceId
+            command: "turnOff"
+        stop_cover:
+          service: rest_command.switchbot_device_command
+          data:
+            deviceId: !secret switchbot_curtainleft_deviceId
+            command: "turnOff"
+        set_cover_position:
+          service: rest_command.switchbot_device_command
+          data:
+            deviceId: !secret switchbot_curtainleft_deviceId
+            command: "setPosition"
+            parameter: "0,ff,{{position}}"
+
+
+# |   END: switchbot.yaml

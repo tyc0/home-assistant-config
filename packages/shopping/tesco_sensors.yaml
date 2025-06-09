@@ -1,0 +1,251 @@
+
+# | START: tesco_sensors.yaml
+# |  PATH: /config/packages/shopping/tesco_sensors.yaml
+
+
+#  ╭────────────────────╮
+#  │ CUSTOM INTEGRATION │
+#  ╰────────────────────╯
+# sensor:
+
+# # # ➔ Popular Times
+# # #   Base  popular  times  sensor  that  fetches  data  from  Google. This is the
+# # #   primary  sensor  that  collects  real-time  popularity  data from Google's
+# # #   Popular  Times  service.  It  provides  raw  popularity scores and historical
+# # #   data for each day of the week.
+#   platform: populartimes
+#   name: 'popular_times_tesco_purley'
+#   address: 'Tesco Extra, Tesco Stores Ltd, 8 Purley Rd, Purley, CR8 2HA'
+sensor:
+  platform: populartimes
+  name: 'popular_times_location'
+  address: 'Sainsburys Local,6-9, Purley Parade, High St, Purley CR8 2AB'
+
+
+
+#   ╭────────────────────╮
+#   │ TEMPLATE SENSOR    │
+#   ╰────────────────────╯
+template:
+  - sensor:
+
+# ➔ Basic status sensor shows current store busyness.
+#    Converts raw popularity scores into clear categories:
+#    - Very Busy (85%+)
+#    - Busy (50-84%)
+#    - Quiet (30-49%)
+#    - Very Quiet (<30%)
+#    - Closed when occupancy is 0.
+      - name: "Supermarket Status"
+        unique_id: supermarket_status
+        state: >
+          {% set val = states('sensor.popular_times_location')|float %}
+          {% if val == 0 %}Closed
+          {% elif val >= 85 %}Very Busy
+          {% elif val >= 50 %}Busy
+          {% elif val >= 30 %}Quiet
+          {% else %}Very Quiet
+          {% endif %}
+
+
+# ➔ Trend sensor with clear status messages
+#   hour's  predicted  popularity  compared  to  current, providing easy-to-
+#   understand  messages  about  whether  the  store  is likely to get busier
+#   or  quieter.  It  includes  special  alerts  for  significant changes in
+#   crowding levels and provides immediate feedback on store status.
+      - name: "Supermarket Trend"
+        unique_id: supermarket_trend
+        state: >
+          {% if states('sensor.supermarket_status') == 'Closed' %}
+            Closed
+          {% else %}
+            {% set current = states('sensor.popular_times_location')|float %}
+            {% if current == 0 %}
+              Unknown
+            {% else %}
+              {% set day = now().strftime('%A')|lower %}
+              {% set hour = now().hour %}
+              {% set hours = state_attr('sensor.popular_times_location', 'popularity_' ~ day) %}
+              {% if not hours %}
+                Unknown
+              {% else %}
+                {% set next_hour = hours[hour + 1]|default(current) %}
+                {% set rate = next_hour - current %}
+                {% if rate > 15 %}Busy period ahead
+                {% elif rate > 5 %}Getting busier
+                {% elif rate < -15 %}Getting quiet
+                {% elif rate < -5 %}Getting quieter
+                {% else %}
+                  {% if rate > 0 %}Getting slightly busier
+                  {% else %}Getting slightly quieter
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endif %}
+
+
+# ➔ Relative busyness sensor compares current level to usual patterns
+#   This  advanced  sensor  provides  valuable  context by comparing current
+#   popularity  to  typical  levels  for  this specific time and day of the
+#   week.  It  helps  identify  unusual  patterns such as unexpected rush
+#   hours  or  unusually  quiet  periods.  The comparison uses carefully
+#   calibrated  thresholds  to  categorize  the difference: Much busier or
+#   quieter  (more  than  15%  difference from usual), Busier or quieter
+#   (5-15%  difference),  and  About  normal  (within 5% of usual levels).
+      - name: "Supermarket Relative Busyness"
+        unique_id: supermarket_relative_busyness
+        state: >
+          {% if states('sensor.supermarket_status') == 'Closed' %}
+            Closed
+          {% else %}
+            {% set current = states('sensor.popular_times_location')|float %}
+            {% if current == 0 %}
+              Unknown
+            {% else %}
+              {% set day = now().strftime('%A')|lower %}
+              {% set hour = now().hour %}
+              {% set hours = state_attr('sensor.popular_times_location', 'popularity_' ~ day) %}
+              {% if not hours %}
+                Unknown
+              {% else %}
+                {% set usual = hours[hour]|default(0) %}
+                {% set difference = current - usual %}
+                {% if difference > 15 %}Much busier than usual
+                {% elif difference > 5 %}Busier than usual
+                {% elif difference < -15 %}Much quieter than usual
+                {% elif difference < -5 %}Quieter than usual
+                {% else %}About normal
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endif %}
+
+
+# ➔ Opening status sensor provides detailed store hours information
+#   comprehensive  sensor  that  monitors  and  displays current store opening
+#   status  with  precise  timing  information.  It handles various scenarios
+#   including:  store  closed  for  the  day,  countdown until opening time,
+#   countdown  until  closing  time,  and  next  day  opening predictions. The
+#   sensor  uses  local  time  zone  awareness and rounds all time intervals
+#   to  the  nearest  5  minutes  for  better  readability.  Additional
+#   attributes  track  peak/quiet  hours,  holidays,  and precise opening/
+#   closing times.
+      - name: "Supermarket Opening Status"
+        unique_id: supermarket_opening_status
+        state: >
+          {% set now_time = now().astimezone() %}
+          {% set current_hour = now_time.hour %}
+          {% set current_minute = now_time.minute %}
+          {% set day = now_time.strftime('%A')|lower %}
+          {% set raw_hours = state_attr('sensor.popular_times_location', 'popularity_' ~ day) %}
+
+          {% if raw_hours[current_hour] > 0 %}
+            {% set next_zero = none %}
+            {% for h in range(current_hour + 1, 24) %}
+              {% if raw_hours[h]|default(0) == 0 %}
+                {% set next_zero = h %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+            {% if next_zero is none %}
+              {% set next_zero = 24 %}
+            {% endif %}
+            {% set minutes_until_close = ((next_zero - current_hour) * 60) - current_minute %}
+            {% set rounded = ((minutes_until_close + 2.5) // 5 * 5)|int %}
+            {% if rounded >= 120 %}
+              {% if next_zero == 24 and raw_hours[23]|default(0) == 0 %}
+                Open until 23:00
+              {% elif next_zero >= 24 %}
+                Open until midnight
+              {% else %}
+                Open until {{ '%02d:00'|format(next_zero) }}
+              {% endif %}
+            {% elif rounded >= 60 %}
+              Closes in an hour
+            {% else %}
+              Closes in {{ rounded }} minutes
+            {% endif %}
+          {% elif raw_hours[6] > 0 %}
+            {% set minutes_until = ((6 - current_hour) * 60) - current_minute %}
+            {% set rounded = ((minutes_until + 2.5) // 5 * 5)|int %}
+            {% if rounded >= 60 %}
+              Opens in {{ (rounded/60)|round(0, 'ceil') }} hours
+            {% else %}
+              Opens in {{ rounded }} minutes
+            {% endif %}
+          {% else %}
+            {% if day == 'sunday' %}
+              Closed until 10am
+            {% else %}
+              Closed until 6am
+            {% endif %}
+          {% endif %}
+        attributes:
+          opening_time: >
+            {% set day = now().strftime('%A')|lower %}
+            {% set raw_hours = state_attr('sensor.popular_times_location', 'popularity_' ~ day) %}
+            {% set opening_hour = none %}
+            {% for h in range(0, 24) %}
+              {% if raw_hours[h]|default(0) > 0 %}
+                {% set opening_hour = h %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+            {% if opening_hour is not none %}
+              {{ '%02d:00'|format(opening_hour) }}
+            {% endif %}
+          closing_time: >
+            {% set day = now().strftime('%A')|lower %}
+            {% set raw_hours = state_attr('sensor.popular_times_location', 'popularity_' ~ day) %}
+            {% for h in range(23, -1, -1) %}
+              {% if raw_hours[h]|default(0) > 0 %}
+                {% if h == 23 %}
+                  00:00
+                {% else %}
+                  {{ '%02d:00'|format(h + 1) }}
+                {% endif %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+          is_open: >
+            {% set now_time = now().astimezone() %}
+            {% set current_hour = now_time.hour %}
+            {% set day = now_time.strftime('%A')|lower %}
+            {% set raw_hours = state_attr('sensor.popular_times_location', 'popularity_' ~ day) %}
+            {{ raw_hours[current_hour] > 0 }}
+          minutes_until_closing: >
+            {% set now_time = now().astimezone() %}
+            {% set current_hour = now_time.hour %}
+            {% set current_minute = now_time.minute %}
+            {% set day = now().strftime('%A')|lower %}
+            {% set raw_hours = state_attr('sensor.popular_times_location', 'popularity_' ~ day) %}
+            {% if raw_hours[current_hour] > 0 %}
+              {% set next_zero = none %}
+              {% for h in range(current_hour + 1, 24) %}
+                {% if raw_hours[h]|default(0) == 0 %}
+                  {% set next_zero = h %}
+                  {% break %}
+                {% endif %}
+              {% endfor %}
+              {% if next_zero is none %}
+                {% set next_zero = 24 %}
+              {% endif %}
+              {{ ((((next_zero - current_hour) * 60) - current_minute + 2.5) // 5 * 5)|int }}
+            {% else %}
+              0
+            {% endif %}
+          minutes_until_opening: >
+            {% set now_time = now().astimezone() %}
+            {% set current_hour = now_time.hour %}
+            {% set current_minute = now_time.minute %}
+            {% set day = now().strftime('%A')|lower %}
+            {% set raw_hours = state_attr('sensor.popular_times_location', 'popularity_' ~ day) %}
+            {% if current_hour < 6 and raw_hours[6] > 0 %}
+              {{ ((((6 - current_hour) * 60) - current_minute + 2.5) // 5 * 5)|int }}
+            {% else %}
+              0
+            {% endif %}
+
+
+# |   END: tesco_sensors.yaml

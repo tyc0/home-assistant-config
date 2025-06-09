@@ -1,0 +1,185 @@
+ 
+
+# | START: custom_more_info.yaml
+# |  PATH: /config/ui/custom_more_info.yaml
+
+
+##########################################################################################
+# Custom more-info configuration settings                                                #
+# use a config per Dashboard, and add it to the root of the yaml file like               #
+#                                                                                        #
+#      ############################################################################      #
+#      # title: Your Dashboard title                                              #      #
+#      #                                                                          #      #
+#      # button_card_templates: !include_dir_merge_named ../button_card_templates #      #
+#      # decluttering_templates: !include_dir_named ../decluttering_templates     #      #
+#      # kiosk_mode: !include ../kiosk-mode/kiosk-mode.yaml                       #      #
+#      # custom_more_info: !include ../custom_more_info/custom_more_info.yaml     #      #
+#      #                                                                          #      #
+#      # views:                                                                   #      #
+#      #   - !include view_home.yaml                                              #      #
+#      #   - !include view_number_two                                             #      #
+#      #   - etc                                                                  #      #
+#      ############################################################################      #
+#                                                                                        #
+##########################################################################################
+
+# use the available 'debug' parameter if a filter does not work and you need to report
+# malfunctioning to the issue tracker.
+
+debug: true
+
+##########################################################################################
+# Control the history icon in the header                                                 #
+##########################################################################################
+
+auto_hide_header_history_icon: true
+
+hide_header_history_icon:
+
+  by_domain:
+    - input_datetime
+    - automation
+    - script
+    - cover
+    - group
+
+  by_entity_id:
+    - sun.sun
+
+##########################################################################################
+# Control History section                                                                #
+##########################################################################################
+
+hide_history:
+  by_entity_id:
+     - binary_sensor.ongemeten_verbruik_te_hoog
+     - sensor.ha_main_config
+
+  by_domain:
+    - input_select
+    - select
+    - input_boolean
+    - number
+
+  by_device_class:
+    - sound
+
+  by_glob:
+    - 'siren.*'
+    - 'input_number.*'
+
+##########################################################################################
+# Control Logbook section                                                                #
+##########################################################################################
+
+hide_logbook:
+
+  by_entity_id:
+    - binary_sensor.ongemeten_verbruik_te_hoog
+    - binary_sensor.power_using_off_switches
+
+  by_domain:
+    - input_select
+    - select
+    - input_boolean
+    - number
+    - device_tracker
+
+  by_device_class:
+    - sound
+
+##########################################################################################
+# Unfilter                                                                               #
+##########################################################################################
+
+# special boolean setting for 'all'
+unfilter_all: true
+
+unfilter_attributes:
+
+  by_domain:
+# filtered by Home Assistant by default
+    binary_sensor:
+      - device_class
+
+    sensor:
+      - device_class
+
+# filtered by User in the filter_attributes
+  by_glob:
+
+    'device_tracker.google*':
+      - ip
+      - mac
+      - ap_mac
+
+##########################################################################################
+# Filter                                                                                 #
+##########################################################################################
+
+# special boolean setting for 'all'
+filter_all: true
+
+filter_attributes:
+
+  by_glob:
+
+    '*.*':
+      - icon_color
+      - id
+
+# first filter 'all' in glob, then unfilter only what user needs in the unfilter section
+    'device_tracker.google*':
+      - all
+
+    'sensor.ha_*_version':
+      - all
+
+    'sensor.buienradar_*':
+      - Stationname
+
+    'sensor.*_actueel': &meter # use a yaml anchor to easily c&p repetitive attributes
+      - meter_type
+      - meter_type_name
+
+    'sensor.*_totaal': *meter
+
+    'sensor.*_amperage': *meter
+
+    'sensor.*_voltage': *meter
+
+    'sensor.*_battery_state':
+      - templates
+
+  by_device_class:
+
+    enum:
+      - options
+
+  by_domain:
+
+    binary_sensor:
+      - hysteresis
+
+    light:
+      - all
+
+    siren:
+      - available_tones
+
+  by_entity_id:
+
+    sensor.cpu_speed:
+      - brand
+
+    group.media_players_device_trackers:
+      - all
+
+    group.hub_device_trackers:
+      - all
+
+
+# | END: custom_more_info.yaml
+
+

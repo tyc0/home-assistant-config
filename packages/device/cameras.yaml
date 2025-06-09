@@ -1,0 +1,193 @@
+
+# | START: cameras.yaml
+# |  PATH: /config/packages/device/cameras.yaml
+
+
+#  ╭────────────────────╮
+#  │   INPUT NUMBER
+#  ╰────────────────────╯
+input_number:
+
+# ➔ Camera Views to Show
+#   Number of CCTV feeds to show on page
+  camera_views_to_show:
+    name: Number of CCTV feeds to show on page
+    min: 1
+    max: 4
+    step: 1
+    initial: 2
+    icon: mdi:void
+
+
+# ➔ Camera Feed Effect Dim
+#   Dim the camera feed to make it easier on the eyes in dark environments
+  camera_feed_effect_dim:
+    name: Camera Feed Dim Effect
+    min: 0
+    max: 1
+    step: 0.1
+    initial: 1
+    icon: mdi:void
+
+
+
+
+
+#  ╭────────────────────╮
+#  │   INPUT BOOLEAN
+#  ╰────────────────────╯
+input_boolean:
+
+
+
+# ➔ Camera Feed Display Video
+#   Toggle to display or hide camera feeds
+  c01_feed_display_video:
+    initial: off
+  c02_feed_display_video:
+    initial: off
+  c03_feed_display_video:
+    initial: off
+  c04_feed_display_video:
+    initial: off
+  c05_feed_display_video:
+    initial: off
+  c06_feed_display_video:
+    initial: off
+  c07_feed_display_video:
+    initial: off
+  c08_feed_display_video:
+    initial: off
+  c09_feed_display_video:
+    initial: off
+
+# ➔ Camera Feed Display Settings
+#   Toggle to display or hide camera feed sliders
+  c01_feed_display_settings:
+    initial: off
+  c02_feed_display_settings:
+    initial: off
+  c03_feed_display_settings:
+    initial: off
+  c04_feed_display_settings:
+    initial: off
+  c05_feed_display_settings:
+    initial: off
+  c06_feed_display_settings:
+    initial: off
+  c07_feed_display_settings:
+    initial: off
+  c08_feed_display_settings:
+    initial: off
+  c09_feed_display_settings:
+    initial: off
+
+
+
+#  ╭────────────────────╮
+#  │   TEMPLATE SENSOR
+#  ╰────────────────────╯
+sensor:
+  - platform: template
+    sensors:
+
+# ➔ C09 Feed Selection
+#   Virtual sensor used to track selected option from frontend dropdown (for camera feed settings)
+      c09_feed_selection:
+        value_template: >
+          {% if is_state('input_select.c09_feed_settings', "Brightness") %}
+            number.c09_image_brightness
+          {% elif is_state('input_select.c09_feed_settings', "Contrast") %}
+            number.c09_image_contrast
+          {% elif is_state('input_select.c09_feed_settings', "Saturation") %}
+            number.c09_image_saturation
+          {% elif is_state('input_select.c09_feed_settings', "Sharpness") %}
+            number.c09_image_sharpness
+          {% else %}
+            number.c09_image_brightness
+          {% endif %}
+
+# ➔ C08 Feed Selection
+#   Virtual sensor used to track selected option from frontend dropdown (for camera feed settings)
+      c08_feed_selection:
+        value_template: >
+          {% if is_state('input_select.c08_feed_settings', "Brightness") %}
+            number.c08_image_brightness
+          {% elif is_state('input_select.c08_feed_settings', "Contrast") %}
+            number.c08_image_contrast
+          {% elif is_state('input_select.c08_feed_settings', "Saturation") %}
+            number.c08_image_saturation
+          {% elif is_state('input_select.c08_feed_settings', "Sharpness") %}
+            number.c08_image_sharpness
+          {% else %}
+            number.c08_image_brightness
+          {% endif %}
+
+# ➔ C05 Feed Selection
+#   Virtual sensor used to track selected option from frontend dropdown (for camera feed settings)
+      c05_feed_selection:
+        value_template: >
+          {% if is_state('input_select.c05_feed_settings', "Brightness") %}
+            number.c05_image_brightness
+          {% elif is_state('input_select.c05_feed_settings', "Contrast") %}
+            number.c05_image_contrast
+          {% elif is_state('input_select.c05_feed_settings', "Saturation") %}
+            number.c05_image_saturation
+          {% elif is_state('input_select.c05_feed_settings', "Sharpness") %}
+            number.c05_image_sharpness
+          {% else %}
+            number.c05_image_brightness
+          {% endif %}
+
+
+
+#  ╭────────────────────╮
+#  │   INPUT SELECT
+#  ╰────────────────────╯
+input_select:
+
+# ➔ Camera device selection
+#   Dropdown to select the camera device to display settings for
+  camera_device_selection:
+    name: Select camera
+    options:
+      - "C05"
+      - "C08"
+      - "C09"
+      - "C10"
+
+# ➔ C09 Feed Settings
+#   Dropdown options for camera feed settings on frontend
+  c09_feed_settings:
+    name: Options
+    options:
+      - "Brightness"
+      - "Contrast"
+      - "Saturation"
+      - "Sharpness"
+    icon: mdi:tune-variant
+
+# ➔ C08 Feed Settings
+#   Dropdown options for camera feed settings on frontend
+  c08_feed_settings:
+    name: Options
+    options:
+      - "Brightness"
+      - "Contrast"
+      - "Saturation"
+      - "Sharpness"
+    icon: mdi:tune-variant
+
+# ➔ C05 Feed Settings
+#   Dropdown options for camera feed settings on frontend
+  c05_feed_settings:
+    name: Options
+    options:
+      - "Brightness"
+      - "Contrast"
+      - "Saturation"
+      - "Sharpness"
+    icon: mdi:tune-variant
+
+
+# |   END: cameras.yaml

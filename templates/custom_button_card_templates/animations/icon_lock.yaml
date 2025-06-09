@@ -1,0 +1,77 @@
+icon_lock:
+    styles:
+      custom_fields:
+        icon:
+          - width: 90%
+          - margin-left: 1%
+          - margin-top: 3%
+    custom_fields:
+      icon: >
+        [[[
+          let color;
+          if (variables.state === 'unlocked' && variables.timeout < 2000) {
+            color = '#fbd734';
+          } 
+          if (variables.state === 'locked' && variables.timeout < 2000) {
+            color = '#a0a0a0';
+          }
+          if (variables.state === 'unlocked' && variables.timeout > 2000) {
+            color = '#fbd734';
+          }
+          if (variables.state === 'locked' && variables.timeout > 2000) {
+            color = '#a0a0a0';
+          }
+          let state;
+          if (variables.state === 'unlocked' && variables.timeout < 2000) {
+            state = 'on';
+          } 
+          if (variables.state === 'locked' && variables.timeout < 2000) {
+            state = 'off';
+          }
+          if (variables.state === 'unlocked' && variables.timeout > 2000) {
+            state = 'on_timeout';
+          }
+          return `
+            <svg stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 612 512" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink"><defs/><clipPath id="ArtboardFrame">
+            <path d="M0 0h612v512H0z"/></clipPath><g clip-path="url(#ArtboardFrame)" id="Untitled" vectornator:layerName="Untitled">
+            <path d="M25.529 185.393H367.228C381.097 185.393 392.341 197.098 392.341 211.537V487.706C392.341 502.145 381.097 513.85 367.228 513.85H25.529C11.6597 513.85.416354 502.145.416352 487.706V211.494C.416349 197.055 11.6597 185.35 25.529 185.35V185.393z" fill="${color}" fill-rule="evenodd" opacity="1" stroke="none"/>
+            <path d="M175.744 367.312 148.665 441.169h95.386L218.938 366.179C239.362 355.207 249.806 331.009 244.124 307.825 238.442 284.641 218.139 268.611 195.162 269.167 172.186 269.723 152.62 286.719 147.98 310.153 143.339 333.587 154.853 357.254 175.744 367.225V367.312z" fill="#36464e" fill-rule="evenodd" opacity="1" stroke="none"/>
+            <path class="${state}" d="M336.913 181.305H293.793V145.384C293.945 118.423 283.677 92.4534 265.148 72.9335 247.611 54.0123 223.024 43.2642 197.277 43.2642 171.53 43.2642 146.942 54.0123 129.406 72.9335 110.876 92.4534 100.608 118.423 100.76 145.384V181.305H57.6403V145.384C57.5795 107.312 72.17 70.6868 98.3667 43.1524 123.999 15.7146 159.802.147898 197.277.147896 234.751.147896 270.554 15.7146 296.187 43.1524 322.404 70.6737 336.997 107.307 336.913 145.384c0 0 0 35.92100000000002.0 35.92100000000002z" fill="#808080" fill-rule="evenodd" opacity="1" stroke="none"/></g>
+              <style>
+                @keyframes off {
+                    0% {
+                       transform: rotateY(180deg);
+                       transform-origin: 310px bottom -50px;
+                    }
+                    100% {
+                       transform: rotateY(0deg);
+                    }
+                  }
+                @keyframes on {
+                    0% {
+                       transform: rotateY(0deg)
+                    }
+                    100% {
+                       transform: rotateY(180deg) ;
+                       transform-origin: 305px bottom -200px;
+                    }
+                  }
+                .on {
+                  animation: on 0.5s;
+                 
+                  animation-fill-mode: forwards;
+                  animation-delay: -0.1s;
+                }
+                .off {
+                  animation: off 0.5s;
+                  transform-origin: 40% 20%;
+                  animation-fill-mode: forwards;
+                }
+                .on_timeout {
+                  transform: rotateY(180deg) ;
+                  transform-origin: 305px bottom -200px;
+                }
+              </style>
+            </svg>
+          `;
+        ]]]

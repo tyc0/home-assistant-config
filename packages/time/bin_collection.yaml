@@ -1,0 +1,57 @@
+
+# | START: bin_collection.yaml
+# | PATH: /config/packages/time/bin_collection.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+# ➔ Display bin collection reminder on dashboard
+  bin_collection_reminder:
+    name: Bin Collection Reminder
+
+
+
+
+# ╭────────────────────╮
+# │   AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Check bin collection status
+#   Checks bin sensors at 11am and updates the reminder accordingly
+  - alias: "Update Bin Collection Reminder"
+    id: update_bin_collection_reminder
+    description: "Turns on bin collection reminder if any bin needs collection soon (value 0 or 1)"
+    trigger:
+      - platform: time
+        at: "11:00:00"
+
+    variables:
+      paper_value: "{{ states('sensor.paper') | int(-1) }}"
+      plastic_value: "{{ states('sensor.plastic') | int(-1) }}"
+      food_value: "{{ states('sensor.food') | int(-1) }}"
+      general_value: "{{ states('sensor.general') | int(-1) }}"
+
+    action:
+      - choose:
+          - conditions: >
+              {{ paper_value in [0, 1] or
+                 plastic_value in [0, 1] or
+                 food_value in [0, 1] or
+                 general_value in [0, 1] }}
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.bin_collection_reminder
+        default:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.bin_collection_reminder
+
+
+
+
+# | END: bin_collection.yaml

@@ -1,0 +1,239 @@
+# | START: security_automations.yaml
+# | PATH: /config/packages/security/security_automations.yaml
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Security - Notify E and C when Someone at Front Door
+#   Alerts when someone is at the door and captures image
+  - id: '1685656147195'
+    alias: Security - Notify E and C when Someone at Front Door
+    description: Sends push notification with preview image when the front door bell is rung.
+    triggers:
+    - entity_id: binary_sensor.vs02_vibration
+      to: 'on'
+      trigger: state
+      id: door_vibration
+    - entity_id: binary_sensor.ds01_position
+      to: 'on'
+      trigger: state
+      id: door_open
+    conditions:
+    - condition: time
+      before: '23:00:00'
+      after: 06:30:00
+    actions:
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ not is_state(''input_boolean.anyone_home'', ''on'') }}'
+        sequence:
+        - service: event.fire
+          data:
+            title: Front Door Activity (Away Mode)
+            message: "{{ trigger.id }} detected at {{ now().strftime('%H:%M') }}"
+            priority: critical
+            tag: security_alert
+          target:
+            event_type: notify_e_or_c
+      - conditions:
+        - condition: template
+          value_template: '{{ not is_state(''input_boolean.someone_just_arrived'', ''on'') }}'
+        sequence:
+        - service: event.fire
+          data:
+            title: Someone at Front Door
+            message: "{{ trigger.id }} detected at {{ now().strftime('%H:%M') }}"
+            priority: high
+            tag: security_alert
+          target:
+            event_type: notify_e_or_c
+    mode: single
+
+# ➔ Security - Entry Alert
+#   Notifies when entry is detected while away
+  - id: '1685656147198'
+    alias: Security - Entry Alert
+    description: ''
+    triggers:
+    - platform: state
+      entity_id:
+      - binary_sensor.vs01_vibration
+      - binary_sensor.ds06_position
+      - binary_sensor.vs02_vibration
+      from: 'off'
+      to: 'on'
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
+    conditions:
+    - condition: state
+      entity_id: input_boolean.anyone_home
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.in_person_transition
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.in_e_person_transition
+      state: 'off'
+    actions:
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.security_breach
+    - service: event.fire
+      data:
+        title: Security Alert - Possible Breach
+        message: "{{ trigger.entity_id }} detected activity at {{ now().strftime('%H:%M') }}
+          while nobody is home"
+        priority: critical
+        tag: security_breach
+      target:
+        event_type: notify_e_or_c
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.security_shutters_auto
+    mode: single
+
+# ➔ Security - Motion Detected
+#   Alerts when motion is detected while away
+  - id: '1725824943110'
+    alias: Security - Motion Detected
+    description: Sends alerts when motion is detected with nobody home
+    triggers:
+    - entity_id:
+      - binary_sensor.ms04_motion
+      - binary_sensor.ms05_motion
+      - binary_sensor.ms08_motion
+      - binary_sensor.fp2_01_all
+      to: 'on'
+      trigger: state
+    conditions:
+    - condition: state
+      entity_id: input_boolean.anyone_home
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.in_person_transition
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.in_e_person_transition
+      state: 'off'
+    actions:
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.security_motion_detected
+    - service: event.fire
+      data:
+        title: Security Alert - Unauthorized Motion
+        message: "Motion detected by {{ trigger.entity_id.split('.')[1] }} at {{ now().strftime('%H:%M') }}
+          while nobody is home"
+        priority: critical
+        tag: security_breach
+      target:
+        event_type: notify_e_or_c
+    - delay:
+        minutes: 10
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.security_motion_detected
+    mode: restart
+
+# ➔ Security - Battery Alerts
+#   Monitors battery levels of security devices
+  - id: '1708462104432'
+    alias: Security - Battery Alerts
+    description: ''
+    triggers:
+    - platform: numeric_state
+      entity_id:
+      - sensor.ds00_battery
+      - sensor.ds01_battery
+      - sensor.ds02_battery
+      - sensor.ds06_battery
+      - sensor.vs00_battery
+      - sensor.vs01_battery
+      - sensor.vs02_battery
+      - sensor.vs05_battery
+      - sensor.ms04_battery
+      - sensor.ms05_battery
+      - sensor.ms08_battery
+      - sensor.c08_battery
+      - sensor.fp2_01_battery
+      below: 15
+      for:
+        hours: 8
+    actions:
+    - service: event.fire
+      data:
+        title: Device Battery Low
+        message: "{{ trigger.to_state.attributes.friendly_name | replace(' Battery',
+          '') }} battery level is at {{ trigger.to_state.state }}%"
+        priority: high
+        tag: device_battery
+      target:
+        event_type: notify_e_or_c
+    mode: single
+
+# ➔ Security - Door Open Too Long
+#   Monitors for doors that have been left open
+  - id: '1712354224012'
+    alias: Security - Door Open Too Long
+    description: ''
+    triggers:
+    - entity_id:
+      - binary_sensor.ds01_position
+      - binary_sensor.ds02_position
+      for:
+        minutes: 5
+      to: 'on'
+      trigger: state
+    conditions:
+    - condition: state
+      entity_id: input_boolean.anyone_home
+      state: 'on'
+    - condition: state
+      entity_id: binary_sensor.night_mode
+      state: 'off'
+    actions:
+    - service: event.fire
+      data:
+        title: Door Left Open
+        message: "{{ trigger.to_state.attributes.friendly_name | replace(' Position',
+          '') }} has been open for more than 5 minutes"
+        priority: high
+        tag: door_alert
+      target:
+        event_type: notify_e_or_c
+    mode: single
+
+# ➔ Security - Clear Security Alert
+#   Clears security alerts when someone arrives home
+  - id: '1714230519222'
+    alias: Security - Clear Security Alert
+    description: ''
+    triggers:
+    - entity_id:
+      - person.cam
+      - person.enhy
+      from: not_home
+      to: home
+      trigger: state
+    - entity_id:
+      - input_boolean.security_breach
+      - input_boolean.security_motion_detected
+      to: 'on'
+      for:
+        minutes: 30
+      trigger: state
+    actions:
+    - service: input_boolean.turn_off
+      target:
+        entity_id:
+        - input_boolean.security_breach
+        - input_boolean.security_motion_detected
+    mode: restart
+
+# | END: security_automations.yaml

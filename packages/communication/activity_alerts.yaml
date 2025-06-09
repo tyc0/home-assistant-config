@@ -1,0 +1,19 @@
+
+# | START: activity_alerts.yaml
+# |  PATH: /config/packages/communication/activity_alerts.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+# ➔ Sound Alert Cooldown
+  sound_alert_cooldown:
+    name: Sound Alert Cooldown
+    icon: mdi:timer-pause
+
+
+# |   END: activity_alerts.yaml
+
+

@@ -1,0 +1,8 @@
+rounded_button_light:
+  template: rounded_base
+  tap_action:
+    action: toggle
+    haptic: medium
+  hold_action:
+    action: more-info
+    haptic: medium

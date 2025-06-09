@@ -1,0 +1,161 @@
+
+# | START: railway.yaml
+# |  PATH: /config/packages/travel/railway.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+# ➔ Train Service Summary
+#   Input text for the train service summary
+  train_service_summary:
+    name: Train Service Summary
+    max: 255
+    initial: "clear"
+
+
+# template:
+#   - sensor:
+#       - name: train_travel_issues
+#         unique_id: train_travel_issues
+#         state: >
+#           {% set messages = state_attr('sensor.trains_east_croydon_to_purley_1m_walk', 'message') | default([]) %}
+#           {% if messages is not none and messages | length > 0 %}
+#             {% set first_message = messages[0] %}
+#             {% if first_message | length > 5 %}
+#               {{ first_message }}
+#             {% else %}
+#               clear
+#             {% endif %}
+#           {% else %}
+#             clear
+#           {% endif %}
+
+
+# automation:
+#   - alias: Summarize Train Service Messages
+#     description: Summarizes train messages over 5 characters and clears input_text if no alert exists.
+#     id: summarize_train_service_messages
+#     mode: restart
+#     trigger:
+#       - platform: state
+#         entity_id: sensor.train_travel_issues
+#     variables:
+#       train_message: >
+#         {% set issue = states('sensor.train_travel_issues') %}
+#         {{ issue if issue != 'clear' else '' }}
+#       ai_assistant_ready: "{{ is_state('sensor.ha_text_ai_my_assistant','ready') }}"
+#       current_summary: "{{ states('input_text.train_service_summary') }}"
+#     action:
+#       - choose:
+#           - conditions:
+#               - condition: template
+#                 value_template: >
+#                   {{ train_message | length > 5 and ai_assistant_ready }}
+#             sequence:
+#               - service: ha_text_ai.ask_question
+#                 data:
+#                   instance: sensor.ha_text_ai_my_assistant
+#                   context_messages: 1
+#                   max_tokens: 1000
+#                   question: >-
+#                     say this in under 35 characters: "{{ train_message }}"
+#               - wait_template: "{{ is_state('sensor.ha_text_ai_my_assistant', 'ready') }}"
+#                 timeout: '00:00:30'
+#                 continue_on_timeout: true
+#               - choose:
+#                   - conditions:
+#                       - condition: template
+#                         value_template: >
+#                           {% set ai_response = state_attr('sensor.ha_text_ai_my_assistant', 'response') %}
+#                           {{ ai_response != current_summary and ai_response | trim != '' }}
+#                     sequence:
+#                       - service: input_text.set_value
+#                         target:
+#                           entity_id: input_text.train_service_summary
+#                         data:
+#                           value: "{{ state_attr('sensor.ha_text_ai_my_assistant', 'response') }}"
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ train_message | length <= 5 or not ai_assistant_ready }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 target:
+#                   entity_id: input_text.train_service_summary
+#                 data:
+#                   value: "Fallback text if AI fails."
+
+
+# sensor:
+#   - platform: template
+#     sensors:
+
+#       trains_purley_to_east_croydon_arrival_time:
+#         friendly_name: 'Purley to East Croydon - Arrival time'
+#         value_template: "{{ state_attr('sensor.trains_purley_to_east_croydon_15m_walk','calling_points') | selectattr('locationName', 'eq', 'East Croydon') | map(attribute='st') | list | first }}"
+
+
+
+
+#       trains_purley_to_london_victoria_arrival_time:
+#         friendly_name: 'Purley to London Victoria - Arrival time'
+#         value_template: "{{ state_attr('sensor.trains_purley_to_london_victoria_15m_walk','calling_points') | selectattr('locationName', 'eq', 'London Victoria') | map(attribute='st') | list | first }}"
+
+
+
+
+#       trains_purley_to_london_bridge_arrival_time:
+#         friendly_name: 'Purley to London Bridge - Arrival time'
+#         value_template: "{{ state_attr('sensor.trains_purley_to_london_bridge_15m_walk','calling_points') | selectattr('locationName', 'eq', 'London Bridge') | map(attribute='st') | list | first }}"
+
+
+
+#       pur_to_ecr_east_croydon_arrival_time:
+#         value_template: "{{ state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'calling_points') | selectattr('locationName', 'eq', 'East Croydon') | map(attribute='st') | list | first }}"
+        
+#       pur_to_ecr_train_destination_name:
+#         value_template: "{{ state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'destination_name') }}"
+        
+#       pur_to_ecr_train_platform:
+#         value_template: >
+#           {% if state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'service')['platform'] is defined %}
+#             {{ state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'service')['platform'] }}
+#           {% else %}
+#             TBC
+#           {% endif %}
+        
+#       pur_to_ecr_train_type:
+#         value_template: >
+#           {% set stops = state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'calling_points') %}
+#           {% if stops | selectattr('locationName', 'eq', 'Purley Oaks') | list | count > 0 and stops | selectattr('locationName', 'eq', 'South Croydon') | list | count > 0 %}
+#             Slow train
+#           {% else %}
+#             Fast train
+#           {% endif %}
+        
+#       pur_to_ecr_train_carriage_length:
+#         value_template: "{{ state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'length') }}"
+        
+#       pur_to_ecr_estimated_departure_time_from_purley:
+#         value_template: "{{ state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'calling_points') | selectattr('locationName', 'eq', 'Purley') | map(attribute='et') | list | first }}"
+        
+#       pur_to_ecr_current_train_status:
+#         value_template: "{{ state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'service')['etd'] }}"
+        
+#       pur_to_ecr_travel_time_purley_to_east_croydon:
+#         value_template: >
+#           {% set purley_arrival = state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'calling_points') | selectattr('locationName', 'eq', 'Purley Oaks') | map(attribute='st') | list | first %}
+#           {% set croydon_arrival = state_attr('sensor.trains_purley_to_east_croydon_15m_walk', 'calling_points') | selectattr('locationName', 'eq', 'East Croydon') | map(attribute='st') | list | first %}
+#           {% if purley_arrival and croydon_arrival %}
+#             {% set purley_time = strptime(purley_arrival, "%H:%M") %}
+#             {% set croydon_time = strptime(croydon_arrival, "%H:%M") %}
+#             {% set travel_time = (croydon_time - purley_time).seconds / 60 %}
+#             {{ travel_time }} minutes
+#           {% else %}
+#             N/A
+#           {% endif %}
+
+
+# |   END: railway.yaml

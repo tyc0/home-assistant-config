@@ -1,0 +1,210 @@
+
+# | START: floor02_travel_tracking.yaml
+# | PATH: /config/packages/security/floor02_travel_tracking.yaml
+
+
+
+# ╭────────────────────╮
+# │ INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+  office_occupied:
+    name: "Office Occupied"
+
+  bedroom_occupied:
+    name: "Bedroom Occupied"
+
+  transition_in_progress:
+    name: "Transition In Progress"
+
+
+
+# ╭────────────────────╮
+# │ INPUT NUMBER
+# ╰────────────────────╯
+input_number:
+
+  transition_timeout:
+    name: "Transition Timeout (minutes)"
+    min: 0
+    max: 60
+    step: 1
+    initial: 5
+
+
+
+# ╭────────────────────╮
+# │ INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+  last_room_transition:
+    name: "Last Room Transition"
+  movement_pattern_sequence:
+    name: "Movement Pattern Sequence"
+
+
+
+
+
+
+  last_zone_transition:
+    name: "Last Zone Transition"
+    max: 50
+input_datetime:
+  last_zone_transition_time:
+    name: "Last Zone Transition Time"
+    has_date: true
+    has_time: true
+
+# ╭────────────────────╮
+# │ GROUP
+# ╰────────────────────╯
+group:
+
+  office_presence_group:
+    name: "Office Presence Group"
+    entities:
+      - binary_sensor.presence_sensor_fp2_1780_presence_sensor_1
+      - binary_sensor.ds00_motion
+
+  bedroom_presence_group:
+    name: "Bedroom Presence Group"
+    entities:
+      - binary_sensor.presence_sensor_fp2_07a0_presence_sensor_1_2
+      - binary_sensor.ds06_motion
+
+
+
+# ╭────────────────────╮
+# │ TEMPLATE SENSOR
+# ╰────────────────────╯
+template:
+
+  - binary_sensor:
+      - name: "Zone Active"
+        unique_id: zone_active
+        state: >
+          {{ expand([
+              'binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10',
+              'binary_sensor.presence_sensor_fp2_9c35_presence_sensor_3',
+              'binary_sensor.presence_sensor_fp2_9c35_presence_sensor_2'
+             ]) | selectattr('state', 'eq', 'on') | list | count > 0 }}
+        device_class: motion
+
+
+  - sensor:
+      - name: "Presence Confidence"
+        unique_id: presence_confidence
+        state: >
+          {% set rooms = ['office', 'bedroom'] %}
+          {% set scores = namespace() %}
+          {% for room in rooms %}
+            {% set base_sensor = 'binary_sensor.presence_sensor_fp2_' ~ ('1780' if room == 'office' else '07a0') ~ '_presence_sensor_1' %}
+            {% set entry_zone = 'binary_sensor.' ~ room ~ '_entry_zone_active' %}
+            {% set motion_sensor = 'binary_sensor.' ~ ('ds00_motion' if room == 'office' else 'ds06_motion') %}
+            {% set position_sensor = 'binary_sensor.' ~ ('ds00_position' if room == 'office' else 'ds06_position') %}
+            {% set confidence = 0 %}
+            {% if is_state(base_sensor, 'on') %}{% set confidence = confidence + 80 %}{% endif %}
+            {% if is_state(entry_zone, 'on') %}{% set confidence = confidence + 20 %}{% endif %}
+            {% if is_state(motion_sensor, 'on') %}{% set confidence = confidence + 10 %}{% endif %}
+            {% if is_state(base_sensor, 'on') and is_state(position_sensor, 'off') %}{% set confidence = confidence + 40 %}{% endif %}
+            {% set scores = scores.update({room: confidence}) %}
+          {% endfor %}
+          {{ scores | to_json }}
+
+
+
+# ╭────────────────────╮
+# │ SCRIPT
+# ╰────────────────────╯
+script:
+
+  handle_room_transition:
+    description: "Unified script to manage room entry/exit"
+    fields:
+      room:
+        description: "Room name (office or bedroom)"
+      action:
+        description: "Action: entry or exit"
+    sequence:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.transition_in_progress
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.last_room_transition
+          value: "{{ room | upper }}_{{ action | upper }} ({{ now().strftime('%H:%M:%S') }})"
+      - delay: "00:00:02"
+      - condition: template
+        value_template: >
+          {{ (action == 'entry' and is_state('group.' ~ room ~ '_presence_group', 'on')) or
+             (action == 'exit' and is_state('group.' ~ room ~ '_presence_group', 'off')) }}
+      - service: input_boolean.turn_{{ 'on' if action == 'entry' else 'off' }}
+        target:
+          entity_id: "input_boolean.{{ room }}_occupied"
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.transition_in_progress
+      - event: room_occupancy_change
+        event_data:
+          room: "{{ room }}"
+          state: "{{ 'occupied' if action == 'entry' else 'empty' }}"
+          confidence: "{{ state_attr('sensor.presence_confidence', room) }}"
+
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+  - alias: "Room Entry Detection"
+    trigger:
+      - platform: state
+        entity_id:
+          - group.office_presence_group
+          - group.bedroom_presence_group
+        to: "on"
+    condition: "{{ not is_state('input_boolean.' ~ trigger.to_state.object_id.split('_')[0] ~ '_occupied', 'on') }}"
+    action:
+      - service: script.handle_room_transition
+        data:
+          room: "{{ trigger.to_state.object_id.split('_')[0] }}"
+          action: "entry"
+
+
+  - alias: "Room Exit Detection"
+    trigger:
+      - platform: state
+        entity_id:
+          - group.office_presence_group
+          - group.bedroom_presence_group
+        to: "off"
+        for: "00:00:45"
+    condition: "{{ is_state('input_boolean.' ~ trigger.to_state.object_id.split('_')[0] ~ '_occupied', 'on') }}"
+    action:
+      - service: script.handle_room_transition
+        data:
+          room: "{{ trigger.to_state.object_id.split('_')[0] }}"
+          action: "exit"
+
+
+  - alias: "Transition Timeout Reset"
+    trigger:
+      - platform: state
+        entity_id: input_boolean.transition_in_progress
+        to: "on"
+        for:
+          minutes: "{{ states('input_number.transition_timeout')|int }}"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.transition_in_progress
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.last_room_transition
+          value: "TRANSITION_TIMEOUT ({{ now().strftime('%H:%M:%S') }})"
+
+
+# | END: floor02_travel_tracking.yaml

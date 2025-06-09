@@ -1,0 +1,64 @@
+light_popup:
+    tap_action:
+      action: fire-dom-event
+      browser_mod:
+        command: popup
+        title: '[[[ return entity.attributes.friendly_name ]]]'
+        hide_header: true
+        auto_close: false
+        style:
+          $: |
+            .mdc-dialog .mdc-dialog__container {
+              width: 100%;
+            }
+            .mdc-dialog .mdc-dialog__container .mdc-dialog__surface {
+              width:100%;
+              box-shadow:none;
+            }
+          .: |
+            :host {
+              --mdc-theme-surface: rgba(0,0,0,0);
+              --secondary-background-color: rgba(0,0,0,0);
+              --ha-card-background: rgba(0,0,0,0);
+              --mdc-dialog-scrim-color: rgba(0,0,0,0.8);
+              --mdc-dialog-min-height: 100%;
+              --mdc-dialog-min-width: 100%;
+              --mdc-dialog-max-width: 100%;
+            }
+            mwc-icon-button {
+              color: #FFF;
+            }        
+        card:
+          type: custom:light-popup-card
+          entity: '[[[ return entity.entity_id ]]]'
+          icon: mdi:led-strip
+          actionSize: 60px
+          settings:
+            openButton: RGB
+            closeButton: Close
+          settingsCard:
+            type: custom:light-entity-card
+            cardOptions:
+              entity: '[[[ return entity.entity_id ]]]'
+              brightness: false
+              full_width_sliders: true
+              hide_header: true
+              show_slider_percent: true
+              smooth_color_wheel: true
+              consolidate_entities: true
+          actions:
+            - service: light.turn_on
+              service_data:
+                entity_id: '[[[ return entity.entity_id ]]]'
+                color_temp: 153
+              color: '#d8d9e1'
+            - service: light.turn_on
+              service_data:
+                entity_id: '[[[ return entity.entity_id ]]]'
+                color_temp: 326
+                color: '#d5b08d'
+            - service: light.turn_on
+              service_data:
+                entity_id: '[[[ return entity.entity_id ]]]'
+                color_temp: 500
+              color: '#ce944b'

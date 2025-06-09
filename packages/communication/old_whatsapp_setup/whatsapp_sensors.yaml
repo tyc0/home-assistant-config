@@ -1,0 +1,206 @@
+# ############
+# # Template Sensors
+# ############
+# ############
+# # Template Sensors
+# ############
+# sensor:
+#   - platform: template
+#     sensors:
+#       whatsapp_messages_phone_c:
+#         friendly_name: "WhatsApp Messages - Phone C"
+#         value_template: >
+#           {% set message = state_attr('sensor.phone_c_active_notification_count', 'android.text_com.whatsapp_1') %}
+#           {{ message if message else "No new messages" }}
+#         attribute_templates:
+#           sender: >
+#             {% set sender = state_attr('sensor.phone_c_active_notification_count', 'android.title_com.whatsapp_1') %}
+#             {{ sender if sender else "Unknown Sender" }}
+#           timestamp: >
+#             {% set timestamp = state_attr('sensor.phone_c_active_notification_count', 'com.whatsapp_1_post_time') %}
+#             {{ (timestamp / 1000) | timestamp_local if timestamp else "Unknown Time" }}
+#           phone_number: >
+#             {% set phone_number = state_attr('sensor.phone_c_active_notification_count', 'android.hiddenConversationTitle_com.whatsapp_1') %}
+#             {% if phone_number and phone_number != "null" %}
+#               {{ phone_number }}
+#             {% else %}
+#               {% set messages = state_attr('sensor.phone_c_active_notification_count', 'android.messages_com.whatsapp_1') %}
+#               {% if messages and 'sender' in messages[0] %}
+#                 {{ messages[0]['sender'] }}
+#               {% else %}
+#                 "Unknown Number"
+#               {% endif %}
+#             {% endif %}
+#           message_type: >
+#             {% set msg_type = state_attr('sensor.phone_c_active_notification_count', 'android.template_com.whatsapp_1') %}
+#             {{ "Media Message" if "MessagingStyle" not in msg_type else "Text Message" }}
+#           is_group: >
+#             {% set is_group = state_attr('sensor.phone_c_active_notification_count', 'android.isGroupConversation_com.whatsapp_1') %}
+#             {{ is_group if is_group is not none else "Unknown" }}
+#           group_name: >
+#             {% set group_name = state_attr('sensor.phone_c_active_notification_count', 'android.hiddenConversationTitle_com.whatsapp_1') %}
+#             {{ group_name if group_name else "Not a Group" }}
+#           unread_count: >
+#             {% set unread = state_attr('sensor.phone_c_active_notification_count', 'android.conversationUnreadMessageCount_com.whatsapp_1') %}
+#             {{ unread if unread else 0 }}
+#           notification_priority: >
+#             {% set priority = state_attr('sensor.phone_c_active_notification_count', 'android.priority_com.whatsapp_1') %}
+#             {{ priority if priority else "Default" }}
+
+#       whatsapp_messages_phone_e:
+#         friendly_name: "WhatsApp Messages - Phone E"
+#         value_template: >
+#           {% set message = state_attr('sensor.phone_e_active_notification_count', 'android.text_com.whatsapp_1') %}
+#           {{ message if message else "No new messages" }}
+#         attribute_templates:
+#           sender: >
+#             {% set sender = state_attr('sensor.phone_e_active_notification_count', 'android.title_com.whatsapp_1') %}
+#             {{ sender if sender else "Unknown Sender" }}
+#           timestamp: >
+#             {% set timestamp = state_attr('sensor.phone_e_active_notification_count', 'com.whatsapp_1_post_time') %}
+#             {{ (timestamp / 1000) | timestamp_local if timestamp else "Unknown Time" }}
+#           phone_number: >
+#             {% set phone_number = state_attr('sensor.phone_e_active_notification_count', 'android.hiddenConversationTitle_com.whatsapp_1') %}
+#             {% if phone_number and phone_number != "null" %}
+#               {{ phone_number }}
+#             {% else %}
+#               {% set messages = state_attr('sensor.phone_e_active_notification_count', 'android.messages_com.whatsapp_1') %}
+#               {% if messages and 'sender' in messages[0] %}
+#                 {{ messages[0]['sender'] }}
+#               {% else %}
+#                 "Unknown Number"
+#               {% endif %}
+#             {% endif %}
+#           message_type: >
+#             {% set msg_type = state_attr('sensor.phone_e_active_notification_count', 'android.template_com.whatsapp_1') %}
+#             {{ "Media Message" if "MessagingStyle" not in msg_type else "Text Message" }}
+#           is_group: >
+#             {% set is_group = state_attr('sensor.phone_e_active_notification_count', 'android.isGroupConversation_com.whatsapp_1') %}
+#             {{ is_group if is_group is not none else "Unknown" }}
+#           group_name: >
+#             {% set group_name = state_attr('sensor.phone_e_active_notification_count', 'android.hiddenConversationTitle_com.whatsapp_1') %}
+#             {{ group_name if group_name else "Not a Group" }}
+#           unread_count: >
+#             {% set unread = state_attr('sensor.phone_e_active_notification_count', 'android.conversationUnreadMessageCount_com.whatsapp_1') %}
+#             {{ unread if unread else 0 }}
+#           notification_priority: >
+#             {% set priority = state_attr('sensor.phone_e_active_notification_count', 'android.priority_com.whatsapp_1') %}
+#             {{ priority if priority else "Default" }}
+
+# ############
+# # Input Text Entities
+# ############
+# input_text:
+#   # C's Message Entities
+#   whatsapp_c_inbound_single_sendernumber:
+#     max: 255
+#     mode: text
+#     icon: mdi:phone
+#     initial: ""
+#     name: "Phone number of sender"
+
+#   whatsapp_c_inbound_single_sendername:
+#     max: 255
+#     mode: text
+#     icon: mdi:account
+#     initial: ""
+#     name: "Name of sender"
+
+#   whatsapp_c_inbound_single_bodytext:
+#     max: 255
+#     mode: text
+#     icon: mdi:message
+#     initial: ""
+#     name: "Message text"
+
+#   whatsapp_c_inbound_single_combined_sendername_bodytext:
+#     max: 255
+#     mode: text
+#     icon: mdi:account-voice
+#     initial: ""
+#     name: "Name of sender & message text"
+
+#   whatsapp_c_outbound_single_targetnumber:
+#     max: 255
+#     mode: text
+#     icon: mdi:phone
+#     initial: ""
+#     name: "Phone number of target"
+
+#   whatsapp_c_outbound_single_targetname:
+#     max: 255
+#     mode: text
+#     icon: mdi:account
+#     initial: ""
+#     name: "Name of target"
+
+#   whatsapp_c_outbound_single_bodytext:
+#     max: 255
+#     mode: text
+#     icon: mdi:message
+#     initial: ""
+#     name: "Message text"
+
+#   whatsapp_c_outbound_single_combined_targetname_bodytext:
+#     max: 255
+#     mode: text
+#     icon: mdi:account-voice
+#     initial: ""
+#     name: "Name of target & message text"
+
+#   # E's Message Entities
+#   whatsapp_e_inbound_single_sendernumber:
+#     max: 255
+#     mode: text
+#     icon: mdi:phone
+#     initial: ""
+#     name: "Phone number of sender"
+
+#   whatsapp_e_inbound_single_sendername:
+#     max: 255
+#     mode: text
+#     icon: mdi:account
+#     initial: ""
+#     name: "Name of sender"
+
+#   whatsapp_e_inbound_single_bodytext:
+#     max: 255
+#     mode: text
+#     icon: mdi:message
+#     initial: ""
+#     name: "Message text"
+
+#   whatsapp_e_inbound_single_combined_sendername_bodytext:
+#     max: 255
+#     mode: text
+#     icon: mdi:account-voice
+#     initial: ""
+#     name: "Name of sender & message text"
+
+#   whatsapp_e_outbound_single_targetnumber:
+#     max: 255
+#     mode: text
+#     icon: mdi:phone
+#     initial: ""
+#     name: "Phone number of target"
+
+#   whatsapp_e_outbound_single_targetname:
+#     max: 255
+#     mode: text
+#     icon: mdi:account
+#     initial: ""
+#     name: "Name of target"
+
+#   whatsapp_e_outbound_single_bodytext:
+#     max: 255
+#     mode: text
+#     icon: mdi:message
+#     initial: ""
+#     name: "Message text"
+
+#   whatsapp_e_outbound_single_combined_targetname_bodytext:
+#     max: 255
+#     mode: text
+#     icon: mdi:account-voice
+#     initial: ""
+#     name: "Name of target & message text"

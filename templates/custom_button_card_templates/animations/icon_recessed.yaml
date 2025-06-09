@@ -1,0 +1,49 @@
+  icon_recessed:
+    styles:
+      custom_fields:
+        icon:
+          - width: 75%
+          - margin-left: 3%
+          - margin-top: 3%
+    custom_fields:
+      icon: >
+        [[[
+         
+          
+          let state;
+          if (variables.state_on && variables.timeout < 2000) {
+            state = 'on';
+          }
+          return `
+      
+            <svg stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><filter color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" height="243.941" id="Filter" width="446.197" x="39.6995" y="31.8418"><feComponentTransfer in="SourceGraphic" result="Alpha"><feFuncA slope=".998062" type="linear"/></feComponentTransfer><feDropShadow dx="0" dy="0" flood-color="#000" flood-opacity=".333" in="Alpha" result="Shadow" stdDeviation="25"/><feGaussianBlur in="Shadow" result="Blur" stdDeviation=".581395"/></filter><filter color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" height="363.617" id="Filter_2" width="612.152" x="-43.8416" y="74.3619"><feGaussianBlur in="SourceGraphic" result="Blur" stdDeviation="44.3372"/></filter></defs><clipPath id="ArtboardFrame"><path d="M0 0h512v512H0z"/></clipPath><g clip-path="url(#ArtboardFrame)" id="Layer-1" vectornator:layerName="Layer 1">
+              <path d="M43.1762 148.671C43.1762 89.8466 140.636 42.1604 260.859 42.1604 381.082 42.1604 478.542 89.8466 478.542 148.671 478.542 207.494 381.082 255.181 260.859 255.181 140.636 255.181 43.1762 207.494 43.1762 148.671z" fill="#a0a0a0" fill-rule="evenodd" opacity=".982692" stroke="#717171" stroke-linecap="butt" stroke-linejoin="round" stroke-width="10"/>
+              <path class="${state}" fill="var(--light-color)"   d="M91.153 153.812C91.153 114.867 168.001 83.2953 262.798 83.2953 357.595 83.2953 434.443 114.867 434.443 153.812 434.443 192.758 357.595 224.329 262.798 224.329 168.001 224.329 91.153 192.758 91.153 153.812z" fill="#ffdc00" fill-rule="evenodd" filter="url(#Filter)" stroke="none" vectornator:shadowAngle="1.5708" vectornator:shadowColor="#000000" vectornator:shadowOffset="0" vectornator:shadowOpacity=".333" vectornator:shadowRadius="50"/>
+             
+              <style>
+                @keyframes on {
+                  0% {
+                    transform: scale(0.85);
+                  }
+                  20% {
+                    transform: scale(1.1);
+                  }
+                  40% {
+                    transform: scale(0.95);
+                  }
+                  60% {
+                    transform: scale(1.03);
+                  }
+                  80% {
+                    transform: scale(0.97);
+                  }
+                }
+                .on {
+                  animation: on 100s infinite;
+                  transform-origin: center;
+                }
+              </style>
+            </svg>
+         
+          `;
+         ]]]

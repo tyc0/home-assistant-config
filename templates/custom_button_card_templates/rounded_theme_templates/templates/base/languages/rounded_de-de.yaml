@@ -1,0 +1,18 @@
+de-de:
+  variables:
+    lang_on: "On"
+    lang_off: "Off"
+    lang_not_home: "Away"
+    lang_home: "Home"
+    lang_paused: "Paused"
+    lang_playing: "Playing"
+    lang_stopped: "Stopped"
+    lang_heat: "Heat"
+    lang_armed_night: "Night"
+    lang_armed_custom_bypass: "Alarm set"
+    lang_arming: "Activating Alarm"
+    lang_armed_away: "Armed"
+    lang_disarmed: "Disarmed"
+
+    date_format: 'gb-GB'
+    time_unit: ' Uhr'

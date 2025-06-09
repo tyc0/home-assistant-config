@@ -1,0 +1,105 @@
+
+# | START: alexa.yaml
+# | PATH: /config/packages/ai/alexa.yaml
+
+
+# ╭────────────────────╮
+# │ INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+# ➔ Announcement text input field
+#   Input field for the announcement text
+  announcement_text:
+    icon: "mdi:voice"
+
+# ➔ Alexa command text input field
+#   Input field for the Alexa command text
+  alexa_command_text:
+    icon: "mdi:cellphone-sound"
+
+
+
+# ╭────────────────────╮
+# │ INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+# ➔ AleSSxa whisper mode input boolean
+#   Input boolean for the Alexa whisper mode
+  alexa_whispermode:
+    name: "Alexa - Whisper mode"
+
+
+
+# ╭────────────────────╮
+# │ INPUT DATETIME
+# ╰────────────────────╯
+input_datetime:
+
+  # ➔ Alarm time input datetime
+  #   Input datetime for the alarm time
+  alexaalarm_time:
+    name: Alexa Alarm Time
+    has_date: false
+    has_time: true
+
+
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Automation to send TTS announcements via Alexa devices
+#   Automation for sending text-to-speech announcements via Alexa devices
+  - id: alexa_tts_via_show_15
+    alias: "Alexa - Send TTS via Echo Show 15"
+    description: "Handles text-to-speech announcements via Alexa devices"
+    mode: single
+    max: 3
+    max_exceeded: silent
+    trigger:
+      - platform: state
+        entity_id: input_text.announcement_text
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state | string | trim != '' and trigger.to_state.state | string | length <= 250 }}"
+    variables:
+      announcement: "{{ trigger.to_state.state | trim }}"
+      sound_effect: "soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02"
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.alexa_whispermode
+                state: "on"
+            sequence:
+              - service: notify.alexa_media_echo_show_15
+                data:
+                  message: >-
+                    <speak>
+                      <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_03"/>
+                      <amazon:effect name='whispered'>{{ announcement }}</amazon:effect>
+                    </speak>
+                  data:
+                    type: tts
+        default:
+          - service: notify.alexa_media_echo_show_15
+            data:
+              message: >-
+                <speak>
+                  <audio src="{{ sound_effect }}"/>
+                  {{ announcement }}
+                </speak>
+              data:
+                type: tts
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.announcement_text
+        data:
+          value: ""
+
+
+# | END: alexa.yaml

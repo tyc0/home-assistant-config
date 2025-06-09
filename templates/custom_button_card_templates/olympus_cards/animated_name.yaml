@@ -1,0 +1,61 @@
+
+# | START: animated_name.yaml
+# |  PATH: /config/templates/custom_button_card_templates/olympus_cards/animated_name.yaml
+
+
+# ➔ Animated Name
+#   Custom button card template that displays a name with a text animation effect
+#   using CSS animations and JavaScript DOM manipulation. Core functionality:
+#
+#     • Text animation with configurable speed
+#     • Name input with default value and 5s interval refresh
+
+
+# ➔ Example Usage
+# type: custom:button-card
+# template: animated_name
+# variables:
+#   name: Default Name
+#   index: 0
+#   text_animation_speed: 1.4
+
+animated_name:
+  variables:
+    name: Default Name
+    index: 0
+    text_animation_speed: 1.4
+  custom_fields:
+    animated_name: |
+      [[[
+        const name = variables.name;
+        const index = parseInt(variables.index);
+        const textAnimationSpeed = parseFloat(variables.text_animation_speed);  // Text animation speed
+
+        // Apply the text animation speed variable
+        return `<span>${name
+          .split('')
+          .map(
+            (letter, idx) =>
+              `<span style="display: inline-block; animation: textfadeintro ${1 / textAnimationSpeed}s both; animation-delay: ${
+                (0.2 + index * 0.2 + idx * 0.1) / textAnimationSpeed
+              }s;">${letter}</span>`
+          )
+          .join('')}</span>`;
+      ]]]
+  styles:
+    custom_fields:
+      animated_name:
+        - padding: 5%
+        - font-size: 0.75em
+        - justify-self: start
+        - align-self: end
+        - color: var(--primary-text-color, rgba(50, 50, 50, 0.9))
+        - overflow: visible
+  extra_styles: |
+    @keyframes textfadeintro {
+      from { transform: scaleX(0.2) translateX(100px); filter: blur(20px); opacity: 0; }
+      to { transform: scaleX(1) translateX(0); filter: blur(0); opacity: 1; }
+    }
+
+
+# | END: animated_name.yaml

@@ -1,0 +1,604 @@
+
+# | START: weather_7_day_forecast.yaml
+# |  PATH: /config/templates/custom_button_card_templates/olympus_cards/weather_7_day_forecast.yaml
+
+
+# ➔ Weather Forecast Widget
+#   7-day forecast showing temperature, precipitation and weather conditions.
+#   Core functionality:
+#
+#     • Precipitation bars with percentage-based calculation
+#     • Temperature display with weekday labels
+#     • Weather condition icons from SVG sources
+#     • Staggered animations for all elements
+#     • Configurable weather data source
+#     • Customizable colors and dimensions
+
+
+
+weather_forecast:
+  template:
+    type: custom:button-card
+    variables:
+
+
+# ╭────────────────────╮
+# │ VISUAL SETTINGS
+# ╰────────────────────╯      
+#   Bar dimensions & appearance
+      barheight: 50px                              # Height of the precipitation bars
+      barwidth: 8px                                # Width of the precipitation bars
+      barborderradius: 4px                         # Rounded corners for the precipitation bars
+      barbackground: rgba(150,150,150,0.16)      # Background color for unfilled portion of bars
+      barcolor: rgba(53, 159, 244, 1)            # Fill color for precipitation bars (blue by default)
+      
+#   Icon settings
+      iconSize: 32px                               # Size of the weather condition icons
+      iconbottom: 6px                              # Distance from bottom of card to the icons
+      iconcolor: var(--blue)                       # Color for the icons (using theme variable)
+      
+#   Temperature & day text settings
+      tempcolor: var(--primary-text-color)         # Color for all temperature text
+      tempNumberColor: var(--primary-text-color)   # Color for just the temperature numbers
+      degColor: var(--contrast9)                   # Color for the degree symbol
+      dayColor: var(--contrast9)                   # Color for the day of week text
+      tempFontSize: 12px                           # Font size for general temperature text
+      tempNumberFontSize: 17px                     # Font size for temperature numbers
+      dayFontSize: 0.8rem                          # Font size for day of week names
+      textLetterSpacing: 0.05rem                   # Letter spacing for all text
+      textLineHeight: 1.2                          # Line height for text elements
+      tempNumberFontWeight: 400                    # Font weight for temperature numbers
+      restFontWeight: 300                          # Font weight for other text
+
+
+# ╭────────────────────╮
+# │ ANIMATION SETTINGS
+# ╰────────────────────╯
+#   Animation duration & delays
+      animDuration: 1.85s                          # Duration of main animations
+      barStartDelay: 0.4s                          # Delay before precipitation bars start animating
+      tempStartDelay: 1.9s                         # Delay before temperature elements start animating
+      iconStartDelay: 2.2s                         # Delay before weather icons start animating
+
+
+# ╭────────────────────╮
+# │ ICON SETTINGS
+# ╰────────────────────╯
+#   Icon mappings
+      baseIconUrl: /local/weathericons/fill/svg-static/
+      iconClearDay: clear-day
+      iconClearNight: clear-night_night
+      iconPartlyCloudyDay: partly-cloudy-day
+      iconPartlyCloudyNight: partlycloudy_night
+      iconCloudy: cloudy
+      iconFog: fog
+      iconHail: hail
+      iconLightning: lightning
+      iconLightningRainy: lightning-rainy
+      iconPouring: pouring
+      iconRain: raindrop
+      iconSnow: snowflake
+      iconSnowyRainy: snowy-rainy
+      iconSleet: sleet
+      iconWindy: windy
+      iconWindyVariant: windy-variant
+      iconExceptional: exceptional
+
+
+# ╭────────────────────╮
+# │ DATA SOURCE
+# ╰────────────────────╯
+#   This defines where the weather data comes from
+      weather_source: '[[[ return variables.weather_source || "pirateweather" ]]]'
+
+
+# ╭────────────────────╮
+# │ STYLING
+# ╰────────────────────╯
+#   Card styling
+    styles:
+      card:
+        - background: none
+        - border: none
+        - box-shadow: none
+        - height: 150px
+        - overflow: visible
+
+#   Custom field styling for precipitation bars
+      custom_fields:
+        bar1:
+          - position: absolute
+          - left: 5%
+          - bottom: 90px
+          - width: "[[[ return variables.barwidth; ]]]"
+          - height: "[[[ return variables.barheight; ]]]"
+          - background: "[[[ return variables.barbackground; ]]]"
+          - border-radius: "[[[ return variables.barborderradius; ]]]"
+          - overflow: hidden
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.barStartDelay) + 0*0.1;
+                  return `slide-in-blurred-bottom ${variables.animDuration} ease-out ${delay}s both`;
+              ]]]
+
+        bar2:
+          - position: absolute
+          - left: 20%
+          - bottom: 90px
+          - width: "[[[ return variables.barwidth; ]]]"
+          - height: "[[[ return variables.barheight; ]]]"
+          - background: "[[[ return variables.barbackground; ]]]"
+          - border-radius: "[[[ return variables.barborderradius; ]]]"
+          - overflow: hidden
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.barStartDelay) + 1*0.1;
+                  return `slide-in-blurred-bottom ${variables.animDuration} ease-out ${delay}s both`;
+              ]]]
+
+        bar3:
+          - position: absolute
+          - left: 35%
+          - bottom: 90px
+          - width: "[[[ return variables.barwidth; ]]]"
+          - height: "[[[ return variables.barheight; ]]]"
+          - background: "[[[ return variables.barbackground; ]]]"
+          - border-radius: "[[[ return variables.barborderradius; ]]]"
+          - overflow: hidden
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.barStartDelay) + 2*0.1;
+                  return `slide-in-blurred-bottom ${variables.animDuration} ease-out ${delay}s both`;
+              ]]]
+
+        bar4:
+          - position: absolute
+          - left: 50%
+          - bottom: 90px
+          - width: "[[[ return variables.barwidth; ]]]"
+          - height: "[[[ return variables.barheight; ]]]"
+          - background: "[[[ return variables.barbackground; ]]]"
+          - border-radius: "[[[ return variables.barborderradius; ]]]"
+          - overflow: hidden
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.barStartDelay) + 3*0.1;
+                  return `slide-in-blurred-bottom ${variables.animDuration} ease-out ${delay}s both`;
+              ]]]
+
+        bar5:
+          - position: absolute
+          - left: 65%
+          - bottom: 90px
+          - width: "[[[ return variables.barwidth; ]]]"
+          - height: "[[[ return variables.barheight; ]]]"
+          - background: "[[[ return variables.barbackground; ]]]"
+          - border-radius: "[[[ return variables.barborderradius; ]]]"
+          - overflow: hidden
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.barStartDelay) + 4*0.1;
+                  return `slide-in-blurred-bottom ${variables.animDuration} ease-out ${delay}s both`;
+              ]]]
+
+        bar6:
+          - position: absolute
+          - left: 80%
+          - bottom: 90px
+          - width: "[[[ return variables.barwidth; ]]]"
+          - height: "[[[ return variables.barheight; ]]]"
+          - background: "[[[ return variables.barbackground; ]]]"
+          - border-radius: "[[[ return variables.barborderradius; ]]]"
+          - overflow: hidden
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.barStartDelay) + 5*0.1;
+                  return `slide-in-blurred-bottom ${variables.animDuration} ease-out ${delay}s both`;
+              ]]]
+
+        bar7:
+          - position: absolute
+          - left: 95%
+          - bottom: 90px
+          - width: "[[[ return variables.barwidth; ]]]"
+          - height: "[[[ return variables.barheight; ]]]"
+          - background: "[[[ return variables.barbackground; ]]]"
+          - border-radius: "[[[ return variables.barborderradius; ]]]"
+          - overflow: hidden
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.barStartDelay) + 6*0.1;
+                  return `slide-in-blurred-bottom ${variables.animDuration} ease-out ${delay}s both`;
+              ]]]
+
+
+#   Custom field styling for temperature & day labels
+        temp1:
+          - position: absolute
+          - left: 3.65%
+          - bottom: 45px
+          - font-size: "[[[ return variables.tempFontSize; ]]]"
+          - width: 20px
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.tempStartDelay) + 0*0.17;
+                  return `slide-in 1s ease-out ${delay}s both, opacity 1s ease-in ${delay}s both`;
+              ]]]
+
+        temp2:
+          - position: absolute
+          - left: 18.65%
+          - bottom: 45px
+          - font-size: "[[[ return variables.tempFontSize; ]]]"
+          - width: 20px
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.tempStartDelay) + 1*0.17;
+                  return `slide-in 1s ease-out ${delay}s both, opacity 1s ease-in ${delay}s both`;
+              ]]]
+
+        temp3:
+          - position: absolute
+          - left: 33.65%
+          - bottom: 45px
+          - font-size: "[[[ return variables.tempFontSize; ]]]"
+          - width: 20px
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.tempStartDelay) + 2*0.17;
+                  return `slide-in 1s ease-out ${delay}s both, opacity 1s ease-in ${delay}s both`;
+              ]]]
+
+        temp4:
+          - position: absolute
+          - left: 48.65%
+          - bottom: 45px
+          - font-size: "[[[ return variables.tempFontSize; ]]]"
+          - width: 20px
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.tempStartDelay) + 3*0.17;
+                  return `slide-in 1s ease-out ${delay}s both, opacity 1s ease-in ${delay}s both`;
+              ]]]
+
+        temp5:
+          - position: absolute
+          - left: 63.65%
+          - bottom: 45px
+          - font-size: "[[[ return variables.tempFontSize; ]]]"
+          - width: 20px
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.tempStartDelay) + 4*0.17;
+                  return `slide-in 1s ease-out ${delay}s both, opacity 1s ease-in ${delay}s both`;
+              ]]]
+
+        temp6:
+          - position: absolute
+          - left: 78.65%
+          - bottom: 45px
+          - font-size: "[[[ return variables.tempFontSize; ]]]"
+          - width: 20px
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.tempStartDelay) + 5*0.17;
+                  return `slide-in 1s ease-out ${delay}s both, opacity 1s ease-in ${delay}s both`;
+              ]]]
+
+        temp7:
+          - position: absolute
+          - left: 93.65%
+          - bottom: 45px
+          - font-size: "[[[ return variables.tempFontSize; ]]]"
+          - width: 20px
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.tempStartDelay) + 6*0.17;
+                  return `slide-in 1s ease-out ${delay}s both, opacity 1s ease-in ${delay}s both`;
+              ]]]
+
+
+#   Custom field styling for weather icons
+        icon1:
+          - position: absolute
+          - left: 2.6%
+          - bottom: "[[[ return variables.iconbottom; ]]]"
+          - width: "[[[ return variables.iconSize; ]]]"
+          - height: "[[[ return variables.iconSize; ]]]"
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.iconStartDelay) + 0*0.17;
+                  return `cardpopintro 0.8s ease-out ${delay}s both, opacity 0.8s ease-in ${delay}s both`;
+              ]]]
+
+        icon2:
+          - position: absolute
+          - left: 17.6%
+          - bottom: "[[[ return variables.iconbottom; ]]]"
+          - width: "[[[ return variables.iconSize; ]]]"
+          - height: "[[[ return variables.iconSize; ]]]"
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.iconStartDelay) + 1*0.17;
+                  return `cardpopintro 0.8s ease-out ${delay}s both, opacity 0.8s ease-in ${delay}s both`;
+              ]]]
+
+        icon3:
+          - position: absolute
+          - left: 32.6%
+          - bottom: "[[[ return variables.iconbottom; ]]]"
+          - width: "[[[ return variables.iconSize; ]]]"
+          - height: "[[[ return variables.iconSize; ]]]"
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.iconStartDelay) + 2*0.17;
+                  return `cardpopintro 0.8s ease-out ${delay}s both, opacity 0.8s ease-in ${delay}s both`;
+              ]]]
+
+        icon4:
+          - position: absolute
+          - left: 47.6%
+          - bottom: "[[[ return variables.iconbottom; ]]]"
+          - width: "[[[ return variables.iconSize; ]]]"
+          - height: "[[[ return variables.iconSize; ]]]"
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.iconStartDelay) + 3*0.17;
+                  return `cardpopintro 0.8s ease-out ${delay}s both, opacity 0.8s ease-in ${delay}s both`;
+              ]]]
+
+        icon5:
+          - position: absolute
+          - left: 62.6%
+          - bottom: "[[[ return variables.iconbottom; ]]]"
+          - width: "[[[ return variables.iconSize; ]]]"
+          - height: "[[[ return variables.iconSize; ]]]"
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.iconStartDelay) + 4*0.17;
+                  return `cardpopintro 0.8s ease-out ${delay}s both, opacity 0.8s ease-in ${delay}s both`;
+              ]]]
+
+        icon6:
+          - position: absolute
+          - left: 77.6%
+          - bottom: "[[[ return variables.iconbottom; ]]]"
+          - width: "[[[ return variables.iconSize; ]]]"
+          - height: "[[[ return variables.iconSize; ]]]"
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.iconStartDelay) + 5*0.17;
+                  return `cardpopintro 0.8s ease-out ${delay}s both, opacity 0.8s ease-in ${delay}s both`;
+              ]]]
+
+        icon7:
+          - position: absolute
+          - left: 92.6%
+          - bottom: "[[[ return variables.iconbottom; ]]]"
+          - width: "[[[ return variables.iconSize; ]]]"
+          - height: "[[[ return variables.iconSize; ]]]"
+          - overflow: visible
+          - animation: |-
+              [[[ 
+                  const delay = parseFloat(variables.iconStartDelay) + 6*0.17;
+                  return `cardpopintro 0.8s ease-out ${delay}s both, opacity 0.8s ease-in ${delay}s both`;
+              ]]]
+
+
+# ╭────────────────────╮
+# │ CUSTOM FIELDS
+# ╰────────────────────╯
+    custom_fields:
+      bar1: |
+        [[[ 
+          // Helper function to render precipitation bars
+          // This function defines how precipitation data is rendered into vertical bars
+          window.renderBar = (day) => {
+            // Get the weather data source from variables
+            const source = variables.weather_source;
+            
+            // Read precipitation value from the appropriate sensor
+            // Format: sensor.[weather_source]_precip_accumulation_[day]d
+            // The ? optional chaining ensures no error if sensor doesn't exist
+            const val = parseFloat(states[`sensor.${source}_precip_accumulation_${day}d`]?.state) || 0;
+            
+            // Calculate height based on precipitation amount:
+            // - If precipitation < 0.1, show no bar
+            // - Otherwise map the value to a percentage (scaled by 150 for better visibility)
+            // - Cap at 100% height to stay within bounds
+            const height = val < 0.1 ? 0 : Math.min(Math.max(val * 150, 0), 100);
+            
+            // Return a div that represents the bar, or empty string if no precipitation
+            return height > 0 
+              ? `<div style="position:absolute; bottom:0; left:0; right:0; height:${height}%; background: ${variables.barcolor};"></div>` 
+              : '';
+          };
+          
+          // Render the precipitation bar for day 1 (tomorrow)
+          return window.renderBar(1);
+        ]]]
+      bar2: |
+        [[[ return window.renderBar(2); ]]]
+      bar3: |
+        [[[ return window.renderBar(3); ]]]
+      bar4: |
+        [[[ return window.renderBar(4); ]]]
+      bar5: |
+        [[[ return window.renderBar(5); ]]]
+      bar6: |
+        [[[ return window.renderBar(6); ]]]
+      bar7: |
+        [[[ return window.renderBar(7); ]]]
+      temp1: |
+        [[[ 
+          // Helper function to render temperature and day labels
+          // This function creates the temperature and day name displays for each forecast day
+          window.renderTemp = (dayOffset) => {
+            // Get the weather data source from variables
+            const source = variables.weather_source;
+            
+            // Array of abbreviated day names
+            const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            
+            // Calculate the date for this forecast day
+            // Add 1 to always start with tomorrow, then add the offset for subsequent days
+            const date = new Date();
+            date.setDate(date.getDate() + 1 + dayOffset);
+            
+            // Get the day name (Sun, Mon, etc.) for this date
+            const dayName = days[date.getDay()];
+            
+            // Read temperature value from the appropriate sensor
+            // Format: sensor.[weather_source]_daytime_high_temperature_[day]d
+            // The ? optional chaining ensures no error if sensor doesn't exist
+            // The state is the high temperature value, or '-' if not available
+            const temp = states[`sensor.${source}_daytime_high_temperature_${dayOffset+1}d`]?.state || '-';
+            
+            // Return a formatted div containing the temperature and day name
+            // This creates a stacked display with temperature on top and day below
+            return `<div style="text-align:center; letter-spacing: ${variables.textLetterSpacing}; line-height: ${variables.textLineHeight};">
+                      <span style="color: ${variables.tempNumberColor}; font-size: ${variables.tempNumberFontSize}; font-weight: ${variables.tempNumberFontWeight};">${temp}</span>
+                      <span style="color: ${variables.degColor}; font-size: ${variables.tempFontSize}; font-weight: ${variables.restFontWeight};">°C</span><br>
+                      <span style="font-size: ${variables.dayFontSize}; color: ${variables.dayColor}; font-weight: ${variables.restFontWeight};">${dayName}</span>
+                    </div>`;
+          };
+          
+          // Render the temperature display for the first forecast day (tomorrow)
+          return window.renderTemp(0);
+        ]]]
+      temp2: |
+        [[[ return window.renderTemp(1); ]]]
+      temp3: |
+        [[[ return window.renderTemp(2); ]]]
+      temp4: |
+        [[[ return window.renderTemp(3); ]]]
+      temp5: |
+        [[[ return window.renderTemp(4); ]]]
+      temp6: |
+        [[[ return window.renderTemp(5); ]]]
+      temp7: |
+        [[[ return window.renderTemp(6); ]]]
+      icon1: |
+        [[[
+          // Helper function to render weather condition icons
+          // This function loads and displays the SVG icons for each forecast day's weather condition
+          window.renderIcon = (day) => {
+            try {
+              // Get the weather data source from variables
+              const source = variables.weather_source;
+              
+              // Map of weather condition states to icon filenames
+              // This connects the condition states reported by your weather integration
+              // to the actual icon filenames in your icon pack
+              const iconMap = {
+                'clear-day': variables.iconClearDay,
+                'clear-night': variables.iconClearNight,
+                'partly-cloudy-day': variables.iconPartlyCloudyDay,
+                'partly-cloudy-night': variables.iconPartlyCloudyNight,
+                'cloudy': variables.iconCloudy,
+                'fog': variables.iconFog, 
+                'hail': variables.iconHail,
+                'lightning': variables.iconLightning,
+                'lightning-rainy': variables.iconLightningRainy,
+                'pouring': variables.iconPouring,
+                'rain': variables.iconRain,
+                'snow': variables.iconSnow,
+                'snowy': variables.iconSnow,
+                'snowy-rainy': variables.iconSnowyRainy,
+                'sleet': variables.iconSleet,
+                'windy': variables.iconWindy,
+                'windy-variant': variables.iconWindyVariant,
+                'exceptional': variables.iconExceptional
+              };
+              
+              // Read weather condition state from the appropriate sensor
+              // Format: sensor.[weather_source]_icon_[day]d
+              // The ? optional chaining ensures no error if sensor doesn't exist
+              // Fallback to 'exceptional' if no state is available
+              const state = states[`sensor.${source}_icon_${day}d`]?.state || 'exceptional';
+              
+              // Look up the icon filename for this weather condition
+              // Fallback to the exceptional weather icon if condition not found in mapping
+              const fileName = iconMap[state] || variables.iconExceptional;
+              
+              // Construct the full URL to the SVG icon file
+              const url = `${variables.baseIconUrl}${fileName}.svg`;
+              
+              // Use XMLHttpRequest to load the SVG file directly
+              // This allows us to embed the actual SVG code rather than using an <img> tag
+              // which gives better control over the icon appearance
+              const xhr = new XMLHttpRequest();
+              xhr.open('GET', url, false);  // Synchronous request
+              xhr.send(null);
+              
+              // If icon loaded successfully, return its SVG content
+              if (xhr.status === 200) {
+                return xhr.responseText;  // The actual SVG code
+              } else {
+                // Show error message if icon couldn't be loaded
+                return `<div>Error loading icon (${xhr.status})</div>`;
+              }
+            } catch (err) {
+              // Handle any errors that occur during icon loading
+              console.error('Error loading weather icon:', err);
+              return `<div>Error loading icon</div>`;
+            }
+          };
+          
+          // Render the weather icon for day 1 (tomorrow)
+          return window.renderIcon(1);
+        ]]]
+      icon2: |
+        [[[ return window.renderIcon(2); ]]]
+      icon3: |
+        [[[ return window.renderIcon(3); ]]]
+      icon4: |
+        [[[ return window.renderIcon(4); ]]]
+      icon5: |
+        [[[ return window.renderIcon(5); ]]]
+      icon6: |
+        [[[ return window.renderIcon(6); ]]]
+      icon7: |
+        [[[ return window.renderIcon(7); ]]]
+
+
+# ╭────────────────────╮
+# │ EXTRA STYLING
+# ╰────────────────────╯
+    extra_styles: |
+      @keyframes slide-in-blurred-bottom {
+        0%     { transform: translateY(1000px) scaleY(2.2) scaleX(0.6) rotateX(45deg); transform-origin: 90% 100%; filter: blur(30px); opacity: 0;   }
+        75%    { transform: translateY(-30px) scaleY(0.98) scaleX(1.05) rotateX(0deg); filter: blur(8px); opacity: 1;                                }
+        85%    { transform: translateY(5px) scaleY(1.04) scaleX(0.98); filter: blur(2px);                                                            }
+        95%    { transform: translateY(-5px) scaleY(1); filter: blur(0);                                                                             }
+        100%   { transform: translateY(0);                                                                                                           }
+      }
+
+      @keyframes slide-in {
+        0%   { transform: translateX(-40%); }
+        100% { transform: translateX(0%);   }
+      }
+
+      @keyframes opacity { 
+        0%   {opacity: 0; }
+        100% {opacity: 1; }
+      } 
+
+      @keyframes cardpopintro {
+        0%   { transform: scale(0);   }
+        50%  { transform: scale(1.9); }
+        100% { transform: scale(1);   }
+      }

@@ -1,0 +1,45 @@
+
+# | START: pet_devices.yaml
+# |  PATH: /config/packages/device/pet_devices.yaml
+
+
+#  ╭────────────────────╮
+#  │   TEMPLATE SENSOR
+#  ╰────────────────────╯
+template:
+
+# ➔ Pet food or water levels lowlow
+  - binary_sensor:
+      - name: "Pet Supplys Low"
+        unique_id: pet_supplys_low
+        state: >-
+          {% set food_level = states('binary_sensor.freshelement_3_fresh_element_3_food_level') %}
+          {% set water_level = states('binary_sensor.dog_water_fountain_water_level') %}
+          {{ food_level == 'on' or water_level == 'on' }}
+        availability: >-
+          {% set valid_states = ['on', 'off', 'unavailable', 'unknown'] %}
+          {% set food_level = states('binary_sensor.freshelement_3_fresh_element_3_food_level') %}
+          {% set water_level = states('binary_sensor.dog_water_fountain_water_level') %}
+          {% set food_valid = food_level in valid_states %}
+          {% set water_valid = water_level in valid_states %}
+          {{ food_valid or water_valid }}
+        device_class: problem
+
+
+
+automation:
+
+# ➔ Forces hourly polling for timely water level updates.
+  - id: "dog_water_fountain_polling"
+    alias: "Poll Dog Water Fountain Every Hour"
+    trigger:
+      - platform: time_pattern
+        minutes: "0"
+    action:
+      - service: button.press
+        target:
+          entity_id: button.dog_water_fountain_reset_filter
+    mode: single
+
+
+# |  END: pet_devices.yaml

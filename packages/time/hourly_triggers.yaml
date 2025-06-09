@@ -1,0 +1,268 @@
+# | START: hourly_triggers.yaml
+# | PATH: /config/packages/time/hourly_triggers.yaml
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Time - Hourly triggers
+#   Triggers actions every hour and on sunrise/sunset
+  - id: '1698694409909'
+    alias: Time - Hourly triggers
+    description: ''
+    trigger:
+    - platform: time
+      at: 01:00:00
+      id: '0100'
+    - platform: time
+      at: 02:00:00
+      id: '0200'
+    - platform: time
+      at: 03:00:00
+      id: '0300'
+    - platform: time
+      at: 04:00:00
+      id: '0400'
+    - platform: time
+      at: 05:00:00
+      id: '0500'
+    - platform: time
+      at: 06:00:00
+      id: '0600'
+    - platform: time
+      at: 07:00:00
+      id: '0700'
+    - platform: time
+      at: 08:00:00
+      id: 0800
+    - platform: time
+      at: 09:00:00
+      id: 0900
+    - platform: time
+      at: '10:00:00'
+      id: '1000'
+    - platform: time
+      at: '11:00:00'
+      id: '1100'
+    - platform: time
+      at: '12:00:00'
+      id: '1200'
+    - platform: time
+      at: '13:00:00'
+      id: '1300'
+    - platform: time
+      at: '14:00:00'
+      id: '1400'
+    - platform: time
+      at: '15:00:00'
+      id: '1500'
+    - platform: time
+      at: '16:00:00'
+      id: '1600'
+    - platform: time
+      at: '17:00:00'
+      id: '1700'
+    - platform: time
+      at: '18:00:00'
+      id: '1800'
+    - platform: time
+      at: '19:00:00'
+      id: '1900'
+    - platform: time
+      at: '20:00:00'
+      id: '2000'
+    - platform: time
+      at: '21:00:00'
+      id: '2100'
+    - platform: time
+      at: '22:00:00'
+      id: '2200'
+    - platform: time
+      at: '23:00:00'
+      id: '2300'
+    - platform: time
+      at: 00:00:00
+      id: '0000'
+    - platform: sun
+      event: sunset
+      offset: 0
+      id: sunset
+    - platform: sun
+      event: sunrise
+      offset: 0
+      id: sunrise
+    condition: []
+    action:
+    - if:
+      - condition: trigger
+        id:
+        - '0200'
+      then:
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.structure_curtains_initial_morning_opening
+      alias: Reset helpers - Daily 02:00
+    - alias: 'Camera - Sunrise - Deactivate night vision: C09'
+      if:
+      - condition: template
+        value_template: '{{ trigger.id == ''sunrise'' and not is_state(''select.c09_day_night_mode'',
+          ''color'') }}'
+      then:
+      - service: select.select_option
+        data:
+          option: color
+        target:
+          entity_id: select.c09_day_night_mode
+    - alias: 'Camera - Sunset - Activate night vision: C09'
+      if:
+      - condition: template
+        value_template: '{{ trigger.id == ''sunset'' and not is_state(''select.c09_day_night_mode'',
+          ''blackwhite'') }}'
+      then:
+      - service: select.select_option
+        data:
+          option: blackwhite
+        target:
+          entity_id: select.c09_day_night_mode
+    mode: single
+
+# ➔ Set Timer from DateTime
+#   Sets a timer based on input_datetime
+  - id: '1734298389208'
+    alias: Set Timer from DateTime
+    triggers:
+    - entity_id: input_datetime.dashboard_timer
+      trigger: state
+    actions:
+    - data_template:
+        entity_id: timer.dashboard_timer
+        duration: "{{ '%02d:%02d:%02d' | format(\n    state_attr('input_datetime.dashboard_timer',
+          'hour') | int,\n    state_attr('input_datetime.dashboard_timer', 'minute')
+          | int,\n    state_attr('input_datetime.dashboard_timer', 'second') | int\n)
+          }}\n"
+      action: timer.set_duration
+    mode: single
+
+# ➔ Alarms
+#   Sets phone alarms on weekdays
+  - id: '1713243059859'
+    alias: Alarms
+    description: ''
+    triggers:
+    - at: 05:52:00
+      enabled: true
+      trigger: time
+    - minutes: /1
+      enabled: false
+      trigger: time_pattern
+    conditions:
+    - condition: time
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+    - condition: template
+      value_template: "{% set start_time = state_attr('calendar.united_kingdom_eng',
+        'start_time') %} {% if start_time is string %}\n  {% set start_time = strptime(start_time.split('
+        ')[0], '%Y-%m-%d') %}\n{% endif %} {{ now().strftime('%Y-%m-%d') != start_time.strftime('%Y-%m-%d')
+        }}      "
+      alias: If it's not a public holiday
+    actions:
+    - data:
+        message: command_activity
+        data:
+          intent_action: android.intent.action.SET_ALARM
+          intent_extras: "{% set timelist = alarm_time.split(':') %} {% set timehour
+            = timelist[0] %} {% set timemin = timelist[1] %}\n  android.intent.extra.alarm.HOUR:{{
+            timehour }},android.intent.extra.alarm.MINUTES:{{ timemin }},android.intent.extra.alarm.SKIP_UI:true"
+      action: notify.mobile_app_phone_c
+      alias: Set phone alarm
+    - delay:
+        seconds: 2
+    - data:
+        message: command_dnd
+        data:
+          command: 'off'
+      action: notify.mobile_app_phone_c
+      alias: Turn off Do Not Disturb
+    - delay:
+        seconds: 2
+    - data:
+        message: command_ringer_mode
+        data:
+          command: normal
+      action: notify.mobile_app_phone_c
+      alias: Ensure ringer is on normal mode
+    - delay:
+        seconds: 2
+    - data:
+        message: command_activity
+        data:
+          intent_action: android.media.action.SET_VOLUME
+          intent_extras:
+            android.media.extra.STREAM_TYPE: 4
+            android.media.extra.VOLUME_LEVEL: 15
+      action: notify.mobile_app_phone_c
+      alias: Set alarm volume to maximum
+    - delay:
+        seconds: 2
+    - data:
+        message: command_activity
+        data:
+          intent_action: android.media.action.SET_VOLUME
+          intent_extras:
+            android.media.extra.STREAM_TYPE: 2
+            android.media.extra.VOLUME_LEVEL: 15
+      action: notify.mobile_app_phone_c
+      alias: Set ringer volume to maximum
+    - delay:
+        seconds: 2
+    - data:
+        message: clear_notification
+        data:
+          tag: command_activity
+      action: notify.mobile_app_phone_c
+      alias: Clear command activity notification
+    variables:
+      alarm_time: 08:59
+
+# ➔ Call Alexa Script Every 20 Minutes During Daytime
+#   Calls Alexa script regularly during the day
+  - id: '1716730824609'
+    alias: Call Alexa Script Every 20 Minutes During Daytime
+    description: ''
+    trigger:
+    - platform: time_pattern
+      minutes: /11
+    condition:
+    - condition: sun
+      before: sunset
+      after: sunrise
+    - condition: state
+      entity_id: person.cam
+      state: home
+    action:
+    - service: script.alexa_display_ha_dashboard_show_8
+      data: {}
+
+# ➔ Set default theme on server boot
+#   Sets the default theme when the server starts
+  - id: '1717665115348'
+    alias: Set default theme on server boot
+    description: ''
+    trigger:
+    - platform: homeassistant
+      event: start
+    action:
+    - data:
+        name: Rounded-Alt-2
+      action: frontend.set_theme
+    mode: single
+
+
+# | END: hourly_triggers.yaml

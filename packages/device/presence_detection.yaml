@@ -1,0 +1,408 @@
+# | START: presence_detection.yaml
+# | PATH: /config/packages/device/presence_detection.yaml
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Person Home/Away Detection
+#   Enhanced arrival and departure detection with device tracking
+  - id: '1712437304175'
+    alias: Person Home/Away Detection
+    description: Tracks arrival and departure of household members with multiple fallbacks.
+    triggers:
+    - entity_id:
+      - binary_sensor.c_pixel_8_pro_presence
+      - binary_sensor.presence_fp2_combined
+      - sensor.router_c_connection_time
+      - binary_sensor.all_door_sensors
+      - sensor.c_phone_battery
+      - device_tracker.life360_cam
+      - binary_sensor.iphone_nearby
+      id: state_change
+      trigger: state
+    actions:
+    - variables:
+        home_pixel: '{{ is_state(''binary_sensor.c_pixel_8_pro_presence'', ''on'') }}'
+        home_life360: '{{ is_state(''device_tracker.life360_cam'', ''home'') }}'
+        home_fw_tracker: '{{ (states.sensor.router_c_connection_time.state | int(0)) > 0 }}'
+        home_presence: '{{ is_state(''binary_sensor.presence_fp2_combined'', ''on'') }}'
+        person_state: '{{ states(''person.cam'') }}'
+        is_transition_period: '{{ is_state(''input_boolean.in_person_transition'', ''on'') }}'
+        last_away_time: '{{ (states.input_datetime.last_leave_time.attributes.timestamp | int(0))}}'
+        time_since_away: '{{ now().timestamp() | int - last_away_time }}'
+        doors_open: '{{ is_state(''binary_sensor.all_door_sensors'', ''on'') }}'
+        travel_zone: '{{ is_state_attr(''person.cam'', ''current_zone'', ''work'') or
+          is_state_attr(''person.cam'', ''current_zone'', ''gym'') }}'
+        room_occupied: '{{ is_state(''binary_sensor.fp2_01_all'', ''on'') }}'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: "{{ person_state == 'home' and not (home_pixel or home_life360
+            or home_presence or home_fw_tracker) and not is_transition_period and not
+            doors_open and time_since_away > 300 }}"
+        sequence:
+        - service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.in_person_transition
+        - delay:
+            minutes: 3
+        - if:
+            condition: template
+            value_template: "{{ not (is_state('binary_sensor.c_pixel_8_pro_presence',
+              'on') or\n             is_state('device_tracker.life360_cam', 'home') or\n
+              \            is_state('binary_sensor.presence_fp2_combined', 'on') or\n
+              \            (states.sensor.router_c_connection_time.state | int(0)) >
+              0) }}"
+          then:
+          - service: input_datetime.set_datetime
+            target:
+              entity_id: input_datetime.last_leave_time
+            data:
+              datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+          - service: person.set_location
+            target:
+              entity_id: person.cam
+            data:
+              state: not_home
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.in_person_transition
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.croom_presence_override
+          - if:
+              condition: time
+              after: 07:00:00
+              before: '23:00:00'
+            then:
+            - service: event.fire
+              data:
+                title: Away From Home
+                message: Auto-detected departure at {{ now().strftime("%H:%M") }}
+                priority: high
+                tag: presence_update
+              target:
+                event_type: notify_e_or_c
+          else:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.in_person_transition
+      - conditions:
+        - condition: template
+          value_template: "{{ person_state == 'not_home' and (home_pixel or home_life360
+            or (home_fw_tracker and home_presence) or (home_presence and travel_zone)
+            or room_occupied) }}"
+        sequence:
+        - service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.in_person_transition
+        - delay:
+            minutes: 2
+        - if:
+            condition: template
+            value_template: "{{ (is_state('binary_sensor.c_pixel_8_pro_presence', 'on')
+              or\n            is_state('device_tracker.life360_cam', 'home') or\n            (states.sensor.router_c_connection_time.state
+              | int(0)) > 0 or\n            is_state('binary_sensor.presence_fp2_combined',
+              'on')) }}"
+          then:
+          - service: person.set_location
+            target:
+              entity_id: person.cam
+            data:
+              state: home
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.in_person_transition
+          - service: event.fire
+            data:
+              title: Welcome Home
+              message: Auto-detected arrival at {{ now().strftime("%H:%M") }}
+              priority: normal
+              tag: presence_update
+            target:
+              event_type: notify_e_or_c
+          else:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.in_person_transition
+    mode: restart
+
+# ➔ E Person Home Detection
+#   Arrival and departure tracking for E
+  - id: '1712432654675'
+    alias: E Person Home Detection
+    description: ''
+    triggers:
+    - entity_id:
+      - binary_sensor.e_iphone_present
+      - binary_sensor.presence_fp2_combined
+      - device_tracker.life360_enhy
+      - binary_sensor.all_door_sensors
+      - sensor.e_phone_battery
+      id: state_change
+      trigger: state
+    actions:
+    - variables:
+        home_iphone: '{{ is_state(''binary_sensor.e_iphone_present'', ''on'') }}'
+        home_life360: '{{ is_state(''device_tracker.life360_enhy'', ''home'') }}'
+        home_presence: '{{ is_state(''binary_sensor.presence_fp2_combined'', ''on'') }}'
+        person_state: '{{ states(''person.enhy'') }}'
+        is_transition_period: '{{ is_state(''input_boolean.in_e_person_transition'',
+          ''on'') }}'
+        last_away_time: '{{ (states.input_datetime.e_last_leave_time.attributes.timestamp
+          | int(0))}}'
+        time_since_away: '{{ now().timestamp() | int - last_away_time }}'
+        doors_open: '{{ is_state(''binary_sensor.all_door_sensors'', ''on'') }}'
+        travel_zone: '{{ is_state_attr(''person.enhy'', ''current_zone'', ''work'')
+          or is_state_attr(''person.enhy'', ''current_zone'', ''gym'') }}'
+        room_occupied: '{{ is_state(''binary_sensor.presence_sensor_fp2_07a0_presence_sensor_1_2'',
+          ''on'') }}'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: "{{ person_state == 'home' and not (home_iphone or home_life360
+            or home_presence) and not is_transition_period and not doors_open and
+            time_since_away > 300 }}"
+        sequence:
+        - service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.in_e_person_transition
+        - delay:
+            minutes: 3
+        - if:
+            condition: template
+            value_template: "{{ not (is_state('binary_sensor.e_iphone_present', 'on')
+              or\n             is_state('device_tracker.life360_enhy', 'home') or\n
+              \            is_state('binary_sensor.presence_fp2_combined', 'on')) }}"
+          then:
+          - service: input_datetime.set_datetime
+            target:
+              entity_id: input_datetime.e_last_leave_time
+            data:
+              datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+          - service: person.set_location
+            target:
+              entity_id: person.enhy
+            data:
+              state: not_home
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.in_e_person_transition
+          - if:
+              condition: time
+              after: 07:00:00
+              before: '23:00:00'
+            then:
+            - service: event.fire
+              data:
+                title: E Away From Home
+                message: Auto-detected departure at {{ now().strftime("%H:%M") }}
+                priority: normal
+                tag: presence_update
+              target:
+                event_type: notify_e_or_c
+          else:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.in_e_person_transition
+      - conditions:
+        - condition: template
+          value_template: "{{ person_state == 'not_home' and (home_iphone or home_life360
+            or (home_presence and travel_zone) or room_occupied) }}"
+        sequence:
+        - service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.in_e_person_transition
+        - delay:
+            minutes: 2
+        - if:
+            condition: template
+            value_template: "{{ (is_state('binary_sensor.e_iphone_present', 'on') or\n
+              \           is_state('device_tracker.life360_enhy', 'home') or\n            is_state('binary_sensor.presence_fp2_combined',
+              'on')) }}"
+          then:
+          - service: person.set_location
+            target:
+              entity_id: person.enhy
+            data:
+              state: home
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.in_e_person_transition
+          - service: event.fire
+            data:
+              title: E Welcome Home
+              message: Auto-detected arrival at {{ now().strftime("%H:%M") }}
+              priority: normal
+              tag: presence_update
+            target:
+              event_type: notify_e_or_c
+          else:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.in_e_person_transition
+    mode: restart
+
+# ➔ Presence Combined
+#   Combines all presence sensors to detect anyone home
+  - id: '1712257491212'
+    alias: Presence Combined
+    description: ''
+    triggers:
+    - entity_id:
+      - binary_sensor.c_pixel_8_pro_presence
+      - binary_sensor.e_iphone_present
+      - binary_sensor.presence_fp2_combined
+      - sensor.router_c_connection_time
+      - device_tracker.life360_cam
+      - device_tracker.life360_enhy
+      trigger: state
+    actions:
+    - service: input_boolean.turn_{% if is_state('binary_sensor.c_pixel_8_pro_presence',
+        'on') or is_state('binary_sensor.e_iphone_present', 'on') or is_state('binary_sensor.presence_fp2_combined',
+        'on') or (states.sensor.router_c_connection_time.state|int(0) > 0) or
+        is_state('device_tracker.life360_cam', 'home') or is_state('device_tracker.life360_enhy',
+        'home') %}on{% else %}off{% endif %}
+      target:
+        entity_id: input_boolean.anyone_home
+    mode: queued
+    max: 10
+
+# ➔ Presence FP2 Combined
+#   Combines all FP2 sensor states into one presence entity
+  - id: '1711747545227'
+    alias: Presence FP2 Combined
+    description: ''
+    triggers:
+    - entity_id:
+      - binary_sensor.ds00_position
+      - binary_sensor.vs02_c_door_vibration_2
+      - binary_sensor.fp2_01_all
+      - binary_sensor.presence_sensor_fp2_07a0_presence_sensor_1_2
+      - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_6
+      - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_7
+      - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_11
+      - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10
+      - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_9
+      - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_4
+      - binary_sensor.ms04_motion
+      - binary_sensor.ms05_motion
+      - binary_sensor.vs05_vibration
+      - binary_sensor.ms08_motion
+      trigger: state
+    actions:
+    - service: input_boolean.turn_{% if is_state('binary_sensor.fp2_01_all', 'on')
+        or is_state('binary_sensor.presence_sensor_fp2_07a0_presence_sensor_1_2', 'on')
+        or is_state('binary_sensor.presence_sensor_fp2_9c35_presence_sensor_6', 'on')
+        or is_state('binary_sensor.presence_sensor_fp2_9c35_presence_sensor_7', 'on')
+        or is_state('binary_sensor.presence_sensor_fp2_9c35_presence_sensor_11', 'on')
+        or is_state('binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10', 'on')
+        or is_state('binary_sensor.presence_sensor_fp2_9c35_presence_sensor_9', 'on')
+        or is_state('binary_sensor.presence_sensor_fp2_9c35_presence_sensor_4', 'on')
+        or is_state('binary_sensor.ms04_motion', 'on') or is_state('binary_sensor.ms05_motion',
+        'on') or is_state('binary_sensor.vs05_vibration', 'on') or is_state('binary_sensor.ms08_motion',
+        'on') %}on{% else %}off{% endif %}
+      target:
+        entity_id: input_boolean.presence_fp2_combined
+    mode: queued
+    max: 10
+
+# ➔ All Door Sensors Combined
+#   Tracks state of all door sensors
+  - id: '1711731843222'
+    alias: All Door Sensors Combined
+    description: ''
+    triggers:
+    - entity_id:
+      - binary_sensor.ds00_position
+      - binary_sensor.ds01_position
+      - binary_sensor.ds02_position
+      - binary_sensor.ds06_position
+      trigger: state
+    actions:
+    - service: input_boolean.turn_{% if is_state('binary_sensor.ds00_position', 'on')
+        or is_state('binary_sensor.ds01_position', 'on') or is_state('binary_sensor.ds02_position',
+        'on') or is_state('binary_sensor.ds06_position', 'on') %}on{% else %}off{%
+        endif %}
+      target:
+        entity_id: input_boolean.all_door_sensors
+    mode: queued
+    max: 10
+
+# ➔ Presence - Anyone Just Arrived
+#   Detects when someone has just arrived home
+  - id: '1711731873222'
+    alias: Presence - Anyone Just Arrived
+    description: Runs when someone arrives home
+    triggers:
+    - entity_id:
+      - person.cam
+      - person.enhy
+      from: not_home
+      to: home
+      trigger: state
+    actions:
+    - service: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.someone_just_arrived
+    - delay: 00:10:00
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.someone_just_arrived
+    mode: restart
+
+# ➔ Room Presence - C Room
+#   Advanced room presence detection
+  - id: '1732677881177'
+    alias: Room Presence - C Room
+    description: Tracks presence in C's room using multiple sensors
+    triggers:
+    - entity_id:
+      - binary_sensor.fp2_01_all
+      - sensor.c_pc_a_sessionstate
+      - binary_sensor.ds00_position
+      - binary_sensor.vs02_c_door_vibration_2
+      trigger: state
+    - minutes: /5
+      trigger: time_pattern
+    - entity_id:
+      - sensor.c_pc_a_lastactive
+      for: 00:35:00
+      trigger: state
+    actions:
+    - variables:
+        in_room: '{{ is_state(''binary_sensor.fp2_01_all'', ''on'') }}'
+        pc_locked: '{{ states(''sensor.c_pc_a_sessionstate'') == ''Locked'' }}'
+        pc_unlocked: '{{ states(''sensor.c_pc_a_sessionstate'') == ''Unlocked'' }}'
+        door_open: '{{ is_state(''binary_sensor.ds00_position'', ''on'') }}'
+        door_movement: '{{ is_state(''binary_sensor.vs02_c_door_vibration_2'', ''on'') }}'
+        long_pc_inactivity: "{% set last_active_time = states('sensor.c_pc_a_lastactive')
+          %}\n{% if last_active_time not in ['unavailable', 'unknown', 'none', '']
+          %}\n  {% set time_difference = (now().timestamp() - as_timestamp(last_active_time))
+          %}\n  {{ time_difference > 3600 }}  {# 1 hour #}\n{% else %}\n  false\n{%
+          endif %}\n"
+        override_on: '{{ is_state(''input_boolean.croom_presence_override'', ''on'')
+          }}'
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ in_room or pc_unlocked or override_on }}'
+        sequence:
+        - service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.croom_presence
+      - conditions:
+        - condition: template
+          value_template: "{{ not in_room and (pc_locked or not pc_unlocked) and not
+            override_on and (long_pc_inactivity or door_open) }}"
+        sequence:
+        - service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.croom_presence
+      default: []
+    mode: restart
+
+# | END: presence_detection.yaml

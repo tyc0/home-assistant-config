@@ -1,0 +1,82 @@
+
+# | START: whatsapp_e.yaml
+# | PATH: /config/packages/communication/whatsapp_e.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+  # ➔ Inbound WhatsApp message text
+  whatsapp_e_inbound_message_text:
+    name: "Inbound WhatsApp Message Text"
+    max: 255
+
+  # ➔ Contact details
+  whatsapp_e_contact_details:
+    name: "Contact Details"
+    max: 255
+
+
+
+# ╭────────────────────╮
+# │   AUTOMATION
+# ╰────────────────────╯
+automation:
+
+  # ➔ WhatsApp E Inbound Message Recorder
+  - id: "whatsapp_e_inbound_message_recorder"
+    alias: "WhatsApp E Inbound Message Recorder"
+    trigger:
+      - platform: event
+        event_type: new_whatsapp_message
+    condition:
+      # Logs direct messages to client "E", ignoring group chats and broadcasts
+      - condition: template
+        value_template: >
+          {{ trigger.event.data.clientId == "e" and
+             "@s" in trigger.event.data.key.remoteJid and
+             "status@broadcast" not in trigger.event.data.key.remoteJid }}
+    action:
+      # ➔ Set inbound message text
+      - service: input_text.set_value
+        data:
+          value: >
+            {# Set push_name with a default value if missing #}
+            {% set push_name = trigger.event.data.pushName | default("Unknown", true) %}
+            {# Get message dictionary, defaulting to an empty dict if missing #}
+            {% set message = trigger.event.data.message | default({}, true) %}
+            {# Check for conversation or extendedTextMessage and set message_text accordingly #}
+            {% if 'conversation' in message %}
+              {% set message_text = message.conversation | default("No message", true) %}
+            {% elif 'extendedTextMessage' in message %}
+              {% set message_text = message.extendedTextMessage.text | default("No message", true) %}
+            {% else %}
+              {% set message_text = "No message" %}
+            {% endif %}
+            {# Use the first word of push_name and the message text #}
+            {{ push_name.split(' ')[0] }} - {{ message_text }}
+        target:
+          entity_id: input_text.whatsapp_e_inbound_message_text
+
+      # ➔ Set contact details with formatted phone number
+      - service: input_text.set_value
+        data:
+          value: >
+            {# Set push_name and remote_jid with defaults if missing #}
+            {% set push_name = trigger.event.data.pushName | default("No name", true) %}
+            {% set remote_jid = trigger.event.data.key.remoteJid | default("No number", true) %}
+            {# Extract digits from remote_jid using regex_findall, ensuring we get the first match safely #}
+            {% set digits = remote_jid | regex_findall('(\d+)') %}
+            {% if push_name != "No name" and digits %}
+              {% set number = digits[0] | replace('+', '') | replace(' ', '') %}
+              {{ push_name }} - {{ number[:3] ~ ' ' ~ number[3:6] ~ ' ' ~ number[6:] }}
+            {% else %}
+              No contact selected
+            {% endif %}
+        target:
+          entity_id: input_text.whatsapp_e_contact_details
+    mode: single
+
+# | END: whatsapp_e.yaml

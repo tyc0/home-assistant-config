@@ -1,0 +1,647 @@
+# | START: tester.yaml
+# |  PATH: /config/ui/views/tester.yaml
+
+
+
+title: 'Tester'
+path: tester
+subview: false
+type: sections
+max_columns: 1
+icon: ''
+
+
+sections:
+  - type: markdown
+    content: |
+      # Welcome to the Test Page
+
+      This is some placeholder text to demonstrate the markdown card.
+
+      ## Features
+      - Bullet points work
+      - **Bold text** is supported
+      - *Italics* work too
+      
+      > You can even include blockquotes
+
+      ---
+      
+      Feel free to modify this text as needed.
+
+  - type: grid
+    cards:
+      - type: custom:button-card
+        entity: input_select.whatsapp_contacts
+        show_name: false
+        show_state: false
+        show_icon: false
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+
+  - type: vertical-stack
+    cards:
+      - type: custom:button-card
+        entity: input_select.whatsapp_contacts
+        show_name: false
+        show_state: false
+        show_icon: false
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        triggers_update:
+          - sensor.chat_history_enhy
+          - sensor.chat_history_dad
+          - sensor.chat_history_ben
+          - sensor.chat_history_ange
+          - input_text.whatsapp_c_message_to_send
+        custom_fields:
+          chatlog: |
+            [[[ 
+              const selectedContact = states['input_select.whatsapp_contacts'].state;
+              
+              const contactMap = {
+                'Enhy': {sensor: 'sensor.chat_history_enhy', color: 'var(--contrast16)'},
+                'Dad': {sensor: 'sensor.chat_history_dad', color: 'rgba(224, 145, 50, 0.85)'},
+                'Ben': {sensor: 'sensor.chat_history_ben', color: 'rgba(210, 70, 90, 0.85)'},
+                'Ange': {sensor: 'sensor.chat_history_ange', color: 'rgba(100, 160, 100, 0.85)'},
+              };
+              
+              const contactInfo = contactMap[selectedContact];
+              if (!contactInfo) return '';
+              
+              const entityState = states[contactInfo.sensor];
+              if (!entityState) return '';
+    
+              let styleBlock = `<style>
+                .chat-container {
+                  max-height: 800px;
+                  overflow-y: auto;
+                  overflow-x: hidden;
+                  pointer-events: auto;
+                  user-select: text;
+                  display: flex;
+                  flex-direction: column-reverse;
+                  
+                }
+    
+                .message-group {
+                  display: flex;
+                  flex-direction: column;
+                  margin: 12px 0;
+                }
+    
+                .chat-message {
+                  display: flex;
+                  justify-content: flex-start;
+                  margin: 0;
+                }
+    
+                .chat-message-right {
+                  justify-content: flex-end;
+                }
+    
+                .message-bubble {
+                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                  font-size: 0.95rem;
+                  max-width: 70%;
+                  padding: 8px 8px;
+                  word-break: break-word;
+                  white-space: pre-wrap;
+                  transition: border-radius 0.3s ease-in-out;
+                }
+    
+                /* Refining the bubble edges for first, middle, last, and single messages */
+                .message-bubble.first {
+                  border-radius: 20px 20px 0px 0px;
+                }
+    
+                .message-bubble.middle {
+                  border-radius: 0px;
+                }
+    
+                .message-bubble.last {
+                  border-radius: 0px 0px 20px 20px;
+                }
+    
+                .message-bubble.single {
+                  border-radius: 20px;
+                }
+    
+                .timestamp {
+                  font-size: 0.7em;
+                  opacity: 0.7;
+                }
+    
+              </style>`;
+    
+              let resultHtml = styleBlock + `<div class="chat-container">`;
+              
+              const chat = entityState.attributes.chat_content || '';
+              const lines = chat.split('\n').filter(line => line.trim() !== '').reverse();
+              
+              let currentGroup = [];
+              let lastSender = null;
+              
+              // Process messages into groups
+              lines.forEach((line, index) => {
+                const timestampMatch = line.match(/^(\d{1,2}:\d{2}(?::\d{2})?)\s+(.*)/);
+                const timestamp = timestampMatch ? timestampMatch[1] : '';
+                const message = timestampMatch ? timestampMatch[2] : line;
+                
+                const isMe = message.includes('Me:');
+                const cleanMessage = message
+                  .replace(/^-?\s*Me:\s*/, '')
+                  .replace(/^-?\s*[^:]+:\s*/, '')
+                  .charAt(0).toUpperCase() + message.slice(1);
+                
+                const currentSender = isMe ? 'me' : 'other';
+                
+                if (currentSender === lastSender) {
+                  currentGroup.push({ message: cleanMessage, timestamp, isMe });
+                } else {
+                  if (currentGroup.length > 0) {
+                    // Render previous group
+                    resultHtml += renderMessageGroup(currentGroup, contactInfo);
+                    currentGroup = [];
+                  }
+                  currentGroup.push({ message: cleanMessage, timestamp, isMe });
+                }
+                
+                lastSender = currentSender;
+                
+                // Handle last group
+                if (index === lines.length - 1 && currentGroup.length > 0) {
+                  resultHtml += renderMessageGroup(currentGroup, contactInfo);
+                }
+              });
+    
+              resultHtml += `</div>`;
+              return resultHtml;
+              
+              function renderMessageGroup(messages, contactInfo) {
+                let groupHtml = `<div class="message-group">`;
+                
+                messages.forEach((msg, idx) => {
+                  const position = messages.length === 1 ? 'single' 
+                    : idx === 0 ? 'first'
+                    : idx === messages.length - 1 ? 'last'
+                    : 'middle';
+                    
+                  const bubbleStyle = `
+                    background-color: ${msg.isMe ? 'var(--contrast6)' : contactInfo.color};
+                    color: ${msg.isMe ? 'var(--white)' : 'var(--contrast2)'};
+                  `;
+                  
+                  groupHtml += `
+                    <div class="chat-message ${msg.isMe ? 'chat-message-right' : ''}">
+                      <div class="message-bubble ${position}" style="${bubbleStyle}">
+                        ${msg.message}
+                        <div class="timestamp">${msg.timestamp}</div>
+                      </div>
+                    </div>
+                  `;
+                });
+                
+                groupHtml += `</div>`;
+                return groupHtml;
+              }
+            ]]]
+      - type: custom:button-card
+        entity: input_select.whatsapp_contacts
+        show_name: false
+        show_state: false
+        show_icon: false
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        triggers_update:
+          - sensor.chat_history_enhy
+          - sensor.chat_history_dad
+          - sensor.chat_history_ben
+          - sensor.chat_history_ange
+          - input_text.whatsapp_c_message_to_send
+        styles:
+          card:
+            - overflow: hidden
+        custom_fields:
+          chatlog: |
+            [[[
+              const selectedContact = states['input_select.whatsapp_contacts'].state;
+              
+              const contactMap = {
+                'Enhy': {sensor: 'sensor.chat_history_enhy', color: 'var(--contrast16)'},
+                'Dad': {sensor: 'sensor.chat_history_dad', color: 'rgba(224, 145, 50, 0.85)'},
+                'Ben': {sensor: 'sensor.chat_history_ben', color: 'rgba(210, 70, 90, 0.85)'},
+                'Ange': {sensor: 'sensor.chat_history_ange', color: 'rgba(100, 160, 100, 0.85)'},
+              };
+              
+              const contactInfo = contactMap[selectedContact];
+              if (!contactInfo) return '';
+              
+              const entityState = states[contactInfo.sensor];
+              if (!entityState) return '';
+    
+              let styleBlock = `<style>
+                .chat-container {
+                  max-height: 800px;
+                  overflow-y: auto;
+                  overflow-x: hidden;
+                  pointer-events: auto;
+                  user-select: text;
+                  display: flex;
+                  flex-direction: column-reverse;
+                  padding: 8px;
+                }
+    
+                .message-group {
+                  display: flex;
+                  flex-direction: column;
+                  margin: 2px 8px;
+                  gap: 1px;
+                }
+    
+                .chat-message {
+                  display: flex;
+                  justify-content: flex-start;
+                  margin: 0;
+                  position: relative;
+                }
+    
+                .chat-message-right {
+                  justify-content: flex-end;
+                }
+    
+                .message-bubble {
+                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                  font-size: 0.95rem;
+                  max-width: 70%;
+                  padding: 6px 12px;
+                  word-break: break-word;
+                  white-space: pre-wrap;
+                  position: relative;
+                  margin: 0;
+                  border-radius: 16px;
+                }
+    
+                .message-bubble.first {
+                  border-bottom-left-radius: 4px;
+                }
+    
+                .message-bubble.middle {
+                  border-top-left-radius: 4px;
+                  border-bottom-left-radius: 4px;
+                }
+    
+                .message-bubble.last {
+                  border-top-left-radius: 4px;
+                }
+    
+                .chat-message-right .message-bubble.first {
+                  border-bottom-right-radius: 4px;
+                  border-bottom-left-radius: 16px;
+                }
+    
+                .chat-message-right .message-bubble.middle {
+                  border-top-right-radius: 4px;
+                  border-bottom-right-radius: 4px;
+                  border-radius: 16px;
+                }
+    
+                .chat-message-right .message-bubble.last {
+                  border-top-right-radius: 4px;
+                  border-top-left-radius: 16px;
+                }
+    
+                .message-bubble.single {
+                  border-radius: 16px;
+                }
+    
+                .timestamp {
+                  font-size: 0.7em;
+                  opacity: 0.7;
+                  margin-top: 2px;
+                  padding: 0 4px;
+                  display: inline-block;
+                  float: right;
+                }
+    
+                .message-group + .message-group {
+                  margin-top: 8px;
+                }
+              </style>`;
+    
+              let resultHtml = styleBlock + `<div class="chat-container">`;
+              
+              const chat = entityState.attributes.chat_content || '';
+              const lines = chat.split('\n').filter(line => line.trim() !== '').reverse();
+              
+              let currentGroup = [];
+              let lastSender = null;
+              let lastTimestamp = null;
+              
+              lines.forEach((line, index) => {
+                const [timestamp, ...messageParts] = line.split(/\s+(?=\S)/);
+                const fullMessage = messageParts.join(' ');
+                
+                const isMe = fullMessage.includes('Me:');
+                const cleanMessage = isMe 
+                  ? fullMessage.replace(/^Me:\s*/, '')
+                  : fullMessage.replace(/^[^:]+:\s*/, '');
+                
+                const currentSender = isMe ? 'me' : 'other';
+                
+                // Group messages if they're from the same sender and within 2 minutes
+                const currentTime = new Date('1970/01/01 ' + timestamp);
+                const lastTime = lastTimestamp ? new Date('1970/01/01 ' + lastTimestamp) : null;
+                const timeDiff = lastTime ? (currentTime - lastTime) / 1000 / 60 : 0;
+                
+                if (currentSender === lastSender && timeDiff < 2) {
+                  currentGroup.push({ message: cleanMessage, timestamp, isMe });
+                } else {
+                  if (currentGroup.length > 0) {
+                    resultHtml += renderMessageGroup(currentGroup, contactInfo);
+                    currentGroup = [];
+                  }
+                  currentGroup.push({ message: cleanMessage, timestamp, isMe });
+                }
+                
+                lastSender = currentSender;
+                lastTimestamp = timestamp;
+                
+                if (index === lines.length - 1 && currentGroup.length > 0) {
+                  resultHtml += renderMessageGroup(currentGroup, contactInfo);
+                }
+              });
+    
+              function renderMessageGroup(messages, contactInfo) {
+                let groupHtml = `<div class="message-group">`;
+                
+                messages.forEach((msg, idx) => {
+                  const position = messages.length === 1 ? 'single' 
+                    : idx === 0 ? 'first'
+                    : idx === messages.length - 1 ? 'last'
+                    : 'middle';
+                  
+                  const bubbleStyle = `
+                    background-color: ${msg.isMe ? 'var(--contrast6)' : contactInfo.color};
+                    color: ${msg.isMe ? 'var(--white)' : 'var(--contrast2)'};
+                  `;
+                  
+                  groupHtml += `
+                    <div class="chat-message ${msg.isMe ? 'chat-message-right' : ''}">
+                      <div class="message-bubble ${position}" style="${bubbleStyle}">
+                        ${msg.message}
+                        ${idx === messages.length - 1 ? `<div class="timestamp">${msg.timestamp}</div>` : ''}
+                      </div>
+                    </div>
+                  `;
+                });
+                
+                groupHtml += `</div>`;
+                return groupHtml;
+              }
+    
+              resultHtml += `</div>`;
+              return resultHtml;
+            ]]]
+      - custom_fields:
+          chatlog: |
+            [[[
+              const selectedContact = states['input_select.whatsapp_contacts'].state;
+              
+              const contactMap = {
+                'Enhy': {sensor: 'sensor.chat_history_enhy', color: 'var(--contrast16)'},
+                'Dad': {sensor: 'sensor.chat_history_dad', color: 'rgba(224, 145, 50, 0.85)'},
+                'Ben': {sensor: 'sensor.chat_history_ben', color: 'rgba(210, 70, 90, 0.85)'},
+                'Ange': {sensor: 'sensor.chat_history_ange', color: 'rgba(100, 160, 100, 0.85)'},
+              };
+              
+              const contactInfo = contactMap[selectedContact];
+              if (!contactInfo) return '';
+              
+              const entityState = states[contactInfo.sensor];
+              if (!entityState) return '';
+    
+              let styleBlock = `<style>
+                .chat-container {
+                  max-height: 800px;
+                  overflow-y: auto;
+                  overflow-x: hidden;
+                  pointer-events: auto;
+                  user-select: text;
+                  display: flex;
+                  flex-direction: column-reverse;
+                }
+    
+                .message-group {
+                  display: flex;
+                  flex-direction: column;
+                  margin: 2px 8px;
+                  position: relative;
+                }
+    
+                .chat-message {
+                  display: flex;
+                  justify-content: flex-start;
+                  margin: 0;
+                  position: relative;
+                }
+    
+                .chat-message-right {
+                  justify-content: flex-end;
+                }
+    
+                .message-bubble {
+                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                  font-size: 0.95rem;
+                  max-width: 70%;
+                  padding: 8px 12px;
+                  word-break: break-word;
+                  white-space: pre-wrap;
+                  position: relative;
+                  margin: 0.2px 0;
+                  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+                  transition: transform 0.2s ease-in-out;
+                  backface-visibility: hidden;
+                }
+    
+                .message-bubble:hover {
+                  filter: brightness(95%);
+                }
+    
+                /* Left messages */
+                .message-bubble.first {
+                  mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20C0 8.95431 8.95431 0 20 0H80C91.0457 0 100 8.95431 100 20V60C100 71.0457 91.0457 80 80 80H40C35 80 25 85 20 90C15 85 5 80 0 80V20Z' fill='black'/%3E%3C/svg%3E");
+                  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20C0 8.95431 8.95431 0 20 0H80C91.0457 0 100 8.95431 100 20V60C100 71.0457 91.0457 80 80 80H40C35 80 25 85 20 90C15 85 5 80 0 80V20Z' fill='black'/%3E%3C/svg%3E");
+                  mask-size: 100% 100%;
+                  -webkit-mask-size: 100% 100%;
+                  mask-repeat: no-repeat;
+                  -webkit-mask-repeat: no-repeat;
+                }
+    
+                .message-bubble.middle {
+                  mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0C5 0 15 5 20 10C25 5 35 0 40 0H80C91.0457 0 100 8.95431 100 20V60C100 71.0457 91.0457 80 80 80H40C35 80 25 85 20 90C15 85 5 80 0 80V0Z' fill='black'/%3E%3C/svg%3E");
+                  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0C5 0 15 5 20 10C25 5 35 0 40 0H80C91.0457 0 100 8.95431 100 20V60C100 71.0457 91.0457 80 80 80H40C35 80 25 85 20 90C15 85 5 80 0 80V0Z' fill='black'/%3E%3C/svg%3E");
+                  mask-size: 100% 100%;
+                  -webkit-mask-size: 100% 100%;
+                  mask-repeat: no-repeat;
+                  -webkit-mask-repeat: no-repeat;
+                }
+    
+                .message-bubble.last {
+                  mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0C5 0 15 5 20 10C25 5 35 0 40 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V0Z' fill='black'/%3E%3C/svg%3E");
+                  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0C5 0 15 5 20 10C25 5 35 0 40 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V0Z' fill='black'/%3E%3C/svg%3E");
+                  mask-size: 100% 100%;
+                  -webkit-mask-size: 100% 100%;
+                  mask-repeat: no-repeat;
+                  -webkit-mask-repeat: no-repeat;
+                }
+    
+                /* Right messages */
+                .chat-message-right .message-bubble.first {
+                  mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M100 20C100 8.95431 91.0457 0 80 0H20C8.95431 0 0 8.95431 0 20V60C0 71.0457 8.95431 80 20 80H60C65 80 75 85 80 90C85 85 95 80 100 80V20Z' fill='black'/%3E%3C/svg%3E");
+                  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M100 20C100 8.95431 91.0457 0 80 0H20C8.95431 0 0 8.95431 0 20V60C0 71.0457 8.95431 80 20 80H60C65 80 75 85 80 90C85 85 95 80 100 80V20Z' fill='black'/%3E%3C/svg%3E");
+                  mask-size: 100% 100%;
+                  -webkit-mask-size: 100% 100%;
+                  mask-repeat: no-repeat;
+                  -webkit-mask-repeat: no-repeat;
+                }
+    
+                .chat-message-right .message-bubble.middle {
+                  mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M100 0C95 0 85 5 80 10C75 5 65 0 60 0H20C8.95431 0 0 8.95431 0 20V60C0 71.0457 8.95431 80 20 80H60C65 80 75 85 80 90C85 85 95 80 100 80V0Z' fill='black'/%3E%3C/svg%3E");
+                  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M100 0C95 0 85 5 80 10C75 5 65 0 60 0H20C8.95431 0 0 8.95431 0 20V60C0 71.0457 8.95431 80 20 80H60C65 80 75 85 80 90C85 85 95 80 100 80V0Z' fill='black'/%3E%3C/svg%3E");
+                  mask-size: 100% 100%;
+                  -webkit-mask-size: 100% 100%;
+                  mask-repeat: no-repeat;
+                  -webkit-mask-repeat: no-repeat;
+                }
+    
+                .chat-message-right .message-bubble.last {
+                  mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M100 0C95 0 85 5 80 10C75 5 65 0 60 0H20C8.95431 0 0 8.95431 0 20V80C0 91.0457 8.95431 100 20 100H80C91.0457 100 100 91.0457 100 80V0Z' fill='black'/%3E%3C/svg%3E");
+                  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M100 0C95 0 85 5 80 10C75 5 65 0 60 0H20C8.95431 0 0 8.95431 0 20V80C0 91.0457 8.95431 100 20 100H80C91.0457 100 100 91.0457 100 80V0Z' fill='black'/%3E%3C/svg%3E");
+                  mask-size: 100% 100%;
+                  -webkit-mask-size: 100% 100%;
+                  mask-repeat: no-repeat;
+                  -webkit-mask-repeat: no-repeat;
+                }
+    
+                .message-bubble.single {
+                  mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V20C0 8.95431 8.95431 0 20 0Z' fill='black'/%3E%3C/svg%3E");
+                  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V20C0 8.95431 8.95431 0 20 0Z' fill='black'/%3E%3C/svg%3E");
+                  mask-size: 100% 100%;
+                  -webkit-mask-size: 100% 100%;
+                  mask-repeat: no-repeat;
+                  -webkit-mask-repeat: no-repeat;
+                }
+    
+                .timestamp {
+                  font-size: 0.7em;
+                  opacity: 0.7;
+                  margin-top: 2px;
+                  padding: 0 4px;
+                }
+              </style>`;
+    
+              let resultHtml = styleBlock + `<div class="chat-container">`;
+              
+              const chat = entityState.attributes.chat_content || '';
+              const lines = chat.split('\n').filter(line => line.trim() !== '').reverse();
+              
+              let currentGroup = [];
+              let lastSender = null;
+              
+              lines.forEach((line, index) => {
+                // Split timestamp and message more reliably
+                const [timestamp, ...messageParts] = line.split(/\s+(?=\S)/);
+                const fullMessage = messageParts.join(' ');
+                
+                // Handle "Me:" messages
+                const isMe = fullMessage.includes('Me:');
+                
+                // Clean the message while preserving the full content
+                const cleanMessage = isMe 
+                  ? fullMessage.replace(/^Me:\s*/, '')
+                  : fullMessage.replace(/^[^:]+:\s*/, '');
+                
+                const currentSender = isMe ? 'me' : 'other';
+                
+                if (currentSender === lastSender) {
+                  currentGroup.push({ message: cleanMessage, timestamp, isMe });
+                } else {
+                  if (currentGroup.length > 0) {
+                    resultHtml += renderMessageGroup(currentGroup, contactInfo);
+                    currentGroup = [];
+                  }
+                  currentGroup.push({ message: cleanMessage, timestamp, isMe });
+                }
+                
+                lastSender = currentSender;
+                
+                if (index === lines.length - 1 && currentGroup.length > 0) {
+                  resultHtml += renderMessageGroup(currentGroup, contactInfo);
+                }
+              });
+    
+              function renderMessageGroup(messages, contactInfo) {
+                let groupHtml = `<div class="message-group">`;
+                
+                messages.forEach((msg, idx) => {
+                  const position = messages.length === 1 ? 'single' 
+                    : idx === 0 ? 'first'
+                    : idx === messages.length - 1 ? 'last'
+                    : 'middle';
+                  
+                  const bubbleStyle = `
+                    background-color: ${msg.isMe ? 'var(--contrast6)' : contactInfo.color};
+                    color: ${msg.isMe ? 'var(--white)' : 'var(--contrast2)'};
+                  `;
+                  
+                  groupHtml += `
+                    <div class="chat-message ${msg.isMe ? 'chat-message-right' : ''}">
+                      <div class="message-bubble ${position}" style="${bubbleStyle}">
+                        ${msg.message}
+                        <div class="timestamp">${msg.timestamp}</div>
+                      </div>
+                    </div>
+                  `;
+                });
+                
+                groupHtml += `</div>`;
+                return groupHtml;
+              }
+    
+              resultHtml += `</div>`;
+              return resultHtml;
+            ]]]
+        type: custom:button-card
+        entity: input_select.whatsapp_contacts
+        show_name: false
+        show_state: false
+        show_icon: false
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        triggers_update:
+          - sensor.chat_history_enhy
+          - sensor.chat_history_dad
+          - sensor.chat_history_ben
+          - sensor.chat_history_ange
+          - input_text.whatsapp_c_message_to_send
+        styles:
+          card:
+            - overflow: hidden
+
+
+
+
+# | END: tester.yaml
+
+
+
+

@@ -1,0 +1,142 @@
+
+# | START: calendar.yaml
+# |  PATH: /config/packages/time/calendar.yaml
+
+
+#  ╭────────────────────╮
+#  │   BUTTON
+#  ╰────────────────────╯
+button:
+
+# ➔ Test Calendar Notifications
+#   Test calendar notifications
+  - platform: event
+    name: "Test Calendar Notifications"
+    event_type: test_calendar_notifications
+    icon: mdi:calendar-clock
+
+
+
+#  ╭────────────────────╮
+#  │   TEMPLATE
+#  ╰────────────────────╯
+template:
+  - sensor:
+
+# ➔ Calendar Event Data
+#   Displays calendar event data
+      - name: "Calendar Event Data"
+        unique_id: calendar_event_data
+        icon: mdi:calendar
+        state: >
+          {% set calendars = [
+            'calendar.both',
+            'calendar.cam',
+            'calendar.special_day',
+            'calendar.enhy',
+            'calendar.united_kingdom_eng'
+          ] %}
+          {{ calendars | length }}
+        attributes:
+          template: >
+            {% set data = namespace(events=[]) %}
+            {% for calendar in calendars %}
+              {% set event = {
+                "entity_id": calendar,
+                "message": state_attr(calendar, 'message') | default('No upcoming events'),
+                "start_time": state_attr(calendar, 'start_time') | default(none),
+                "all_day": state_attr(calendar, 'all_day') | default(false)
+              } %}
+              {% set data.events = data.events + [event] %}
+            {% endfor %}
+            {{ data.events | tojson }}
+
+
+
+#  ╭────────────────────╮
+#  │   AUTOMATION
+#  ╰────────────────────╯
+automation:
+
+# ➔ Calendar Events Notification
+#   Notifies about calendar events for today and tomorrow
+  - alias: "Calendar Events Notification"
+    id: calendar_events_notification
+    description: "Notifies about calendar events for today and tomorrow"
+    trigger:
+      - platform: time
+        at: "17:00:00"  # Trigger at 5 PM for tomorrow's schedule
+      - platform: time
+        at: "06:00:00"  # Additional trigger at 6 AM for today's reminder
+      - platform: time
+        at: "00:00:01"  # Trigger at midnight for today's events
+
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ now().hour == 17 }}"
+            sequence:
+              - service: persistent_notification.create
+                data:
+                  title: "Schedule for Tomorrow"
+                  notification_id: "calendar_event_notification"
+                  message: >
+                    {% set events = namespace(cam=[], enhy=[], info=[]) %}
+                    {% set target_date = (now() + timedelta(days=1)).strftime('%Y-%m-%d') %}
+                    {% set bin_collection = [] %}
+                    {% for state in states.calendar %}
+                      {% for event in state.attributes.items %}
+                        {% if as_timestamp(event.start_time) | timestamp_custom('%Y-%m-%d') == target_date %}
+                          {% if 'calendar.cam' in state.entity_id or 'calendar.both' in state.entity_id %}
+                            {% set events.cam = events.cam + [event.summary] %}
+                          {% endif %}
+                          {% if 'calendar.enhy' in state.entity_id or 'calendar.both' in state.entity_id %}
+                            {% set events.enhy = events.enhy + [event.summary] %}
+                          {% endif %}
+                          {% if state.entity_id in ['calendar.special_day', 'calendar.united_kingdom_eng', 'calendar.spain_cb', 'calendar.colombia', 'calendar.croydon_council'] %}
+                            {% set events.info = events.info + [event.summary] %}
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endfor %}
+                    {% if bin_collection %}
+                      {% set events.info = events.info + ["Bin collection: " + ", ".join(bin_collection)] %}
+                    {% endif %}
+                    "Cam:\n- " + "\n- ".join(events.cam) + "\n\nEnhy:\n- " + "\n- ".join(events.enhy) + "\n\nFor info:\n- " + "\n- ".join(events.info)
+          - conditions:
+              - condition: template
+                value_template: "{{ now().hour == 0 or now().hour == 6 }}"
+            sequence:
+              - service: persistent_notification.create
+                data:
+                  title: "Today's Events"
+                  notification_id: "calendar_event_notification"
+                  message: >
+                    {% set events = namespace(cam=[], enhy=[], info=[]) %}
+                    {% set target_date = now().strftime('%Y-%m-%d') %}
+                    {% set bin_collection = [] %}
+                    {% for state in states.calendar %}
+                      {% for event in state.attributes.items %}
+                        {% if as_timestamp(event.start_time) | timestamp_custom('%Y-%m-%d') == target_date %}
+                          {% if 'calendar.cam' in state.entity_id or 'calendar.both' in state.entity_id %}
+                            {% set events.cam = events.cam + [event.summary] %}
+                          {% endif %}
+                          {% if 'calendar.enhy' in state.entity_id or 'calendar.both' in state.entity_id %}
+                            {% set events.enhy = events.enhy + [event.summary] %}
+                          {% endif %}
+                          {% if state.entity_id in ['calendar.special_day', 'calendar.united_kingdom_eng', 'calendar.spain_cb', 'calendar.colombia', 'calendar.croydon_council'] %}
+                            {% set events.info = events.info + [event.summary] %}
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endfor %}
+                    {% if bin_collection %}
+                      {% set events.info = events.info + ["Bin collection: " + ", ".join(bin_collection)] %}
+                    {% endif %}
+                    "Cam:\n- " + "\n- ".join(events.cam) + "\n\nEnhy:\n- " + "\n- ".join(events.enhy) + "\n\nFor info:\n- " + "\n- ".join(events.info)
+    mode: parallel
+    max: 10
+
+
+# |   END: calendar.yaml

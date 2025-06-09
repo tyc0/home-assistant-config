@@ -1,0 +1,107 @@
+
+
+
+slider_light:
+  custom_fields:
+    circle: |
+      [[[
+        if (entity) {
+          let r = 20.5,
+              c = r * 2 * Math.PI,
+              tspan = '<tspan dx=".2" dy="-.4">',
+              domain = entity.entity_id.split('.')[0],
+              state = variables.state_on,
+              input = variables.circle_input || ' ',
+              unit = variables.circle_input_unit || ' ';
+
+          let circle = (state, input, unit) => {
+              return `
+                <svg viewBox="0 0 50 50">
+                  <style>
+                    circle {
+                      transform: rotate(-90deg);
+                      transform-origin: 50% 50%;
+                      stroke-dasharray: ${c};
+                      stroke-linecap: round;
+                      fill: ${state ? 'var(--c-fill-color-on)' : 'var(--c-fill-color-off)'};
+                    }
+                    text {
+                      font-size: var(--c-font-size);
+                      font-weight: var(--c-font-weight);
+                      letter-spacing: var(--c-letter-spacing);
+                      fill: var(--c-font-color);
+                    }
+                    tspan {
+                      font-size: var(--c-unit-font-size);
+                    }
+                    #circle_value, tspan {
+                      text-anchor: middle;
+                      dominant-baseline: central;
+                    }
+                  </style>
+                  <circle id="circle_stroke_bg" cx="25" cy="25" r="${r}" opacity="0.7" stroke-width="var(--c-stroke-width)" stroke="#9da0a2"/>
+                  <circle id="circle_stroke_prev" cx="25" cy="25" r="${r}" opacity="1" stroke-width="2.5" stroke="#ffd945"  stroke-dashoffset="${typeof input === 'number' && c - input / 100 * c}" stroke-dasharray="${c}"/>
+                  <circle id="circle_stroke" cx="25" cy="25" r="${r}" opacity="1.0" stroke-width="var(--c-stroke-width)" stroke="${state ? 'var(--c-stroke-color-on)' : 'var(--c-stroke-color-off)'}" stroke-dashoffset="${typeof input === 'number' && c - input / 100 * c}" stroke-dasharray="${c}"/>
+                  <text id="circle_value" x="50%" y="52%" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${input}${tspan}${unit}</tspan></text>
+                </svg>
+
+                ${domain === 'light' && `
+                    <input id="circle_slider" type="range" min="0" max="100" value="${input}">
+                `}
+              `;
+          }
+
+          if (domain === 'light' && state) {
+              setTimeout(() => {
+                  let elt = this.shadowRoot,
+                      circle_slider = elt.getElementById('circle_slider'),
+                      circle_value = elt.getElementById('circle_value'),
+                      circle_stroke_prev = elt.getElementById('circle_stroke_prev'),
+                      circle_stroke = elt.getElementById('circle_stroke');
+
+                  circle_slider.style.top = `${(circle_slider.value - 70) / 1.66 - 1}%`;
+                  let debug = false;
+                  if (debug) circle_slider.style.opacity = 0.3;
+
+                  ['click', 'input', 'mousedown', 'mouseup', 'touchstart', 'touchend'].forEach((event) => {
+                      circle_slider.addEventListener(event, handler, { passive: true })
+                  });
+
+                  function handler(event) {
+                      if (event.target === this) {
+                          event.stopPropagation();
+                          circle_value.innerHTML = `${this.value}${tspan}${unit}</tspan>`;
+                          circle_stroke.style.strokeDashoffset = c - this.value / 100 * c;
+                          circle_stroke.style.strokeWidth = 'var(--c-stroke-width-dragging)';
+                          if (event.type === 'mousedown' || event.type === 'input') {
+                              this.style.cursor = 'grabbing';
+                          } else {
+                              this.style.cursor = 'grab';
+                          }
+                          if (input == this.value && (event.type === 'click' || event.type === 'touchend'))
+                              circle_stroke.style.strokeWidth = 'var(--c-stroke-width)';
+                          if (event.type === 'mouseup' || event.type === 'touchend') {
+                              if (circle_slider.value == 0 && elt.getElementById('loader')) {
+                                  elt.getElementById('loader').style.display = 'initial';
+                                  elt.getElementById('circle').style.display = 'none';
+                              }
+                              hass.callService('light', 'turn_on', {
+                                  entity_id: entity.entity_id,
+                                  brightness_pct: this.value
+                              });
+                          }
+                      }
+                  }
+              }, 0);
+              return circle(state, input, unit);
+          }
+        }
+      ]]]
+  styles:
+    custom_fields:
+      circle:
+        - display: initial
+        - width: 90%
+        - margin: '-6% -6% 0 0'
+        - justify-self: end
+        - opacity: 1

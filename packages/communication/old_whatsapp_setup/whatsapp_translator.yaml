@@ -1,0 +1,150 @@
+# # | START: whatsapp_translator.yaml
+# # |  PATH: /config/packages/communication/whatsapp_translator.yaml
+
+# ############
+# # Input Templates
+# ############
+# input_text:
+#   # Translation inputs
+#   translator_message_template:
+#     max: 255
+#     initial: ""
+#     name: "Type your message.."
+
+#   translator_output_language_template:
+#     max: 255
+#     initial: ""
+#     name: "Target Language"
+
+#   # C's translation entities
+#   translator_c_en_msg:
+#     max: 255
+#     initial: ""
+#     name: "Type your message.."
+
+#   translator_c_ai_es_result:
+#     max: 255
+#     initial: ""
+#     name: "Translated text"
+
+#   translator_c_output_language:
+#     max: 255
+#     initial: ""
+#     name: "Target Language"
+
+#   # E's translation entities
+#   translator_e_output_language:
+#     max: 255
+#     initial: ""
+#     name: "Target Language"
+
+# ############
+# # Feature Toggles
+# ############
+# input_boolean:
+#   # Translation toggles
+#   translator_c_enabled:
+#     initial: false
+#     name: "Enable translation (C)"
+#     icon: mdi:translate
+
+#   translator_e_enabled:
+#     initial: false
+#     name: "Enable translation (E)"
+#     icon: mdi:translate
+
+#   # Message polishing toggles
+#   message_polish_c_enabled:
+#     initial: false
+#     name: "Enable message polishing (C)"
+#     icon: mdi:format-text
+
+#   message_polish_e_enabled:
+#     initial: false
+#     name: "Enable message polishing (E)"
+#     icon: mdi:format-text
+
+#   # AI auto-reply toggles
+#   message_ai_autoreply_c_enabled:
+#     initial: false
+#     name: "Enable AI auto-reply (C)"
+#     icon: mdi:robot
+
+#   message_ai_autoreply_e_enabled:
+#     initial: false
+#     name: "Enable AI auto-reply (E)"
+#     icon: mdi:robot
+
+# ############
+# # Scripts
+# ############
+# script:
+#   whatsapp_translate_message:
+#     alias: "Translate WhatsApp Message"
+#     description: "Translates a message using AI and sends it via WhatsApp"
+#     fields:
+#       user_id:
+#         description: "User ID (c or e)"
+#         example: "c"
+#       target_language:
+#         description: "Target language for translation"
+#         example: "Spanish"
+#       message:
+#         description: "Message to translate"
+#         example: "Hello world"
+#     sequence:
+#       - variables:
+#           source_language: "en"  # Default source language
+      
+#       # Get translation using AI
+#       - service: ha_text_ai.ask_question
+#         data:
+#           context_messages: 1
+#           max_tokens: 4000
+#           instance: "sensor.ha_text_ai_{{ user_id }}_translator_en_to_es"
+#           question: 'translate this to {{ target_language }}: {{ message }}'
+      
+#       # Wait for translation
+#       - delay:
+#           seconds: 2
+      
+#       # Send translated message
+#       - service: whatsapp.send_message
+#         data:
+#           clientId: "{{ user_id }}"
+#           to: "{{ states('input_text.whatsapp_' ~ user_id ~ '_active_chat_number') }}@s.whatsapp.net"
+#           body:
+#             text: '{{ state_attr("sensor.ha_text_ai_" ~ user_id ~ "_translator_en_to_es", "response") }}'
+
+# ############
+# # Automations
+# ############
+# automation:
+#   - alias: "WhatsApp - C Translation"
+#     description: "Handles translation of C's outgoing messages when enabled"
+#     trigger:
+#       - platform: state
+#         entity_id: input_text.translator_c_en_msg
+    
+#     condition:
+#       - condition: state
+#         entity_id: input_boolean.translator_c_enabled
+#         state: "on"
+#       - condition: template
+#         value_template: "{{ trigger.to_state.state | length > 2 }}"
+    
+#     action:
+#       - service: script.whatsapp_translate_message
+#         data:
+#           user_id: "c"
+#           target_language: "{{ states('input_text.translator_c_output_language') }}"
+#           message: "{{ trigger.to_state.state }}"
+      
+#       # Clear input after sending
+#       - service: input_text.set_value
+#         data:
+#           value: ""
+#         target:
+#           entity_id: input_text.translator_c_en_msg
+
+# # | END: whatsapp_translator.yaml

@@ -1,0 +1,232 @@
+
+# | START: sun_position_card.yaml
+# | PATH: /config/templates/custom_button_card_templates/olympus_cards/sun_position_card/sun_position_card.yaml
+
+
+
+# | EXAMPLE USAGE
+
+# ➔ REQUIRED:
+# type: custom:button-card
+# template: sun_position_card
+
+# ➔ OPTIONAL:
+# variables:
+#   config:
+#     radius: 90            # Radius of the arc in pixels
+#     height: 150           # Card height in pixels
+#     width: 250            # Card width in pixels
+#     arcWidth: 5           # Thickness of the time arc
+#     markerSize: 10        # Size of the current time marker
+#     animation: true       # Enable animation on load
+
+
+
+sun_position_card:
+
+  # Configurable card parameters with defaults
+  variables:
+    config:
+      radius: 90
+      height: 150
+      width: 250
+      arcWidth: 5
+      markerSize: 10
+      animation: true
+
+
+  # Disable standard button card features
+  show_icon: false
+  show_name: false
+  tap_action: none
+  long_press: false
+
+
+  # Card styling variables and CSS
+  card_mod:
+    style: |
+      :host {
+        --sun-color: #f9d05b;       # Color for sun and daytime arc
+        --moon-color: #8aaae5;      # Color for moon and nighttime marker
+        --arc-night: #3e464f;       # Background color for the arc
+        --arc-day: #f9d05b;         # Daytime arc color (same as sun)
+        --time-font-size: 23px;       # Font size for time display
+        --time-weight: 300;           # Font weight for time display
+        display: block;
+      }
+
+      /* SVG container styling */
+      svg {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+      }
+
+      /* Time text styling */
+      svg text {
+        font-family: var(--ha-card-header-font-family, var(--primary-font-family, "Roboto", sans-serif));
+        font-size: var(--time-font-size);
+        font-weight: var(--time-weight);
+        fill: var(--primary-text-color, #ffffff);
+        dominant-baseline: middle;
+      }
+
+      /* AM/PM indicator styling */
+      svg .time-meridian {
+        fill: var(--contrast7);
+        font-size: 0.6em;
+      }
+
+      /* Current position marker styling with animation */
+      svg .marker {
+        transform-origin: center;
+        transform-box: fill-box;
+        opacity: 0;
+        animation: markerPopIntro 0.7s var(--marker-delay, 0.96s) both;
+      }
+
+      /* Animation keyframes for marker pop-in effect */
+      @keyframes markerPopIntro {
+        0%   { transform: scale(0); opacity: 0; }
+        40%  { transform: scale(1.2); opacity: 1; }
+        85%  { transform: scale(0.95); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      /* Responsive design for smaller screens */
+      @media (max-width: 600px) {
+        :host {
+          --time-font-size: 18px;
+        }
+      }
+
+
+  # Additional card styling
+  styles:
+    card:
+      - width: auto
+      - padding: 14px 20px
+      - transition: all 0.2s ease-in-out
+      - "--marker-delay": 0.96s              # Delay for marker animation
+      - "--mdc-ripple-color": rgba(0,0,0,0)  # Disable ripple effect
+
+
+  # Main visualization rendering
+  custom_fields:
+    sunrise_sunset: |
+      [[[
+        // Get configuration values or use defaults
+        const config = variables.config || {};
+        const W = config.width || 250;        // SVG width
+        const H = config.height || 150;       // SVG height
+        const R = config.radius || 90;        // Arc radius
+        const CX = W / 2;                     // Center X position
+        const CY = 100;                       // Center Y position
+        const DASH = Math.PI * R;             // Total arc length
+        const ARC_WIDTH = config.arcWidth || 5;     // Arc thickness
+        const MARKER_SIZE = config.markerSize || 10; // Marker radius
+
+        // Get sun entity data
+        const entity = states['sun.sun'];
+        if (!entity) return '';  // Exit if sun entity not available
+
+        // Get current time and sun event times
+        const now = new Date();
+        const nextRising = entity.attributes.next_rising ? new Date(entity.attributes.next_rising) : null;
+        const nextSetting = entity.attributes.next_setting ? new Date(entity.attributes.next_setting) : null;
+        const isDay = entity.state === 'above_horizon';
+
+        // Adjust date for previous sun event if needed
+        const adjustDateIfNeeded = (date) => {
+          const adjusted = new Date(date);
+          if (adjusted > now) {
+            adjusted.setDate(adjusted.getDate() - 1); // Go back one day if event is in future
+          }
+          return adjusted;
+        };
+
+        // Calculate start and end points for the current period (day or night)
+        const start = isDay ? adjustDateIfNeeded(nextRising) : adjustDateIfNeeded(nextSetting);
+        const end = new Date(isDay ? nextSetting : nextRising);
+        if (end < now) {
+          end.setDate(end.getDate() + 1); // Add a day if end time is in the past
+        }
+
+        // Calculate progress percentage through current period
+        let p = 0.5; // Default to middle if calculation fails
+        const total = end - start;
+        if (total > 0) {
+          p = Math.min(Math.max((now - start) / total, 0), 1); // Clamp between 0-1
+        }
+
+        // Calculate position of marker along the arc
+        const ang = Math.PI * (1 - p); // Convert progress to angle (0 to π)
+        const sx = CX + R * Math.cos(ang); // X position on arc
+        const sy = CY - R * Math.sin(ang); // Y position on arc
+
+        // Format time for display
+        const formatTime = (d) => {
+          if (!d) return '––:––'; // Placeholder if no time available
+          return new Date(d).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit', hour12: true});
+        };
+
+        // Get formatted sunrise and sunset times
+        const sunriseStr = formatTime(entity.attributes.next_rising);
+        const sunsetStr = formatTime(entity.attributes.next_setting);
+
+        // Split time strings into time and AM/PM parts
+        const parseTwoPartTime = (timeStr) => {
+          if (!timeStr || timeStr === '––:––') return { time: '––:––', meridian: '' };
+          const parts = timeStr.split(' ');
+          return {
+            time: parts[0],
+            meridian: parts.length > 1 ? parts[1]?.toLowerCase() : ''
+          };
+        };
+
+        const sunrise = parseTwoPartTime(sunriseStr);
+        const sunset = parseTwoPartTime(sunsetStr);
+
+        // Determine which times to display on left and right
+        const leftDisplay = isDay ? sunrise : sunset;
+        const rightDisplay = isDay ? sunset : sunrise;
+
+        // Set colors based on day/night
+        const arcColor = isDay ? 'var(--sun-color)' : 'var(--moon-color)';
+
+        // Create animation for arc if enabled
+        const animation = config.animation ?
+          `<animate attributeName="stroke-dasharray" from="0 ${DASH}" to="${DASH * p} ${DASH}" dur="1.0s" fill="freeze" />` : '';
+
+        // Generate SVG markup
+        return `
+          <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMin slice">
+            <!-- Background arc (full semi-circle) -->
+            <path d="M${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY}"
+                  stroke="var(--arc-night)" stroke-width="${ARC_WIDTH}" fill="none"
+                  stroke-linecap="round"/>
+            <!-- Progress arc showing elapsed time in current period -->
+            <path d="M${CX - R} ${CY} A ${R} ${R} 0 0 1 ${CX + R} ${CY}"
+                  stroke="${arcColor}" stroke-width="${ARC_WIDTH}" fill="none"
+                  stroke-dasharray="${DASH * p} ${DASH}" stroke-linecap="round">
+              ${animation}
+            </path>
+            <!-- Current time marker (circle) -->
+            <circle class="marker" cx="${sx}" cy="${sy}" r="${MARKER_SIZE}" fill="${arcColor}"/>
+            <!-- Left time display (sunrise or sunset) -->
+            <text x="${CX - R}" y="${CY + 22}" text-anchor="middle">
+              ${leftDisplay.time}
+              <tspan class="time-meridian" dx="-2" dy="-0.5em">${leftDisplay.meridian}</tspan>
+            </text>
+            <!-- Right time display (sunset or sunrise) -->
+            <text x="${CX + R}" y="${CY + 22}" text-anchor="middle">
+              ${rightDisplay.time}
+              <tspan class="time-meridian" dx="-2" dy="-0.5em">${rightDisplay.meridian}</tspan>
+            </text>
+          </svg>
+        `;
+      ]]]
+
+
+
+# | END: sun_position_card.yaml

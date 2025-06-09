@@ -1,0 +1,236 @@
+# | START: structure_room_doors.yaml
+# | PATH: /config/packages/device/structure_room_doors.yaml
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Structure - C room - Door
+#   Handles various door states and notifications
+  - id: '1685656147198'
+    alias: Structure - C room - Door
+    description: ''
+    trigger:
+    - platform: state
+      entity_id:
+      - binary_sensor.ds00_position
+      to: 'on'
+      from:
+      id: C door opened
+    - platform: state
+      entity_id:
+      - binary_sensor.ds00_position
+      to: 'off'
+      from: 'on'
+      id: C door closed
+    - platform: state
+      entity_id:
+      - binary_sensor.vs02_vibration
+      to: 'on'
+      id: C door vibration
+    condition: []
+    action:
+    - alias: 'When C door is: OPENED (or moves whilst open)'
+      if:
+      - alias: Test if door was opened OR was moved whilst open
+        condition: or
+        conditions:
+        - condition: trigger
+          id:
+          - C door opened
+        - alias: Check if door is moved whilst open
+          condition: template
+          value_template: '{{ is_state(binary_sensor.ds00_position, ''on'') and trigger.id
+            == ''C door vibration'' }}
+
+            '
+      then:
+      - if:
+        - condition: template
+          value_template: '{{ is_state(''input_boolean.room_alert_flash_mode'', ''on'')
+            or is_state(''input_boolean.room_alert_sound_mode'', ''on'') }}'
+          alias: Check for an enabled alert mode for room alerts
+        then:
+        - alias: Snapshot -  Room alert input_booleans
+          service: scene.create
+          data:
+            scene_id: room_alert_modes_pre_door_open
+            snapshot_entities:
+            - input_boolean.room_alert_sound_mode
+            - input_boolean.room_alert_flash_mode
+        - alias: 'Turn room alerts: OFF'
+          service: input_boolean.turn_off
+          data: {}
+          target:
+            entity_id:
+            - input_boolean.room_alert_flash_mode
+            - input_boolean.room_alert_sound_mode
+        alias: Snapshot room alert booleans THEN turn off room alerts
+    - alias: 'When C door is: CLOSED'
+      if:
+      - condition: trigger
+        id:
+        - C door closed
+      then:
+      - alias: return room alert booleans to their state before door was opened
+        service: scene.turn_on
+        data: {}
+        target:
+          entity_id: scene.room_alert_modes_pre_door_open
+    - alias: Door moved when C is away
+      if:
+      - condition: and
+        conditions:
+        - condition: or
+          conditions:
+          - condition: trigger
+            id:
+            - C door opened
+          - condition: and
+            conditions:
+            - condition: trigger
+              id:
+              - C door vibration
+            - condition: state
+              entity_id: binary_sensor.ds00_position
+              state: 'on'
+          alias: Test if door was opened OR was moved whilst open
+        - condition: not
+          conditions:
+          - condition: state
+            entity_id: person.cam
+            state: home
+          alias: Confirm C is not home
+      then:
+      - service: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id: input_boolean.bedroom_door_unauthorized_open
+        alias: Activate dashboard alert
+      - service: persistent_notification.create
+        data:
+          title: Critical alert
+          message: C bedroom door was just opened. Sensors show you are not home, therefore
+            entry is unauthorised
+    mode: single
+
+# ➔ Structure - E room
+#   Controls light based on power usage
+  - id: '1711146519885'
+    alias: Structure - E room
+    description: ''
+    trigger:
+    - platform: template
+      value_template: '{{ states(''sensor.mpm11_power'') | float >= 4 }}'
+      id: MPM11 power drain active
+    - platform: numeric_state
+      entity_id:
+      - sensor.mpm11_power
+      above: 5
+      id: MPM11 power drain active
+    - platform: numeric_state
+      entity_id:
+      - sensor.mpm11_power
+      below: 5
+      id: MPM11 power drain inactive
+    condition: []
+    action:
+    - if:
+      - condition: trigger
+        id:
+        - MPM11 power drain active
+      then:
+      - service: light.turn_on
+        metadata: {}
+        data:
+          brightness_pct: 100
+        target:
+          entity_id: light.elgato_panel_01
+    - if:
+      - condition: trigger
+        id:
+        - MPM11 power drain inactive
+      then:
+      - service: light.turn_off
+        target:
+          entity_id: light.elgato_panel_01
+        data: {}
+    mode: single
+
+# ➔ E door - Remind to close
+#   Reminds to close E's door if left open
+  - id: '1722266778030'
+    alias: E door - Remind to close
+    description: ''
+    trigger:
+    - platform: state
+      entity_id:
+      - binary_sensor.e_bedroom_door
+      to: 'on'
+      for:
+        hours: 0
+        minutes: 3
+        seconds: 0
+      id: e door open first notice
+    - platform: state
+      entity_id:
+      - binary_sensor.e_bedroom_door
+      to: 'on'
+      for:
+        hours: 0
+        minutes: 10
+        seconds: 0
+      id: e door open second notice
+    condition: []
+    action:
+    - if:
+      - condition: state
+        entity_id: person.enhy
+        state: home
+      - condition: state
+        entity_id: person.cam
+        state: home
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: binary_sensor.fp2_06_all
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.fp2_03_all
+          state: ''
+        - condition: state
+          entity_id: binary_sensor.withings_e_in_bed
+          state: 'on'
+        alias: If E room is occupied
+      - condition: state
+        entity_id: binary_sensor.fp2_01_all
+        state: 'on'
+        alias: if C room is occupied
+      - condition: time
+        after: 09:00:00
+        before: '18:00:00'
+      - condition: time
+        weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+      then:
+      - choose:
+        - conditions:
+          - condition: trigger
+            id:
+            - e door open first notice
+          sequence: []
+        - conditions:
+          - condition: trigger
+            id:
+            - e door open second notice
+          sequence: []
+    mode: single
+
+
+# | END: structure_room_doors.yaml

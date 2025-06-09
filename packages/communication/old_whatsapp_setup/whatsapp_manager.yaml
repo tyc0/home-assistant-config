@@ -1,0 +1,238 @@
+
+# # # | START: whatsapp_manager.yaml
+# # # |  PATH: /config/packages/communication/whatsapp_manager.yaml
+
+
+
+# ############
+# # Input Entities - Recent Contacts
+# ############
+input_text:
+
+  whatsapp_e_rec: 
+    max: 255
+    mode: text
+
+automation:
+  - alias: "WhatsApp - Message Processor"
+    description: "Processes incoming WhatsApp messages into a single input_text"
+    trigger:
+      - platform: event
+        event_type: new_whatsapp_message
+    
+    condition:
+      - condition: template
+        value_template: '{{ "@s" in trigger.event.data.key.remoteJid and trigger.event.data.key.remoteJid != "status@broadcast" }}'
+      - condition: template
+        value_template: '{{ trigger.event.data.clientId == "e" }}'
+    
+    action:
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.whatsapp_e_rec
+          value: "{{ trigger.event.data.pushName | regex_replace(' .*', '') }} - {{ trigger.event.data.message.conversation if trigger.event.data.type == 'conversation' else trigger.event.data.message.extendedTextMessage.text }}"
+    
+    mode: parallel
+    max: 10
+
+  
+#   whatsapp_recent_contact_name_template: &recent_contact_name
+#     max: 255
+#     mode: text
+#     icon: mdi:account
+#     initial: ""
+
+#   # C's recent contacts
+#   whatsapp_c_recent_contact_1:
+#     <<: *recent_contact
+#     name: "C's Most Recent Contact"
+#   whatsapp_c_recent_contact_1_name:
+#     <<: *recent_contact_name
+#     name: "C's Most Recent Contact Name"
+#   whatsapp_c_recent_contact_2:
+#     <<: *recent_contact
+#     name: "C's Second Recent Contact"
+#   whatsapp_c_recent_contact_2_name:
+#     <<: *recent_contact_name
+#     name: "C's Second Recent Contact Name"
+#   whatsapp_c_recent_contact_3:
+#     <<: *recent_contact
+#     name: "C's Third Recent Contact"
+#   whatsapp_c_recent_contact_3_name:
+#     <<: *recent_contact_name
+#     name: "C's Third Recent Contact Name"
+
+#   # E's recent contacts
+#   whatsapp_e_recent_contact_1:
+#     <<: *recent_contact
+#     name: "E's Most Recent Contact"
+#   whatsapp_e_recent_contact_1_name:
+#     <<: *recent_contact_name
+#     name: "E's Most Recent Contact Name"
+#   whatsapp_e_recent_contact_2:
+#     <<: *recent_contact
+#     name: "E's Second Recent Contact"
+#   whatsapp_e_recent_contact_2_name:
+#     <<: *recent_contact_name
+#     name: "E's Second Recent Contact Name"
+#   whatsapp_e_recent_contact_3:
+#     <<: *recent_contact
+#     name: "E's Third Recent Contact"
+#   whatsapp_e_recent_contact_3_name:
+#     <<: *recent_contact_name
+#     name: "E's Third Recent Contact Name"
+
+# ############
+# # Unread Message Counters
+# ############
+# input_number:
+#   whatsapp_c_unread_count:
+#     name: "C's Unread Messages"
+#     min: 0
+#     max: 99
+#     step: 1
+#     mode: box
+    
+#   whatsapp_e_unread_count:
+#     name: "E's Unread Messages"
+#     min: 0
+#     max: 99
+#     step: 1
+#     mode: box
+
+# ############
+# # Status Indicators
+# ############
+# input_boolean:
+#   whatsapp_c_unread_exists:
+#     name: "C Has Unread Messages"
+#     icon: mdi:message-badge
+    
+#   whatsapp_e_unread_exists:
+#     name: "E Has Unread Messages"
+#     icon: mdi:message-badge
+
+# ############
+# # Automations
+# ############
+# automation:
+#   # Message Processing Automation
+#   - alias: "WhatsApp - Message Controller"
+#     description: "Core message processing for incoming WhatsApp messages"
+#     trigger:
+#       - platform: event
+#         event_type: new_whatsapp_message
+#         id: whatsapp_received
+    
+#     condition:
+#       # Ignore broadcast messages (stories)
+#       - condition: template
+#         value_template: '{{ trigger.event.data.key.remoteJid not in "status@broadcast" }}'
+      
+#       # Only process single chat messages
+#       - condition: template
+#         value_template: '{{ "@s" in trigger.event.data.key.remoteJid }}'
+    
+#     action:
+#       - variables:
+#           user_id: "{{ trigger.event.data.clientId }}"
+#           message_type: "{{ trigger.event.data.type }}"
+#           remote_jid: "{{ trigger.event.data.key.remoteJid }}"
+#           sender_name: "{{ trigger.event.data.pushName }}"
+#           message_text: >
+#             {% if trigger.event.data.type in 'conversation' %}
+#               {{ trigger.event.data.message.conversation }}
+#             {% else %}
+#               {{ trigger.event.data.message.extendedTextMessage.text }}
+#             {% endif %}
+      
+#       # Process message based on user
+#       - choose:
+
+#           # Handle E's messages
+#           - conditions:
+#               - condition: template
+#                 value_template: '{{ user_id == "e" }}'
+#             sequence:
+#               - service: input_text.set_value
+#                 data:
+#                   entity_id: input_text.whatsapp_e_inbound_single_bodytext
+#                   value: "{{ message_text }}"
+              
+#               - service: input_text.set_value
+#                 data:
+#                   entity_id: input_text.whatsapp_e_inbound_single_sendername
+#                   value: '{% set name = sender_name %}{{ name.split(" ")[0].strip() if " " in name else name.strip() }}'
+              
+#               - service: input_text.set_value
+#                 data:
+#                   entity_id: input_text.whatsapp_e_inbound_single_sendernumber
+#                   value: '{{ remote_jid.split("@")[0] }}'
+              
+#               - service: input_boolean.turn_on
+#                 target:
+#                   entity_id: input_boolean.whatsapp_e_unread_exists
+              
+#               - service: input_number.increment
+#                 target:
+#                   entity_id: input_number.whatsapp_e_unread_count
+              
+#               # Update recent contacts if not already in list
+#               - if:
+#                   condition: template
+#                   value_template: >
+#                     {{ 
+#                       remote_jid.split("@")[0] != states('input_text.whatsapp_e_recent_contact_1') and 
+#                       remote_jid.split("@")[0] != states('input_text.whatsapp_e_recent_contact_2') and 
+#                       remote_jid.split("@")[0] != states('input_text.whatsapp_e_recent_contact_3')
+#                     }}
+#                 then:
+#                   - service: input_text.set_value
+#                     data:
+#                       entity_id: input_text.whatsapp_e_recent_contact_3
+#                       value: "{{ states('input_text.whatsapp_e_recent_contact_2') }}"
+#                   - service: input_text.set_value
+#                     data:
+#                       entity_id: input_text.whatsapp_e_recent_contact_3_name
+#                       value: "{{ states('input_text.whatsapp_e_recent_contact_2_name') }}"
+                  
+#                   - service: input_text.set_value
+#                     data:
+#                       entity_id: input_text.whatsapp_e_recent_contact_2
+#                       value: "{{ states('input_text.whatsapp_e_recent_contact_1') }}"
+#                   - service: input_text.set_value
+#                     data:
+#                       entity_id: input_text.whatsapp_e_recent_contact_2_name
+#                       value: "{{ states('input_text.whatsapp_e_recent_contact_1_name') }}"
+                  
+#                   - service: input_text.set_value
+#                     data:
+#                       entity_id: input_text.whatsapp_e_recent_contact_1
+#                       value: "{{ remote_jid.split('@')[0] }}"
+#                   - service: input_text.set_value
+#                     data:
+#                       entity_id: input_text.whatsapp_e_recent_contact_1_name
+#                       value: "{{ sender_name }}"
+
+#     mode: parallel
+#     max: 10
+
+# #   # Debug automation
+# #   - alias: "WhatsApp - Debug Events"
+# #     description: "Debug version to see what's happening with WhatsApp messages"
+# #     trigger:
+# #       - platform: event
+# #         event_type: new_whatsapp_message
+# #     action:
+# #       - service: persistent_notification.create
+# #         data:
+# #           title: "WhatsApp Debug"
+# #           message: >
+# #             Event received:
+# #             ClientID: {{ trigger.event.data.clientId }}
+# #             RemoteJid: {{ trigger.event.data.key.remoteJid }}
+# #             PushName: {{ trigger.event.data.pushName }}
+
+
+
+# # # | END: whatsapp_manager.yaml

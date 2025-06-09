@@ -1,0 +1,326 @@
+
+# | START: frontend_weather.yaml
+# |  PATH: /config/packages/server/frontend_weather.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+# ➔ AI weather clothing suggestion
+#   Used to log AI clothing suggestion based on weather
+  ai_weather_clothing_suggestion:
+    name: "AI clothing suggestion"
+    max: 255
+
+
+
+# ╭────────────────────╮
+# │   AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Weather Grab Recommendation
+#   Checks the weather and asks the AI what to grab before heading out,
+#   then stores the result in an input_text helper.
+  - alias: Weather Grab Recommendation
+    id: weather_grab_recommendation
+    description: >
+      Checks the weather and asks the AI what to grab before heading out,
+      then stores the result in an input_text helper.
+    mode: single
+    trigger:
+      - platform: time_pattern
+        minutes: 0
+      - platform: homeassistant
+        event: start
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.platform == 'homeassistant' }}"
+            sequence:
+              - delay: "00:05:00"
+      - service: ha_text_ai.ask_question
+        data:
+          context_messages: 1
+          temperature: 0.7
+          max_tokens: 1000
+          instance: sensor.ha_text_ai_weather_summary
+          question: >
+            You're my roommate who just looked outside. In 10 words or less, tell me
+            what I should grab before heading out, based on the weather. Be super
+            casual and natural—exactly how a real person would phrase it. No weather
+            reporter words or overly proper language.
+
+            Condition: {{ states('weather.pirateweather') }}
+
+            Temperature: {{ state_attr('weather.pirateweather','temperature') | int }}°C
+
+            Humidity: {{ state_attr('weather.pirateweather','humidity') }}%
+
+            Wind: {{ state_attr('weather.pirateweather','wind_speed') | int }}km/h
+
+            Clouds: {{ state_attr('weather.pirateweather','cloud_coverage') | int }}%
+
+            Next 24-hour forecast data:
+              - Feels Like (°C): [{{ state_attr('sensor.pirateweather_today_apparent_temperature','values') }}]
+              - Rain (mm): [{{ state_attr('sensor.pirateweather_today_precip_accumulation','values') }}]
+              - Wind Speeds (km/h): [{{ state_attr('sensor.pirateweather_today_wind_speed','values') }}]
+      - delay: "00:00:05"
+      - variables:
+          ai_response: >
+            {{ state_attr('sensor.ha_text_ai_weather_summary', 'response') |
+            default('No recommendation available') }}
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.ai_weather_clothing_suggestion
+          value: "{{ ai_response }}"
+
+
+
+
+# ╭────────────────────╮
+# │   TEMPLATE SENSOR
+# ╰────────────────────╯
+template:
+  - sensor:
+
+    # ═══════════════════
+    # Today's Forecasts (24h)
+    # ═══════════════════
+
+# ➔ Hourly temperature (next 24h)
+      - name: "Pirateweather Today - Apparent Temperature"
+        unique_id: pirateweather_today_apparent_temperature
+        unit_of_measurement: "°C"
+        state: "{{ states('sensor.pirateweather_apparent_temperature_0h') | float(0) | round(0) }}"
+        attributes:
+          values: >-
+            {{ [
+              states('sensor.pirateweather_apparent_temperature_0h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_1h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_2h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_3h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_4h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_5h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_6h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_7h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_8h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_9h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_10h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_11h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_12h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_13h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_14h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_15h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_16h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_17h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_18h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_19h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_20h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_21h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_22h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_23h') | float(0) | round(0),
+              states('sensor.pirateweather_apparent_temperature_24h') | float(0) | round(0)
+            ] | tojson }}
+
+# ➔ Hourly rain accumulation (next 24h)
+      - name: "Pirateweather Today - Precipitation Accumulation"
+        unique_id: pirateweather_today_precip_accumulation
+        unit_of_measurement: "mm"
+        state: "{{ states('sensor.pirateweather_precip_accumulation_0h') | float(0) }}"  # Just holds current value
+        attributes:
+          values: >-
+            {{ [
+              states('sensor.pirateweather_precip_accumulation_0h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_1h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_2h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_3h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_4h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_5h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_6h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_7h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_8h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_9h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_10h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_11h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_12h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_13h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_14h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_15h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_16h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_17h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_18h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_19h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_20h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_21h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_22h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_23h') | float(0),
+              states('sensor.pirateweather_precip_accumulation_24h') | float(0)
+            ] | tojson }}
+
+# ➔ Hourly wind speed (next 24h)
+      - name: "Pirateweather Today - Wind Speed"
+        unique_id: pirateweather_today_wind_speed
+        unit_of_measurement: "km/h"
+        state: "{{ states('sensor.pirateweather_wind_speed_0h') | float(0) | round(0) }}"  # Just holds current value
+        attributes:
+          values: >-
+            {{ [
+              states('sensor.pirateweather_wind_speed_0h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_1h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_2h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_3h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_4h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_5h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_6h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_7h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_8h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_9h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_10h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_11h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_12h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_13h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_14h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_15h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_16h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_17h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_18h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_19h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_20h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_21h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_22h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_23h') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_24h') | float(0) | round(0)
+            ] | tojson }}
+
+    # ═══════════════════
+    # Weekly Forecasts (7d)
+    # ═══════════════════
+
+# ➔ Daytime high temperature (next 7d)
+      - name: "Pirateweather Week - High Temperature"
+        unique_id: pirateweather_week_high_temperature
+        unit_of_measurement: "°C"
+        state: "{{ states('sensor.pirateweather_daytime_high_temperature_0d') | float(0) | round(0) }}"
+        attributes:
+          values: >-
+            {{ [
+              states('sensor.pirateweather_daytime_high_temperature_0d') | float(0) | round(0),
+              states('sensor.pirateweather_daytime_high_temperature_1d') | float(0) | round(0),
+              states('sensor.pirateweather_daytime_high_temperature_2d') | float(0) | round(0),
+              states('sensor.pirateweather_daytime_high_temperature_3d') | float(0) | round(0),
+              states('sensor.pirateweather_daytime_high_temperature_4d') | float(0) | round(0),
+              states('sensor.pirateweather_daytime_high_temperature_5d') | float(0) | round(0),
+              states('sensor.pirateweather_daytime_high_temperature_6d') | float(0) | round(0),
+              states('sensor.pirateweather_daytime_high_temperature_7d') | float(0) | round(0)
+            ] | tojson }}
+
+# ➔ Daily precipitation accumulation (next 7d)
+      - name: "Pirateweather Week - Precipitation Accumulation"
+        unique_id: pirateweather_week_precip_accumulation
+        unit_of_measurement: "mm"
+        state: "{{ states('sensor.pirateweather_precip_accumulation_0d') | float(0) }}"  # Just holds current value
+        attributes:
+          values: >-
+            {{ [
+              states('sensor.pirateweather_precip_accumulation_0d') | float(0),
+              states('sensor.pirateweather_precip_accumulation_1d') | float(0),
+              states('sensor.pirateweather_precip_accumulation_2d') | float(0),
+              states('sensor.pirateweather_precip_accumulation_3d') | float(0),
+              states('sensor.pirateweather_precip_accumulation_4d') | float(0),
+              states('sensor.pirateweather_precip_accumulation_5d') | float(0),
+              states('sensor.pirateweather_precip_accumulation_6d') | float(0),
+              states('sensor.pirateweather_precip_accumulation_7d') | float(0)
+            ] | tojson }}
+
+# ➔ Daily wind speed (next 7d)
+      - name: "Pirateweather Week - Wind Speed"
+        unique_id: pirateweather_week_wind_speed
+        unit_of_measurement: "km/h"
+        state: "{{ states('sensor.pirateweather_wind_speed_0d') | float(0) | round(0) }}"  # Just holds current value
+        attributes:
+          values: >-
+            {{ [
+              states('sensor.pirateweather_wind_speed_0d') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_1d') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_2d') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_3d') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_4d') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_5d') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_6d') | float(0) | round(0),
+              states('sensor.pirateweather_wind_speed_7d') | float(0) | round(0)
+            ] | tojson }}
+
+    # ═══════════════════
+    # Weather Descriptions
+    # ═══════════════════
+
+# ➔ Apparent temperature description
+      - name: "Pirateweather - Temperature Description"
+        unique_id: pirateweather_temperature_description
+        state: >-
+          {% set temp = states('sensor.pirateweather_apparent_temperature_0h') | float(-100) %}
+          {% if temp <= -100 %}
+            unknown
+          {% elif temp <= -5 %}
+            Glacial
+          {% elif temp <= 0 %}
+            Freezing
+          {% elif temp <= 7 %}
+            Cold
+          {% elif temp <= 13 %}
+            Cool
+          {% elif temp <= 21 %}
+            Pleasant
+          {% elif temp <= 27 %}
+            hot
+          {% elif temp <= 32 %}
+            Very Hot
+          {% else %}
+            Infernal
+          {% endif %}
+
+# ➔ Wind level description
+      - name: "Pirateweather - Wind Description"
+        unique_id: pirateweather_wind_description
+        state: >-
+          {% set speed = states('sensor.pirateweather_today_wind_speed') | float(-1) %}
+          {% if speed < 0 %}
+            unknown
+          {% elif speed < 5 %}
+            Calm
+          {% elif speed < 15 %}
+            Breezy
+          {% elif speed < 30 %}
+            Windy
+          {% elif speed < 45 %}
+            Gale
+          {% else %}
+            Storm
+          {% endif %}
+
+
+# ➔ Precipitation description
+      - name: "Pirateweather - Precipitation Description"
+        unique_id: pirateweather_precipitation_description
+        state: >-
+          {% set precip = states('sensor.pirateweather_today_precip_accumulation') | float(-1) %}
+          {% if precip < 0 %}
+            unknown
+          {% elif precip == 0 %}
+            Clear
+          {% elif precip < 1.0 %}
+            Drizzle
+          {% elif precip < 2.5 %}
+            Light rain
+          {% elif precip < 10.0 %}
+            Heavy rain
+          {% else %}
+            Monsoon
+          {% endif %}
+
+# | END: frontend_weather.yaml

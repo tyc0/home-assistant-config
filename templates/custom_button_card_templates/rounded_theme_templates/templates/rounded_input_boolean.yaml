@@ -1,0 +1,6 @@
+rounded_input_boolean:
+  template: rounded_base
+  variables:
+    active_color: orange
+  tap_action:
+    action: toggle

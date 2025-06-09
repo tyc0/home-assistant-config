@@ -1,0 +1,117 @@
+ 
+
+# | START: decluttering_templates.yaml
+# |  PATH: /config/ui/decluttering_templates.yaml
+
+
+# Add decluttering templates before the views section
+decluttering_templates:
+  animated_button:
+    card:
+      type: custom:button-card
+      variables:
+        icon: '[[icon]]'
+        name: '[[name]]'
+        navigation_path: '[[navigation_path]]'
+        index: '[[index]]'
+      icon: |
+        [[[
+          return variables.icon;
+        ]]]
+      name: |
+        [[[
+          const name = variables.name;
+          const index = parseInt(variables.index);
+          return `<span>${name
+            .split('')
+            .map(
+              (letter, idx) =>
+                `<span style="display: inline-block; animation: textfadeintro 1s both; animation-delay: ${
+                  0.2 + index * 0.2 + idx * 0.1
+                }s;">${letter}</span>`
+            )
+            .join('')}</span>`;
+        ]]]
+      aspect_ratio: 1/1
+      styles:
+        card:
+          - padding: 10%
+          - "--mdc-ripple-color": transparent
+          - animation: |
+              [[[
+                const delay = 0.3 + parseInt(variables.index) * 0.2;
+                return `cardpopintro 1s ${delay}s both`;
+              ]]]
+          - border: none
+          - box-shadow: none
+        img_cell:
+          - border-radius: 50%
+          - width: 30px
+          - height: 30px
+          - background-color: var(--contrast4)
+          - justify-self: start
+          - padding: 5%
+          - animation: |
+              [[[
+                const delay = 0.7 + parseInt(variables.index) * 0.2;
+                return `cardpopintro 0.6s ${delay}s both`;
+              ]]]
+        icon:
+          - width: 50%
+          - animation: |
+              [[[
+                const delay = 0.85 + parseInt(variables.index) * 0.2;
+                return `cardpopintro 0.6s ${delay}s both`;
+              ]]]
+        name:
+          - padding: 5%
+          - font-size: 0.75em
+          - justify-self: start
+          - align-self: end
+          - overflow: visible
+        grid:
+          - grid-template-areas: "\"i .\" \"n n\""
+          - grid-template-rows: min-content 1fr
+          - grid-template-columns: 1fr 1fr
+      tap_action:
+        action: navigate
+        navigation_path: |
+          [[[
+            return variables.navigation_path;
+          ]]]
+        haptic: success
+      extra_styles: |
+        @keyframes bgpopintro {
+          0% { transform: scale(0); }
+        }
+        @keyframes cardpopintro {
+          0% { transform: scale(0); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+        }
+        @keyframes textfadeintro {
+          from { transform: scaleX(0.2) translateX(100px); filter: blur(20px); opacity: 0; }
+          to { transform: scaleX(1) translateX(0); filter: blur(0); opacity: 1; }
+        }
+      custom_fields:
+        tilt: |
+          [[[ setTimeout(() => {
+            let elt = this.shadowRoot.getElementById('card');
+            if (elt && typeof VanillaTilt === 'function') {
+              VanillaTilt.init(elt, {
+                max: 7,
+                scale: 1.02,
+                glare: true,
+                'max-glare': 0.2,
+                perspective: 500,
+                speed: 800,
+                parallax: '30px'
+              });
+              elt.style.transition = 'transform 0.8s ease-out';
+            }
+          }, 0); ]]]
+
+
+# | END: decluttering_templates.yaml
+
+

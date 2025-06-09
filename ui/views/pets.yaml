@@ -1,0 +1,247 @@
+
+# | START: pets.yaml
+# |  PATH: /config/ui/views/pets.yaml
+
+
+title: 'Tester'
+path: 'pets'
+icon: fapro:solar_paws_pets7
+subview: false
+type: custom:vertical-layout
+badges: []
+cards:
+
+  # Add the new card here
+  - type: custom:button-card
+    entity: input_select.whatsapp_contacts
+    show_name: false
+    show_state: false
+    show_icon: false
+    tap_action:
+      action: none
+    hold_action:
+      action: none
+    triggers_update:
+      - sensor.chat_history_enhy
+      - sensor.chat_history_dad
+      - sensor.chat_history_ben
+      - sensor.chat_history_ange
+      - input_text.whatsapp_c_message_to_send
+    custom_fields:
+      chatlog: |
+        [[[ 
+          const selectedContact = states['input_select.whatsapp_contacts'].state;
+          
+          const contactMap = {
+            'Enhy': {sensor: 'sensor.chat_history_enhy', color: 'var(--contrast16)'},
+            'Dad': {sensor: 'sensor.chat_history_dad', color: 'rgba(224, 145, 50, 0.85)'},
+            'Ben': {sensor: 'sensor.chat_history_ben', color: 'rgba(210, 70, 90, 0.85)'},
+            'Ange': {sensor: 'sensor.chat_history_ange', color: 'rgba(100, 160, 100, 0.85)'},
+          };
+          
+          const contactInfo = contactMap[selectedContact];
+          if (!contactInfo) return '';
+          
+          const entityState = states[contactInfo.sensor];
+          if (!entityState) return '';
+
+          let styleBlock = `<style>
+            .chat-container {
+              max-height: 800px;
+              overflow-y: auto;
+              overflow-x: hidden;
+              pointer-events: auto;
+              user-select: text;
+              display: flex;
+              flex-direction: column-reverse;
+            }
+
+            .message-group {
+              display: flex;
+              flex-direction: column;
+              margin: 2px 8px;
+              position: relative;
+            }
+
+            .chat-message {
+              display: flex;
+              justify-content: flex-start;
+              margin: 0;
+              position: relative;
+            }
+
+            .chat-message-right {
+              justify-content: flex-end;
+            }
+
+            .message-bubble {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              font-size: 0.95rem;
+              max-width: 70%;
+              padding: 8px 12px;
+              word-break: break-word;
+              white-space: pre-wrap;
+              position: relative;
+              margin: 0.2px 0;
+              box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+              transition: transform 0.2s ease-in-out;
+              backface-visibility: hidden;
+            }
+
+            .message-bubble:hover {
+              filter: brightness(95%);
+            }
+
+            /* Left messages */
+            .message-bubble.first {
+              mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 20C0 8.95431 8.95431 0 20 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V20Z' fill='black'/%3E%3C/svg%3E");
+              -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 20C0 8.95431 8.95431 0 20 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V20Z' fill='black'/%3E%3C/svg%3E");
+              mask-size: 100% 100%;
+              -webkit-mask-size: 100% 100%;
+              mask-repeat: no-repeat;
+              -webkit-mask-repeat: no-repeat;
+            }
+
+            .message-bubble.middle {
+              mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 0C0 0 0 0 0 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V0Z' fill='black'/%3E%3C/svg%3E");
+              -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 0C0 0 0 0 0 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V0Z' fill='black'/%3E%3C/svg%3E");
+              mask-size: 100% 100%;
+              -webkit-mask-size: 100% 100%;
+              mask-repeat: no-repeat;
+              -webkit-mask-repeat: no-repeat;
+            }
+
+            .message-bubble.last {
+              mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 0C0 0 0 0 0 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V0Z' fill='black'/%3E%3C/svg%3E");
+              -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M0 0C0 0 0 0 0 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V0Z' fill='black'/%3E%3C/svg%3E");
+              mask-size: 100% 100%;
+              -webkit-mask-size: 100% 100%;
+              mask-repeat: no-repeat;
+              -webkit-mask-repeat: no-repeat;
+            }
+
+            /* Right messages */
+            .chat-message-right .message-bubble.first {
+              mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M100 20C100 8.95431 91.0457 0 80 0H20C8.95431 0 0 8.95431 0 20V80C0 91.0457 8.95431 100 20 100H80C91.0457 100 100 91.0457 100 80V20Z' fill='black'/%3E%3C/svg%3E");
+              -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M100 20C100 8.95431 91.0457 0 80 0H20C8.95431 0 0 8.95431 0 20V80C0 91.0457 8.95431 100 20 100H80C91.0457 100 100 91.0457 100 80V20Z' fill='black'/%3E%3C/svg%3E");
+              mask-size: 100% 100%;
+              -webkit-mask-size: 100% 100%;
+              mask-repeat: no-repeat;
+              -webkit-mask-repeat: no-repeat;
+            }
+
+            .chat-message-right .message-bubble.middle {
+              mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M100 0C100 0 100 0 100 0H20C8.95431 0 0 8.95431 0 20V80C0 91.0457 8.95431 100 20 100H80C91.0457 100 100 91.0457 100 80V0Z' fill='black'/%3E%3C/svg%3E");
+              -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M100 0C100 0 100 0 100 0H20C8.95431 0 0 8.95431 0 20V80C0 91.0457 8.95431 100 20 100H80C91.0457 100 100 91.0457 100 80V0Z' fill='black'/%3E%3C/svg%3E");
+              mask-size: 100% 100%;
+              -webkit-mask-size: 100% 100%;
+              mask-repeat: no-repeat;
+              -webkit-mask-repeat: no-repeat;
+            }
+
+            .chat-message-right .message-bubble.last {
+              mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M100 0C100 0 100 0 100 0H20C8.95431 0 0 8.95431 0 20V80C0 91.0457 8.95431 100 20 100H80C91.0457 100 100 91.0457 100 80V0Z' fill='black'/%3E%3C/svg%3E");
+              -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M100 0C100 0 100 0 100 0H20C8.95431 0 0 8.95431 0 20V80C0 91.0457 8.95431 100 20 100H80C91.0457 100 100 91.0457 100 80V0Z' fill='black'/%3E%3C/svg%3E");
+              mask-size: 100% 100%;
+              -webkit-mask-size: 100% 100%;
+              mask-repeat: no-repeat;
+              -webkit-mask-repeat: no-repeat;
+            }
+
+            .message-bubble.single {
+              mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V20C0 8.95431 8.95431 0 20 0Z' fill='black'/%3E%3C/svg%3E");
+              -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 0H80C91.0457 0 100 8.95431 100 20V80C100 91.0457 91.0457 100 80 100H20C8.95431 100 0 91.0457 0 80V20C0 8.95431 8.95431 0 20 0Z' fill='black'/%3E%3C/svg%3E");
+              mask-size: 100% 100%;
+              -webkit-mask-size: 100% 100%;
+              mask-repeat: no-repeat;
+              -webkit-mask-repeat: no-repeat;
+            }
+
+            .timestamp {
+              font-size: 0.7em;
+              opacity: 0.7;
+              margin-top: 2px;
+              padding: 0 4px;
+            }
+          </style>`;
+
+          let resultHtml = styleBlock + `<div class="chat-container">`;
+          
+          const chat = entityState.attributes.chat_content || '';
+          const lines = chat.split('\n').filter(line => line.trim() !== '').reverse();
+          
+          let currentGroup = [];
+          let lastSender = null;
+          
+          lines.forEach((line, index) => {
+            // Split timestamp and message more reliably
+            const [timestamp, ...messageParts] = line.split(/\s+(?=\S)/);
+            const fullMessage = messageParts.join(' ');
+            
+            // Handle "Me:" messages
+            const isMe = fullMessage.includes('Me:');
+            
+            // Clean the message while preserving the full content
+            const cleanMessage = isMe 
+              ? fullMessage.replace(/^Me:\s*/, '')
+              : fullMessage.replace(/^[^:]+:\s*/, '');
+            
+            const currentSender = isMe ? 'me' : 'other';
+            
+            if (currentSender === lastSender) {
+              currentGroup.push({ message: cleanMessage, timestamp, isMe });
+            } else {
+              if (currentGroup.length > 0) {
+                resultHtml += renderMessageGroup(currentGroup, contactInfo);
+                currentGroup = [];
+              }
+              currentGroup.push({ message: cleanMessage, timestamp, isMe });
+            }
+            
+            lastSender = currentSender;
+            
+            if (index === lines.length - 1 && currentGroup.length > 0) {
+              resultHtml += renderMessageGroup(currentGroup, contactInfo);
+            }
+          });
+
+          function renderMessageGroup(messages, contactInfo) {
+            let groupHtml = `<div class="message-group">`;
+            
+            messages.forEach((msg, idx) => {
+              const position = messages.length === 1 ? 'single' 
+                : idx === 0 ? 'first'
+                : idx === messages.length - 1 ? 'last'
+                : 'middle';
+                
+              const bubbleStyle = `
+                background-color: ${msg.isMe ? 'var(--contrast6)' : contactInfo.color};
+                color: ${msg.isMe ? 'var(--white)' : 'var(--contrast2)'};
+              `;
+              
+              groupHtml += `
+                <div class="chat-message ${msg.isMe ? 'chat-message-right' : ''}">
+                  <div class="message-bubble ${position}" style="${bubbleStyle}">
+                    ${msg.message}
+                    <div class="timestamp">${msg.timestamp}</div>
+                  </div>
+                </div>
+              `;
+            });
+            
+            groupHtml += `</div>`;
+            return groupHtml;
+          }
+
+          resultHtml += `</div>`;
+          return resultHtml;
+        ]]]
+    styles:
+      card:
+        - overflow: hidden
+  - type: custom:my-chat-bubble-card
+    entity: sensor.chat_history_enhy
+    alignment: left
+
+
+# | END: pets.yaml

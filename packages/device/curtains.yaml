@@ -1,0 +1,362 @@
+# | START: curtains.yaml
+# |  PATH: /config/packages/device/curtains.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT SELECT     │
+# ╰────────────────────╯
+input_select:
+
+# ➔ Blind selector
+#   Frontend helper to select which blinds to control
+  blind_selector:
+    name: Blind Selector
+    options:
+      - Bedroom Left
+      - Bedroom Right
+      - Office
+    initial: Bedroom Left
+    icon: mdi:blinds
+
+
+# ╭────────────────────╮
+# │   INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+# ➔ Helper to show or hide the slider on the dashboard card
+#   Office
+  curtain_slider_visibility_office:
+    name: Curtains - Slider visibility (Office)
+    initial: off
+#   Bedroom Left
+  curtain_slider_visibility_bedroom_left:
+    name: Curtains - Slider visibility (Bedroom Left)
+    initial: off
+#   Bedroom Right
+  curtain_slider_visibility_bedroom_right:
+    name: Curtains - Slider visibility (Bedroom Right)
+    initial: off
+  curtain_slider_visibility_all:
+    name: Curtains - Slider visibility (All)
+    initial: off
+
+# ➔ Automatic mode for blinds
+#   Office
+  office_blinds_automatic_mode:
+    name: Office Blinds - Automatic mode
+#   Bedroom Left
+  bedroom_blinds_left_automatic_mode:
+    name: Bedroom Blinds Left - Automatic mode
+#   Bedroom Right
+  bedroom_blinds_right_automatic_mode:
+    name: Bedroom Blinds Right - Automatic mode
+
+
+
+# ╭────────────────────╮
+# │   AUTOMATION      │
+# ╰────────────────────╯
+automation:
+
+# ➔ Auto-hide slider controls after inactivity
+#   Hides sliders after 15 minutes of inactivity
+  - alias: "Curtains - Auto Hide Slider Controls"
+    id: curtains_auto_hide_slider_controls
+    mode: single
+    trigger:
+      # Run hourly check
+      - platform: time_pattern
+        hours: "*"
+      # Run when any visibility toggle is turned on
+      - platform: state
+        entity_id:
+          - input_boolean.curtain_slider_visibility_office
+          - input_boolean.curtain_slider_visibility_bedroom_left
+          - input_boolean.curtain_slider_visibility_bedroom_right
+          - input_boolean.curtain_slider_visibility_all
+        to: "on"
+        for: "00:15:00"
+    condition:
+      # Only run if at least one slider is visible
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: input_boolean.curtain_slider_visibility_office
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.curtain_slider_visibility_bedroom_left
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.curtain_slider_visibility_bedroom_right
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.curtain_slider_visibility_all
+            state: "on"
+    action:
+      - variables:
+          # Get timestamps of last changes for all covers
+          last_changed_times:
+            - "{{ as_timestamp(states.cover.curtain_3_a659.last_changed) }}"
+            - "{{ as_timestamp(states.cover.window_blind_left.last_changed) }}"
+            - "{{ as_timestamp(states.cover.window_blind_right.last_changed) }}"
+          now: "{{ as_timestamp(now()) }}"
+          # Get the most recent change
+          most_recent_change: "{{ last_changed_times | max }}"
+          # Calculate time difference in minutes
+          minutes_since_last_change: "{{ ((now - most_recent_change) / 60) | round(0) }}"
+      # Turn off all sliders if inactive for 15+ minutes
+      - if:
+          condition: numeric_state
+          entity_id: sensor.time
+          value_template: "{{ minutes_since_last_change }}"
+          above: 15
+        then:
+          - service: input_boolean.turn_off
+            target:
+              entity_id:
+                - input_boolean.curtain_slider_visibility_office
+                - input_boolean.curtain_slider_visibility_bedroom_left
+                - input_boolean.curtain_slider_visibility_bedroom_right
+                - input_boolean.curtain_slider_visibility_all
+        else:
+          # Do nothing if still active
+          - delay:
+              seconds: 1
+
+# ➔ Automatic Cover Control (Morning Opening & Evening Closing)
+#   Controls covers based on time of day, presence, and weather conditions
+  - alias: "Curtains - Automatic Cover Control"
+    id: curtains_automatic_cover_control
+    mode: queued
+    description: "Opens covers in the morning and closes them in the evening based on various conditions"
+    trigger:
+      # Morning triggers
+      - platform: time
+        at: "07:30:00"
+      - platform: sun
+        event: sunrise
+        offset: "+00:15:00"
+      # Evening trigger
+      - platform: sun
+        event: sunset
+        offset: "+00:15:00"
+      # Hard close fallback
+      - platform: time
+        at: "22:30:00"
+      # Retry triggers
+      - platform: time_pattern
+        minutes: "/20"
+      # Respond to automatic mode changes
+      - platform: state
+        entity_id:
+          - input_boolean.office_blinds_automatic_mode
+          - input_boolean.bedroom_blinds_left_automatic_mode
+          - input_boolean.bedroom_blinds_right_automatic_mode
+        to: "on"
+    action:
+      # Get current time, sun status, and other environmental conditions
+      - variables:
+          now_time: "{{ now().strftime('%H:%M') }}"
+          is_morning: >
+            {% set min_time = '07:30' %}
+            {% set sunrise_plus = (as_timestamp(states.sun.sun.attributes.next_rising) + 900) | timestamp_custom('%H:%M') %}
+            {% set threshold_time = [min_time, sunrise_plus] | max %}
+            {{ now().strftime('%H:%M') >= threshold_time and now().strftime('%H:%M') < '15:00' }}
+          is_evening: >
+            {% set sunset_plus = (as_timestamp(states.sun.sun.attributes.next_setting) + 900) | timestamp_custom('%H:%M') %}
+            {{ now().strftime('%H:%M') >= sunset_plus or now().strftime('%H:%M') >= '22:30' }}
+          anyone_in_bed: >
+            {{ is_state('binary_sensor.presence_sensor_fp2_07a0_presence_sensor_2', 'on') or
+               is_state('binary_sensor.withings_e_in_bed', 'on') or
+               is_state('binary_sensor.withings_c_in_bed', 'on') }}
+          anyone_in_bed_recently: >
+            {{ is_state_attr('binary_sensor.presence_sensor_fp2_07a0_presence_sensor_2', 'last_off_time', 'unavailable') or
+               ((as_timestamp(now()) - as_timestamp(state_attr('binary_sensor.presence_sensor_fp2_07a0_presence_sensor_2', 'last_off_time') | default(0))) / 60 < 10) or
+               ((as_timestamp(now()) - as_timestamp(state_attr('binary_sensor.withings_e_in_bed', 'last_off_time') | default(0))) / 60 < 10) or
+               ((as_timestamp(now()) - as_timestamp(state_attr('binary_sensor.withings_c_in_bed', 'last_off_time') | default(0))) / 60 < 10) }}
+          both_away: >
+            {{ is_state('person.cam', 'not_home') and is_state('person.enhy', 'not_home') }}
+          is_holiday: >
+            {{ is_state('calendar.united_kingdom_eng', 'on') }}
+          covers_config: >
+            [
+              {
+                "entity_id": "cover.curtain_3_a659",
+                "name": "Office",
+                "position_entity": "sensor.window_curtain_position",
+                "auto_mode": "input_boolean.office_blinds_automatic_mode"
+              },
+              {
+                "entity_id": "cover.window_blind_left",
+                "name": "Bedroom Left",
+                "position_entity": "sensor.window_blind_left_position",
+                "auto_mode": "input_boolean.bedroom_blinds_left_automatic_mode"
+              },
+              {
+                "entity_id": "cover.window_blind_right",
+                "name": "Bedroom Right",
+                "position_entity": "sensor.window_blind_right_position",
+                "auto_mode": "input_boolean.bedroom_blinds_right_automatic_mode"
+              }
+            ]
+
+      # Morning opening logic
+      - if:
+          condition: and
+          conditions:
+            - condition: template
+              value_template: "{{ is_morning }}"
+            - condition: or
+              conditions:
+                - condition: and
+                  conditions:
+                    - condition: template
+                      value_template: "{{ not anyone_in_bed }}"
+                    - condition: template
+                      value_template: "{{ not anyone_in_bed_recently }}"
+                - condition: template
+                  value_template: "{{ both_away }}"
+            - condition: template
+              value_template: "{{ not is_holiday }}"
+        then:
+          - service: system_log.write
+            data:
+              message: "Curtains: Running morning opening routine"
+              level: info
+          - repeat:
+              count: "{{ covers_config | length }}"
+              for_each: "{{ covers_config }}"
+              sequence:
+                - variables:
+                    cover: "{{ repeat.item }}"
+                - if:
+                    condition: and
+                    conditions:
+                      - condition: template
+                        value_template: "{{ is_state(cover.auto_mode, 'on') }}"
+                      - condition: template
+                        value_template: "{{ states(cover.position_entity) | float < 50 }}"
+                      - condition: template
+                        value_template: "{{ not is_state(cover.entity_id, 'unavailable') }}"
+                  then:
+                    - service: cover.set_cover_position
+                      data:
+                        entity_id: "{{ cover.entity_id }}"
+                        position: 100
+                      response_variable: cover_result
+                    - service: system_log.write
+                      data:
+                        message: "Curtains: Opening {{ cover.name }} (auto mode)"
+                        level: info
+                  else:
+                    - service: system_log.write
+                      data:
+                        message: >
+                          Curtains: Skipping {{ cover.name }} -
+                          {% if not is_state(cover.auto_mode, 'on') %}auto mode off{% elif states(cover.position_entity) | float >= 50 %}already open{% else %}unavailable{% endif %}
+                        level: info
+        else:
+          - if:
+              condition: template
+              value_template: "{{ is_morning }}"
+            then:
+              - service: system_log.write
+                data:
+                  message: >
+                    Curtains: Morning open conditions not met:
+                    {% if anyone_in_bed or anyone_in_bed_recently %}someone in bed{% endif %}
+                    {% if is_holiday %} holiday{% endif %}
+                  level: info
+
+      # Evening closing logic
+      - if:
+          condition: and
+          conditions:
+            - condition: template
+              value_template: "{{ is_evening }}"
+        then:
+          - service: system_log.write
+            data:
+              message: "Curtains: Running evening closing routine"
+              level: info
+          - repeat:
+              count: "{{ covers_config | length }}"
+              for_each: "{{ covers_config }}"
+              sequence:
+                - variables:
+                    cover: "{{ repeat.item }}"
+                - if:
+                    condition: and
+                    conditions:
+                      - condition: template
+                        value_template: "{{ is_state(cover.auto_mode, 'on') }}"
+                      - condition: template
+                        value_template: "{{ states(cover.position_entity) | float > 10 }}"
+                      - condition: template
+                        value_template: "{{ not is_state(cover.entity_id, 'unavailable') }}"
+                      # For hard close (22:30), don't close if someone is in bed
+                      - condition: or
+                        conditions:
+                          - condition: template
+                            value_template: "{{ now_time != '22:30' }}"
+                          - condition: template
+                            value_template: "{{ not anyone_in_bed }}"
+                  then:
+                    - service: cover.set_cover_position
+                      data:
+                        entity_id: "{{ cover.entity_id }}"
+                        position: 0
+                      response_variable: cover_result
+                    - service: system_log.write
+                      data:
+                        message: "Curtains: Closing {{ cover.name }} (auto mode)"
+                        level: info
+                  else:
+                    - service: system_log.write
+                      data:
+                        message: >
+                          Curtains: Skipping close of {{ cover.name }} -
+                          {% if not is_state(cover.auto_mode, 'on') %}auto mode off{% elif states(cover.position_entity) | float <= 10 %}already closed{% elif is_state(cover.entity_id, 'unavailable') %}unavailable{% elif now_time == '22:30' and anyone_in_bed %}someone in bed{% endif %}
+                        level: info
+        else:
+          - if:
+              condition: template
+              value_template: "{{ is_evening }}"
+            then:
+              - service: system_log.write
+                data:
+                  message: >
+                    Curtains: Evening close conditions not met
+                  level: info
+
+
+
+# ╭────────────────────╮
+# │   SENSOR
+# ╰────────────────────╯
+sensor:
+
+  - platform: template
+    sensors:
+      window_curtain_position:
+        friendly_name: "Window Curtain Position"
+        unique_id: window_curtain_position_sensor
+        unit_of_measurement: "%"
+        value_template: "{{ state_attr('cover.curtain_3_a659', 'current_position') | default(0) }}"
+
+      window_blind_left_position:
+        friendly_name: "Window Blind Left Position"
+        unique_id: window_blind_left_position_sensor
+        unit_of_measurement: "%"
+        value_template: "{{ state_attr('cover.window_blind_left', 'current_position') | default(0) }}"
+
+      window_blind_right_position:
+        friendly_name: "Window Blind Right Position"
+        unique_id: window_blind_right_position_sensor
+        unit_of_measurement: "%"
+        value_template: "{{ state_attr('cover.window_blind_right', 'current_position') | default(0) }}"
+
+
+
+# | END: curtains.yaml

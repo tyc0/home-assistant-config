@@ -1,0 +1,46 @@
+
+# | START: pc.yaml
+# |  PATH: /config/packages/device/pc.yaml
+
+
+#  ╭────────────────────╮
+#  │   INPUT BOOLEAN
+#  ╰────────────────────╯
+input_boolean:
+
+# ➔ C PC Display Notifications
+#   Toggle to display notifications from HASS.agent
+  c_pc_display_notifications:
+    initial: on
+
+
+
+#  ╭────────────────────╮
+#  │   INPUT TEXT
+#  ╰────────────────────╯
+input_text:
+
+# ➔ C PC's IP address
+#   IP address of C PC
+  pc_ip_address:
+    name: PC IP Address
+    initial: !secret c_pc_ip_address
+
+
+
+#  ╭────────────────────╮
+#  │   REST COMMAND
+#  ╰────────────────────╯
+rest_command:
+
+  # ➔ Send HASS Agent Notification
+  #   Send a notification to C PC using HASS.agent's local API  
+  send_hass_agent_notification:
+    url: "http://{{ states('input_text.pc_ip_address') }}:5115/notify"
+    method: POST
+    headers:
+      Content-Type: application/json
+    payload: '{"title": "{{ title }}", "message": "{{ message }}"}'
+
+
+# |   END: pc.yaml

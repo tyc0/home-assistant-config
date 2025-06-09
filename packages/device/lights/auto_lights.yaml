@@ -1,0 +1,40 @@
+
+# | START: auto_lights.yaml
+# |  PATH: /config/packages/device/lights/auto_lights.yaml
+
+
+# ╭────────────────────╮
+# │   TIMER
+# ╰────────────────────╯
+timer:
+
+# ➔ Light Manual Override Timer
+  light_override:
+    name: Light Manual Override Timer
+    duration: "00:02:00"
+    icon: mdi:timer-outline
+    restore: true
+
+
+# ╭────────────────────╮
+# │   INPUT BOOLEAN
+# ╰────────────────────╯  
+input_boolean:
+
+# ➔ Floor 01 Auto Active
+  floor01_auto_active:
+    name: Floor 01 Auto Active
+    initial: false
+
+# ➔ Alert Lock
+  alert_lock:
+    name: Alert Lock
+    initial: off
+
+# ➔ Bathroom Light Auto Controlled
+  bathroom_light_auto_controlled:
+    name: Bathroom Light Auto Controlled
+    initial: off
+
+
+# |   END: auto_lights.yaml

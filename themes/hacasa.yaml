@@ -1,0 +1,549 @@
+HaCasa:
+
+  masonry-view-card-margin: 15px 15px 0px 15px
+  --control-circular-slider-color: blue
+
+
+
+#   card-mod-root: |
+#     .header{
+#         display: none;
+#     }
+#     #view {
+#         padding: 0 !important;
+#         height: 100vh !important;
+#     }
+  card-mod-theme: HaCasa
+ 
+  card-mod-view-yaml: |
+    hui-masonry-view:
+      $: |
+
+        /* Swipe-card full width on mobile */
+
+        @media screen and (max-width: 599px) {
+          #columns .column swipe-card {
+            margin-left: -4px;
+            margin-right: -4px;
+          }
+        }
+
+  card-mod-sidebar-yaml:
+    ".: \"{# https://gist.github.com/mjackson/5311256 #}\\n{%- macro hex2hsl(hex) -%}\\n  {%- if hex[0] == \\\"#\\\" -%}\\n  {%- set hex = hex[1:] -%}\\n  {%- endif -%}\\n  {%- set r = (hex[0:2] | int(hex[0:2],16))/255 -%}\\n  {%- set g = (hex[2:4] | int(hex[2:4],16))/255 -%}\\n  {%- set b = (hex[4:6] | int(hex[4:6],16))/255 -%}\\n  {%- set rgb_max = [r, g, b] | max -%}\\n  {%- set rgb_min = [r, g, b] | min -%}\\n  {%- set l = (rgb_max + rgb_min) / 2 -%}\\n  {%- if rgb_max != rgb_min -%}\\n    {%- set d = rgb_max - rgb_min -%}\\n    {%- set s = d / (2 - rgb_max - rgb_min) if l > 0.5 else d / (rgb_max + rgb_min) -%}\\n    {%- if r == rgb_max -%}\\n      {%- set h = (g - b) / d + (6 if g < b else 0) -%}\\n    {%- elif g == rgb_max -%}\\n      {%- set h = (b - r) / d + 2 -%}\\n    {%- elif b == rgb_max -%}\\n      {%- set h = (r - g) / d + 4 -%}\\n    {%- endif -%}\\n    {%- set h = h / 6 -%}\\n  {%- endif -%}\\n  {%- set h = (h * 360) | int if h else 0 -%}\\n  {%- set s = (s * 100) | int if s else 0 -%}\\n  {%- set l = (l * 100) | int if l else 0 -%}\\n  {{ h }},{{ s }},{{ l }}\\n{%- endmacro -%} :host {\\n\\t{%- set id = \\\"_\\\" + user | lower | replace(\\\" \\\",\\\"_\\\") -%}\\n\\t{%- set base_color = \\\"\\\" -%}\\n\\n\\t{%- if has_value(\\\"sensor.material_rounded_base_color\\\" + id) -%}\\n\\t{%- set base_color = states(\\\"sensor.material_rounded_base_color\\\" + id) -%}\\n\\t{%- elif has_value(\\\"sensor.material_rounded_base_color\\\") -%}\\n\\t{%- set base_color = states(\\\"sensor.material_rounded_base_color\\\") -%}\\n\\t{%- endif -%}\\n\\n\\t{%- if (base_color | length) in [6, 7] -%}\\n\\t{%- set hsl = hex2hsl(base_color).split(',') -%}\\n\\t\\n\\t--accent-color: hsl({{ hsl[0] }}, {{ hsl[1] }}%, var(--accent-luminance));\\n\\t--text-light-primary-color: var(--text-primary-color);\\n\\t--mdc-theme-on-primary: var(--accent-color);\\n\\t--mdc-theme-on-secondary: var(--accent-color);\\n\\t\\n\\t--primary-color: hsl({{ hsl[0] }}, {{ hsl[1] }}%, var(--primary-luminance));\\n\\t--text-accent-color: var(--primary-color);\\n\\t--link-text-color: var(--primary-color);\\n\\t--dark-primary-color: var(--primary-color);\\n\\t--light-primary-color: var(--primary-color);\\n\\t--mdc-theme-primary: var(--primary-color);\\n\\t--mdc-theme-secondary: var(--primary-color);\\n\\t--sidebar-selected-text-color: var(--contrast1);\\n\\t--sidebar-selected-icon-color: var(--primary-color);\\n\\t--paper-slider-knob-color: var(--primary-color);\\n\\t--paper-slider-knob-start-color: var(--paper-slider-knob-color);\\n\\t--paper-slider-pin-color: var(--paper-slider-knob-color);\\n\\t--paper-slider-active-color: var(--paper-slider-knob-color);\\n\\t--paper-slider-secondary-color: var(--light-primary-color);\\n\\t--input-hover-line-color: var(--primary-color);\\n\\t--mdc-select-hover-line-color: var(--input-hover-line-color);\\n\\t--mdc-text-field-hover-line-color: var(--input-hover-line-color);\\n\\t--codemirror-property: var(--primary-color);\\n\\t--codemirror-atom: var(--codemirror-property);\\n\\n\\t--mdc-switch-checked-button-color: hsl(calc(({{ hsl[0] }}) * var(--dark-mode)), calc({{ hsl[1] }}% * var(--dark-mode)),calc(var(--accent-luminance) * var(--dark-mode) + 100% * (1 - var(--dark-mode))));\\n\\t--mdc-switch-checked-track-color: hsl({{ hsl[0] }}, {{ hsl[1] }}%, calc(var(--primary-luminance) * var(--dark-mode) + 30% * (1 - var(--dark-mode))));\\n\\t--mdc-switch-unchecked-button-color: hsl({{ (hsl[0] | int ) + 16 }}, calc(3% * var(--dark-mode)), calc(60% * var(--dark-mode) + 50% * (1 - var(--dark-mode))));\\n\\t--mdc-switch-unchecked-track-color: hsl({{ (hsl[0] | int ) + 9 }}, 3%, calc(29% * var(--dark-mode) + 90% * (1 - var(--dark-mode))));\\n\\t{%- endif -%}\\n\\n\\t--switch-checked-button-color: var(--mdc-switch-checked-button-color) !important;\\n\\t--switch-checked-track-color: var(--mdc-switch-checked-track-color) !important;\\n\\t--switch-unchecked-button-color: var(--mdc-switch-unchecked-button-color) !important;\\n\\t--switch-unchecked-track-color: var(--mdc-switch-unchecked-track-color) !important;\\n}
+    paper-icon-item{transition:width 0.2s cubic-bezier(0.2,0,0,1);height:48px;left:4px;margin:0!important}.item-text{z-index:2}paper-icon-item::before{content:'';width:0px;position:absolute!important;transition:width\n  0.2s cubic-bezier(0.2,0,0,1)!important;left:50%!important;border-radius:128px!important;transform:translateX(-50%)}.iron-selected paper-icon-item::before{background:var(--accent-color)!important;opacity:1!important;width:100%!important;will-change:unset!important}.configuration-badge{box-shadow:inset 0px 0px 0px 1px var(--sidebar-icon-color)}\"\nha-user-badge$: .picture{z-index:2}"
+
+
+
+  modes:
+    light:
+      # contrast
+      contrast-0: rgba(255,255,255)
+      contrast-10: "#F2F2F2"
+      contrast-20: "#e5e5e5"
+      contrast-33: "#888888"
+      contrast-66: "#444444"
+      contrast-100: rgba(0,0,0)
+
+      contrast-background: '#ffffff'
+      contrast-background-invert: '#262626'
+
+      # weather card
+      weather-card-color: '#414E6E'
+      # contrast w opacity
+      opacity-contrast-0: rgba(128, 128, 128,.07)
+      opacity-contrast-100: rgba(0,0,0,.3)
+
+      # main interface colors
+      color-green: '#587C69'
+      color-yellow: rgb(253 204 18)
+      color-cerise: "#e0188f"
+      color-purple: '#821EFF'
+      color-orange: "#F46036"
+      color-off-grey: "#525252"
+      color-red: "#d87773"
+      color-teal: rgba(123,232,183,1)
+      color-white: rgb(255,255,255)
+      color-black: "#000000"
+      color-dark-blue: '#414E6E'
+      color-blue: '#8DAFDC'
+      color-gold: '#C4AA87'
+      color-dark-gray: '#A2A5AD'
+      color-darker-gray: '#52555D'
+      color-darkest-gray: '#44474E'
+      color-really-dark-gray: '#52555D'
+      color-light-gray-nav: '#EBEBEB'
+      color-light-gray-card: '#FAFAFA'
+
+      # background and sidebar
+      background: '#FFFFFF'
+
+      # card
+      background-neo: linear-gradient(145deg, rgba(250,250,250,.5) 25%, rgba(50,50,50,.1))
+      box-shadow-neo: 5px 5px 10px rgba(50,50,50,.15), -5px -5px 10px rgba(255,255,255,.5)
+      border-width: "0px"
+      border-radius: "18px"
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px
+      ha-card-box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px
+      ha-card-background: '#ffffff'
+      ha-card-border-radius: var(--border-radius)
+      background-card-color: 'rgba(14,14,112, 0)'
+      ha-card-border-width: "var(--border-width)"
+
+      # Slider
+
+      slider-bar-color: '#7ED8FC'
+      slider-color: '#4200AA'
+      slider-secondary-color: "var(--color-orange)"
+
+      # UI
+      mdc-button-outline-color: "var(--color-orange)"
+      mdc-theme-primary: var(--color-gold)
+      --energy-grid-consumption-color: "var(--color-red)"
+      --energy-grid-return-color: "var(--color-red)"
+      --energy-solar-color: "var(--color-red)"
+      energy-non-fossil-color: "var(--color-red)"
+      energy-battery-out-color: "var(--color-red)"
+      energy-battery-in-color: "var(--color-red)"
+      --energy-gas-color: "var(--color-red)"
+
+      mini-media-player-accent-color: "var(--color-white)"
+      mini-media-player-icon-color: "var(--color-white)"
+      mini-media-player-base-color: "var(--color-white)"
+      swiper-pagination-color: "var(--color-black)"
+
+      #Typography (static)
+      fs-xl: 4rem
+      fs-1000: 2.5rem
+      fs-800: 2rem
+      fs-600: 1.5rem
+      fs-500: 1.25rem
+      fs-400: 1rem
+      fs-300: 0.75rem
+      fs-200: 0.5rem
+
+      #Buttons (static)
+      button-small: 30px
+
+      #Typography (responsive)
+      #fs-xl: clamp(4rem, 4vw, 8rem)
+      #fs-1000: clamp(2.5rem, 2vw, 4rem)
+      #fs-800: clamp(2rem, 2vw, 3rem)
+      #fs-600: clamp(1.5rem, 2vw, 2.25rem)
+      #fs-500: clamp(1.25rem, 2vw, 2.25rem)
+      #fs-400: clamp(1rem, 1vw, 2rem)
+      #fs-300: clamp(0.75rem, 2vw, 1.25rem)
+      #fs-200: clamp(0.5rem, 2vw, 1rem)
+
+      #Buttons (responsive)
+      #button-small: clamp(30px, 2vw, 50px)
+
+      ####################### Backend UI ####################
+      ####################### MACHIATO ####################
+      # Colors
+      text: var(--color-darkest-gray)
+      titletext: var(--color-blue)
+      subtext1: var(--text)
+      subtext0: var(--text)
+
+      icon-color: var(--cadet-blue)
+      label-color: var(--icon-color)
+      navbar-icon-color: var(--color-gold)
+      overlay2: "#F5F8FE"
+      overlay1: "#8087a2"
+      overlay0: "#6e738d"
+
+      surface2: "#5b6078"
+      surface1: "#494d64"
+      surface0: "#ffffff"
+
+      base: "#f5f8fe"
+      mantle: "#1e2030"
+      crust: "#111318"
+
+      rosewater: "#f4dbd6"
+      flamingo: "#f0c6c6"
+      pink: "#f5bde6"
+      mauve: "#c6a0f6"
+      red: "#ed8796"
+      maroon: "#ee99a0"
+      peach: "#f5a97f"
+      yellow: "#eed49f"
+      green: "#a6da95"
+      teal: "#8bd5ca"
+      sky: "#91d7e3"
+      sapphire: "#7dc4e4"
+      blue: "144, 191, 255"
+      lavender: "#b7bdf8"
+      cadet-blue: "#A7B3BF"
+
+      ###########################
+
+      # Header
+      app-header-background-color: var(--primary-background-color)
+      app-header-text-color: var(--text)
+
+      # Main Interface colors
+      primary-color: var(--text)
+      light-primary-color: var(--primary-color)
+
+      primary-background-color: '#FFFFFF'
+      secondary-background-color: var(--base)
+
+      # Text
+      primary-text-color: var(--text)
+      secondary-text-color: var(--subtext1)
+      text-primary-color: var(--text)
+      divider-color: var(--base)
+      accent-color: var(--sky)
+      disabled-text-color: var(--surface0)
+
+      # Sidebar
+      sidebar-background-color: '#FFFFFF'
+      sidebar-selected-background-color: var(--primary-background-color)
+
+      sidebar-icon-color: var(--subtext0)
+      sidebar-text-color: var(--subtext0)
+      sidebar-selected-icon-color: var(--color-gold)
+      sidebar-selected-text-color: var(--color-gold)
+
+      # Buttons
+      paper-item-icon-color: var(--subtext0)
+      paper-item-icon-active-color: var(--primary-color)
+
+      # States and Badges
+      state-icon-color: var(--color-darkest-gray)
+      state-icon-active-color: var(--primary-color)
+
+      state-icon-unavailable-color: var(--disabled-text-color)
+
+      # Sliders
+      paper-slider-knob-color: var(--blue)
+      paper-slider-knob-start-color: var(--paper-slider-knob-color)
+      paper-slider-pin-color: var(--paper-slider-knob-color)
+      paper-slider-active-color: var(--paper-slider-knob-color)
+      paper-slider-secondary-color: var(--blue)
+
+      # Labels
+      label-badge-background-color: var(--surface0)
+      label-badge-text-color: var(--text)
+      label-badge-red: var(--red)
+      label-badge-green: var(--color-gold)
+      label-badge-blue: var(--blue)
+      label-badge-yellow: var(--yellow)
+      label-badge-gray: var(--overlay0)
+
+      # Cards
+
+      paper-dialog-background-color: var(--overlay0)
+      paper-listbox-background-color: var(--overlay0)
+      paper-card-background-color: var(--card-background-color)
+
+      # Switches
+      switch-checked-button-color: var(--color-gold)
+      switch-checked-track-color: var(--surface0)
+      switch-unchecked-button-color: rgb(--overlay0)
+      switch-unchecked-track-color: rgb(--surface0)
+      # Toggles
+      paper-toggle-button-checked-button-color: var(--switch-checked-button-color)
+      paper-toggle-button-checked-bar-color: var(--switch-checked-track-color)
+      paper-toggle-button-unchecked-button-color: var(--switch-unchecked-button-color)
+      paper-toggle-button-unchecked-bar-color: var(--switch-unchecked-track-color)
+
+      # Table
+      table-row-background-color: var(--primary-background-color)
+      table-row-alternative-background-color: var(--secondary-background-color)
+      data-table-background-color: var(--primary-background-color)
+      mdc-checkbox-unchecked-color: var(--color-darkest-gray)
+
+      # Dropdowns
+      material-background-color: var(--primary-background-color)
+      material-secondary-background-color: var(--primary-background-color)
+      mdc-theme-surface: var(--primary-background-color)
+
+      # Pre/Code
+      markdown-code-background-color: var(--surface0)
+
+      # Checkboxes
+      mdc-select-fill-color: var(--surface0)
+      mdc-select-ink-color: var(--primary-text-color)
+      mdc-select-label-ink-color: var(--subtext1)
+      mdc-select-idle-line-color: var(--primary-text-color)
+      mdc-select-dropdown-icon-color: var(--secondary-text-color)
+      mdc-select-hover-line-color: var(--accent-color)
+      mdc-theme-on-secondary: var(--color-white)
+
+      # Input
+      input-fill-color: var(--secondary-background-color)
+      input-dropdown-icon-color: var(--secondary-text-color)
+      input-ink-color: var(--primary-text-color)
+      input-label-ink-color: var(--secondary-text-color)
+      input-idle-line-color: var(--primary-text-color)
+      input-hover-line-color: var(--accent-color)
+
+      # Toast
+      paper-toast-background-color: var(--overlay0)
+
+      # Colors
+      error-color: var(--red)
+      warning-color: var(--yellow)
+      success-color: var(--color-gold)
+      info-color: var(--blue)
+
+      state-on-color: var(--color-gold)
+      state-off-color: var(--red)
+
+    dark:
+      contrast-100: rgb(255,255,255)
+      contrast-66: rgb(136,136,136)
+      contrast-33: rgb(68,68,68)
+      contrast-20: rgb(30,30,30)
+      contrast-10: rgb(17,17,17)
+      contrast-0: var(--ha-card-background)
+
+      contrast-background: '#262626'
+      contrast-background-invert: '#EBEBEB'
+
+      # weather card
+      weather-card-color: '#56617F'
+
+      # contrast w opacity
+      opacity-contrast-100: rgba(255,255,255,.3)
+      opacity-contrast-0: rgba(0,0,0,.3)
+
+      # colors
+      color-green: '#587C69'
+      color-yellow: rgb(253 204 18)
+      color-cerise: rgb(224,24,143)
+      color-purple: '#821EFF'
+      color-orange: rgb(244,96,54)
+      color-off-grey: rgb(82,82,82)
+      color-red: '#d87773'
+      color-teal: rgb(123,232,183,1)
+      color-white: rgba(255,255,255)
+      color-black: rgb(0,0,0)
+      color-dark-blue: '#414E6E'
+      color-blue: '#8DAFDC'
+      color-gold: '#C4AA87'
+      color-dark-gray: '#A2A5AD'
+      color-darker-gray: '#52555D'
+      color-darkest-gray: '#44474E'
+      color-light-gray-nav: 'var(--color-darkest-gray)'
+      color-light-gray-card: '#FAFAFA'
+
+      #glow
+      glow: 0px 0px 15px 1px
+      glow-color-green: 'var(--glow) var(--color-green)'
+      glow-color-yellow: 'var(--glow) var(--color-yellow)'
+      glow-color-dark-blue: 'var(--glow) var(--color-dark-blue)'
+      glow-color-light-blue: 'var(--glow) var(--color-light-blue)'
+      glow-color-cerise: 'var(--glow) var(--color-cerise)'
+      glow-color-violet: 'var(--glow) var(--color-violet)'
+      glow-color-orange: 'var(--glow) var(--color-orange)'
+      glow-color-red: 'var(--glow) var(--color-red)'
+      glow-color-white: 'var(--glow) var(--color-white)'
+
+      # background and sidebar
+      background: '#44474E'
+
+      # card
+      box-shadow-neo: 5px 5px 10px rgba(0,0,0,.5), -5px -5px 10px rgba(255,255,255,.03)
+
+      border-width: "0px"
+      border-radius: "18px"
+      box-shadow: "none"
+
+      ha-card-box-shadow: "var(--box-shadow)"
+      ha-card-background: '#1F1F1F'
+      ha-card-border-radius: "var(--border-radius)"
+      background-card-color: 'rgba(18,19,23,255)'
+      ha-card-border-width: "var(--border-width)"
+
+      # slider
+      slider-bar-color: '#7ED8FC'
+      slider-color: '#4200AA'
+      slider-secondary-color: "var(--color-orange)"
+
+      # media player
+      mini-media-player-accent-color: "var(--color-white)"
+      mini-media-player-icon-color: "var(--color-white)"
+      mini-media-player-base-color: "var(--color-white)"
+
+      #Typography (static)
+      fs-xl: 4rem
+      fs-1000: 2.5rem
+      fs-800: 2rem
+      fs-600: 1.5rem
+      fs-500: 1.25rem
+      fs-400: 1rem
+      fs-300: 0.75rem
+      fs-200: 0.5rem
+
+      #Buttons (static)
+      button-small: 30px
+
+      #Typography (responsive)
+      #fs-xl: clamp(4rem, 4vw, 8rem)
+      #fs-1000: clamp(2.5rem, 2vw, 4rem)
+      #fs-800: clamp(2rem, 2vw, 3rem)
+      #fs-600: clamp(1.5rem, 2vw, 2.25rem)
+      #fs-500: clamp(1.25rem, 2vw, 2.25rem)
+      #fs-400: clamp(1rem, 1vw, 2rem)
+      #fs-300: clamp(0.75rem, 2vw, 1.25rem)
+      #fs-200: clamp(0.5rem, 2vw, 1rem)
+
+      #Buttons (responsive)
+      #button-small: clamp(30px, 2vw, 50px)
+
+      ####################### Backend UI ####################
+      ####################### MACHIATO ####################
+      # Colors
+      text: "#ffffff"
+      subtext1: var(--color-gold)
+      subtext0: "#ffffff"
+      title-text: var(--text)
+
+      icon-color: white
+      label-color: white
+      navbar-icon-color: var(--color-gold)
+
+      overlay2: "#939ab7"
+      overlay1: "#8087a2"
+      overlay0: "#6e738d"
+
+      surface2: "#5b6078"
+      surface1: "#494d64"
+      surface0: "#151515"
+
+      base: "var(--background)"
+      mantle: "#1e2030"
+      crust: "#111318"
+
+      rosewater: "#f4dbd6"
+      flamingo: "#f0c6c6"
+      pink: "#f5bde6"
+      mauve: "#c6a0f6"
+      red: "#ed8796"
+      maroon: "#ee99a0"
+      peach: "#f5a97f"
+      yellow: "#eed49f"
+      green: "#a6da95"
+      teal: "#8bd5ca"
+      sky: "#91d7e3"
+      sapphire: "#7dc4e4"
+      blue: "#8aadf4"
+      lavender: "#b7bdf8"
+
+      ###########################
+
+      # Header
+      app-header-background-color: var(--primary-background-color)
+      app-header-text-color: var(--text)
+
+      # Main Interface colors
+      primary-color: var(--color-gold)
+      light-primary-color: var(--primary-color)
+
+      primary-background-color: '#151515'
+      secondary-background-color: var(--base)
+
+      # Text
+      primary-text-color: var(--text)
+      secondary-text-color: var(--subtext1)
+      text-primary-color: var(--text)
+      divider-color: var(--base)
+      accent-color: var(--sky)
+      disabled-text-color: var(--surface0)
+
+      # Sidebar
+      sidebar-background-color: var(--ha-card-background)
+      sidebar-selected-background-color: var(--primary-background-color)
+
+      sidebar-icon-color: var(--subtext0)
+      sidebar-text-color: var(--subtext0)
+      sidebar-selected-icon-color: var(--mauve)
+      sidebar-selected-text-color: var(--mauve)
+
+      # Buttons
+      paper-item-icon-color: var(--subtext0)
+      paper-item-icon-active-color: var(--primary-color)
+
+      # States and Badges
+      state-icon-color: var(--lavender)
+      state-icon-active-color: var(--primary-color)
+
+      state-icon-unavailable-color: var(--disabled-text-color)
+
+      # Sliders
+      paper-slider-knob-color: var(--blue)
+      paper-slider-knob-start-color: var(--paper-slider-knob-color)
+      paper-slider-pin-color: var(--paper-slider-knob-color)
+      paper-slider-active-color: var(--paper-slider-knob-color)
+      paper-slider-secondary-color: var(--blue)
+
+      # Labels
+      label-badge-background-color: var(--surface0)
+      label-badge-text-color: var(--text)
+      label-badge-red: var(--red)
+      label-badge-green: var(--color-gold)
+      label-badge-blue: var(--blue)
+      label-badge-yellow: var(--yellow)
+      label-badge-gray: var(--overlay0)
+
+      # Cards
+
+      paper-dialog-background-color: var(--overlay0)
+      paper-listbox-background-color: var(--overlay0)
+      paper-card-background-color: var(--card-background-color)
+
+      # Switches
+      switch-checked-button-color: var(--color-gold)
+      switch-checked-track-color: var(--surface0)
+      switch-unchecked-button-color: rgb(--overlay0)
+      switch-unchecked-track-color: rgb(--surface0)
+      # Toggles
+      paper-toggle-button-checked-button-color: var(--switch-checked-button-color)
+      paper-toggle-button-checked-bar-color: var(--switch-checked-track-color)
+      paper-toggle-button-unchecked-button-color: var(--switch-unchecked-button-color)
+      paper-toggle-button-unchecked-bar-color: var(--switch-unchecked-track-color)
+
+      # Table
+      table-row-background-color: var(--primary-background-color)
+      table-row-alternative-background-color: var(--secondary-background-color)
+      data-table-background-color: var(--primary-background-color)
+      mdc-checkbox-unchecked-color: var(--surface0)
+
+      # Dropdowns
+      material-background-color: var(--primary-background-color)
+      material-secondary-background-color: var(--primary-background-color)
+      mdc-theme-surface: var(--primary-background-color)
+
+      # Pre/Code
+      markdown-code-background-color: var(--surface0)
+
+      # Checkboxes
+      mdc-select-fill-color: var(--surface0)
+      mdc-select-ink-color: var(--primary-text-color)
+      mdc-select-label-ink-color: var(--subtext1)
+      mdc-select-idle-line-color: var(--primary-text-color)
+      mdc-select-dropdown-icon-color: var(--secondary-text-color)
+      mdc-select-hover-line-color: var(--accent-color)
+
+      # Input
+      input-fill-color: var(--secondary-background-color)
+      input-dropdown-icon-color: var(--secondary-text-color)
+      input-ink-color: var(--primary-text-color)
+      input-label-ink-color: var(--secondary-text-color)
+      input-idle-line-color: var(--primary-text-color)
+      input-hover-line-color: var(--accent-color)
+
+      # Toast
+      paper-toast-background-color: var(--overlay0)
+
+      # Colors
+      error-color: var(--red)
+      warning-color: var(--yellow)
+      success-color: var(--color-gold)
+      info-color: var(--blue)
+
+      state-on-color: var(--color-gold)
+      state-off-color: var(--red)

@@ -1,0 +1,4439 @@
+door_bell_alexa:
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_type: sound
+      media_content_id: amzn_sfx_doorbell_chime_01
+    target:
+      entity_id:
+      - media_player.cam_s_echo_show_8
+  alias: Alexa - Sound - Doorbell (Show 8)
+  mode: single
+  icon: mdi:speaker-wireless
+radioparadise:
+  alias: Play Radio Paradise
+  icon: mdi:play
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: atestroutine
+      media_content_type: routine
+    target:
+      entity_id:
+      - media_player.cam_s_echo_show_8
+  - delay: 00:00:05
+  - service: media_player.play_media
+    data:
+      media_content_id: atestroutine
+      media_content_type: routine
+    target:
+      entity_id:
+      - media_player.cam_s_echo_show_8
+  mode: single
+alexa_screens_off_Show_5:
+  alias: Alexa - Show 5 - Deactivate Screen
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: stop
+      media_content_type: custom
+    target:
+      entity_id: media_player.cam_s_echo_show_5
+  - delay: 00:00:05
+  - service: media_player.play_media
+    data:
+      media_content_id: turn your screen off
+      media_content_type: custom
+    target:
+      entity_id: media_player.cam_s_echo_show_5
+  mode: single
+  icon: mdi:monitor-off
+c_phone_volume_vibrate_duplicate:
+  alias: C phone - Volume - Loud
+  sequence:
+  - data:
+      command: normal
+    action: mobile_app_phone_c.ringer_mode
+  - data:
+      title: Volume loud
+      message: Volume set to loud
+      data:
+        tag: tempvolloud
+    action: notify.mobile_app_phone_c
+  - delay:
+      seconds: 1
+  - data:
+      message: clear_notification
+      data:
+        tag: tempvolloud
+    action: notify.mobile_app_phone_c
+  mode: single
+  icon: mdi:volume-high
+learn_ir_button:
+  sequence:
+  - service: remote.learn_command
+    target:
+      entity_id: remote.rm_mini3
+    data:
+      device: aircon
+      command: fan
+alexa_send_command:
+  alias: Alexa - Send Command
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: "{%- if is_state(\"input_boolean.alexa_whisper\", \"on\")
+        -%}\n  {{states('input_text.alexa_command_text')}}\n{%- else -%}\n  {{states('input_text.alexa_command_text')}}\n{%-
+        endif -%} \n"
+      media_content_type: custom
+    target:
+      entity_id: "{%- if is_state(\"input_select.alexa_send_command_to\", \"Everywhere\")
+        -%}\n  media_player.everywhere\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 8\") -%}\n  media_player.cam_s_echo_show_8\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 5\") -%}\n  media_player.cam_s_echo_show_5\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 15\") -%}\n  media_player.echo_show_15\n{%- endif -%}\n"
+  mode: single
+alexa_cam_feed_c04:
+  alias: Alexa - Cam feed - C04
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: mute
+      media_content_type: custom
+    target:
+      entity_id: "{%- if is_state(\"input_select.alexa_send_command_to\", \"Everywhere\")
+        -%}\n  media_player.everywhere\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 8\") -%}\n  media_player.cam_s_echo_show_8\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 5\") -%}\n  media_player.cam_s_echo_show_5\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 15\") -%}\n  media_player.echo_show_15\n{%- endif -%}\n"
+  - delay: 00:00:03
+  - service: media_player.play_media
+    data:
+      media_content_id: show cam four
+      media_content_type: custom
+    target:
+      entity_id: "{%- if is_state(\"input_select.alexa_send_command_to\", \"Everywhere\")
+        -%}\n  media_player.everywhere\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 8\") -%}\n  media_player.cam_s_echo_show_8\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 5\") -%}\n  media_player.cam_s_echo_show_5\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 15\") -%}\n  media_player.echo_show_15\n{%- endif -%}\n"
+  - delay: 00:00:03
+  - service: media_player.play_media
+    data:
+      media_content_id: mute
+      media_content_type: custom
+    target:
+      entity_id: "{%- if is_state(\"input_select.alexa_send_command_to\", \"Everywhere\")
+        -%}\n  media_player.everywhere\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 8\") -%}\n  media_player.cam_s_echo_show_8\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 5\") -%}\n  media_player.cam_s_echo_show_5\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 15\") -%}\n  media_player.echo_show_15\n{%- endif -%}\n"
+  mode: single
+  icon: mdi:bed
+alexa_cam_feed_front_door:
+  alias: Alexa - Cam feed - Front Door
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: mute
+      media_content_type: custom
+    target:
+      entity_id: "{%- if is_state(\"input_select.alexa_send_command_to\", \"Everywhere\")
+        -%}\n  media_player.everywhere\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 8\") -%}\n  media_player.cam_s_echo_show_8\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 5\") -%}\n  media_player.cam_s_echo_show_5\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 15\") -%}\n  media_player.echo_show_15\n{%- endif -%}\n"
+  - delay: 00:00:05
+  - service: media_player.play_media
+    data:
+      media_content_id: show front door
+      media_content_type: custom
+    target:
+      entity_id: "{%- if is_state(\"input_select.alexa_send_command_to\", \"Everywhere\")
+        -%}\n  media_player.everywhere\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 8\") -%}\n  media_player.cam_s_echo_show_8\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 5\") -%}\n  media_player.cam_s_echo_show_5\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 15\") -%}\n  media_player.echo_show_15\n{%- endif -%}\n"
+  - delay: 00:00:05
+  - service: media_player.play_media
+    data:
+      media_content_id: mute
+      media_content_type: custom
+    target:
+      entity_id: "{%- if is_state(\"input_select.alexa_send_command_to\", \"Everywhere\")
+        -%}\n  media_player.everywhere\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 8\") -%}\n  media_player.cam_s_echo_show_8\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 5\") -%}\n  media_player.cam_s_echo_show_5\n{%- elif is_state(\"input_select.alexa_send_command_to\",
+        \"Echo Show 15\") -%}\n  media_player.echo_show_15\n{%- endif -%}\n"
+  mode: single
+  icon: mdi:door
+aaa_pop_up_test:
+  alias: Aaa pop up test
+  mode: single
+  sequence:
+  - service: browser_mod.popup
+    data_template:
+      deviceID: '{{ deviceID }}'
+      title: Testing script
+      card:
+        type: entities
+        entities:
+        - light.sb_light_strip_bed
+  - service: script.room_alert
+    data:
+      notification_text: This is a cool test
+alexa_zone_change_enhy_leave_work:
+  alias: Alexa - Zone change - Enhy leave work
+  sequence:
+  - service: notify.alexa_media
+    data_template:
+      target: "{%- if is_state(\"person.cam\", \"home\") -%}\n  media_player.cam_s_echo_show_5\n{%-
+        endif -%}\n"
+      data:
+        type: announce
+      message: '{%- if is_state("person.cam", "home") -%}
+
+        "<amazon:effect name=''whispered''>Enhy has just left work</amazon:effect>"
+
+        {%- endif -%}
+
+        '
+  mode: single
+enhys_phone_notification:
+  alias: Enhy's phone notification
+  sequence:
+  - service: notify.mobile_app_sm_a135f
+    data:
+      message: Pay your phone bill
+      title: FROM CAMERON!!
+  mode: single
+e_phone_buzzer_x1_buzz:
+  alias: 'E phone - Buzzer (x1 buzz) '
+  sequence:
+  - service: notify.mobile_app_sm_a135f
+    data:
+      data:
+        tag: tempbuzzer
+      title: buzzer
+      message: buzzer
+  - delay: 00:00:01
+  - service: notify.mobile_app_sm_a135f
+    data:
+      message: clear_notification
+      data:
+        tag: tempbuzzer
+  mode: single
+  icon: mdi:vibrate
+e_phone_buzzer_x3:
+  alias: E phone - Buzzer (x3)
+  sequence:
+  - service: notify.mobile_app_sm_a135f
+    data:
+      data:
+        tag: tempbuzzer
+      title: buzzer
+      message: buzzer
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  - service: notify.mobile_app_sm_a135f
+    data:
+      message: clear_notification
+      data:
+        tag: tempbuzzer
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  - service: notify.mobile_app_sm_a135f
+    data:
+      data:
+        tag: tempbuzzer
+      title: buzzer
+      message: buzzer
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  - service: notify.mobile_app_sm_a135f
+    data:
+      message: clear_notification
+      data:
+        tag: tempbuzzer
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  - service: notify.mobile_app_sm_a135f
+    data:
+      data:
+        tag: tempbuzzer
+      title: buzzer
+      message: buzzer
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 2
+      milliseconds: 0
+  - service: notify.mobile_app_sm_a135f
+    data:
+      message: clear_notification
+      data:
+        tag: tempbuzzer
+  mode: single
+  icon: mdi:vibrate
+e_phone_volume_loud:
+  alias: E phone - Volume - Loud
+  sequence:
+  - service: notify.mobile_app_sm_a135f
+    data:
+      title: volume loud
+      data:
+        tag: tempvolloud
+  - delay:
+      seconds: 1
+  - service: notify.mobile_app_sm_a135f
+    data:
+      message: clear_notification
+      data:
+        tag: tempvolloud
+  mode: single
+  icon: mdi:volume-high
+popup_echo_show_controller:
+  alias: Popup - Echo Show controller
+  sequence:
+  - service: browser_mod.popup
+    data_template:
+      deviceID: '{{ deviceID }}'
+      card_mod:
+        style:
+          ha-dialog$: "div.mdc-dialog div.mdc-dialog__scrim {\n   background: rgba(0,
+            0, 0, 0.6);\n   backdrop-filter: blur(8px); pointer-events: auto;\n}      \n"
+      dismissable: true
+      content:
+        type: custom:vertical-stack-in-card
+        no_card: false
+        cards:
+        - type: custom:layout-card
+          layout_type: custom:grid-layout
+          cards:
+          - type: custom:select-list-card
+            entity: input_select.alexa_send_command_to
+            max_options: 6
+            scroll_to_selected: true
+            truncate: true
+            view_layout:
+              grid-area: device
+          - type: entities
+            no_card: true
+            entities:
+            - entity: input_text.alexa_command_text
+              name: ⠀
+              icon: ⠀
+              card_mod:
+                style: ":host {\n  --mdc-text-field-fill-color: var(--contrast2);\n}\n"
+            view_layout:
+              grid-area: text
+          - type: custom:mushroom-template-card
+            icon: mdi:send
+            icon_color: '#525b73'
+            tap_action:
+              action: call-service
+              service: script.alexa_send_command
+              haptic: medium
+            style: "ha-card {\n  box-shadow: 0px 0px;\n}     \n"
+            card_mod:
+              style:
+                mushroom-shape-icon:
+                  $: "ha-icon {\n  --icon-animation: bounce 0.6s cubic-bezier(0.30,
+                    2.40, 0.85, 2.50) infinite;\n  transform-origin: 50% 100%;\n}\n@keyframes
+                    bounce { \n  0%, 100% { transform: translateY(0px) scaleY(0.9);
+                    }\n  80% { transform: translateY(-3px); }\n}\n"
+                  .: "ha-card {\n  box-shadow: none;\n  align-items: center;                  \n
+                    \n}\nmushroom-shape-icon {\n  --shape-color: none !important;\n
+                    \ --icon-size: 115px; \n}\n\n  \n"
+            view_layout:
+              grid-area: send
+          layout:
+            grid-template-columns: 15% 38% 37%
+            grid-template-rows: auto
+            grid-template-areas: '"text text text"
+
+              "space device send"
+
+              '
+        - type: custom:swipe-card
+          card_width: calc(20% - 20px)
+          parameters:
+            centeredSlides: false
+            slidesPerView: auto
+            spaceBetween: 11
+            initialSlide: 0
+          cards:
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_c01
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_c01
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}\n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_c02
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_c02
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_drive
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_drive
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_front_door
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_front_door
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_garden
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_garden
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_enhy
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_enhy
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_c04
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_c04
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_c01_2
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_c01_2
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}  \n"
+        - type: custom:gap-card
+          height: 20
+    enabled: true
+popup_climate:
+  alias: Popup - Climate
+  sequence:
+  - service: browser_mod.popup
+    data_template:
+      deviceID: '{{ deviceID }}'
+      card_mod:
+        style:
+          ha-dialog$: "div.mdc-dialog div.mdc-dialog__scrim {\n   background: rgba(0,
+            0, 0, 0.6);\n   backdrop-filter: blur(8px); pointer-events: auto;\n}      \n"
+      dismissable: true
+      content:
+        type: custom:vertical-stack-in-card
+        no_card: false
+        cards:
+        - type: custom:swipe-card
+          parameters:
+            spaceBetween: 3
+            effect: fade
+            fadeEffect:
+              crossFade: true
+            slideShadows: false
+            autoplay:
+              delay: 5000
+            speed: 1500
+          cards:
+          - type: custom:mini-graph-card
+            entities:
+            - entity: sensor.switchbot_t01_temp
+              name: Ground floor
+              color: cyan
+            - entity: sensor.switchbot_t02_temp
+              name: 1st floor
+              color: var(--purple)
+            - entity: sensor.switchbot_t03_temp
+              name: 2nd floor
+              color: var(--green)
+            - entity: sensor.switchbot_meterplus_temp
+              name: Cam's room
+              color: var(--blue)
+            name: Home temperature
+            hours_to_show: 24
+            card_mod:
+              style: ".graph .graph__container .graph__container__svg svg g mask .line
+                {\n  animation-duration: 5s !important;\n  animation-delay: 0s !important;\n
+                \ animation-timing-function: linear !important;\n}    \nha-card {\n
+                \ background-color: var(--blue-tint) !important;\n}\nha-card .graph
+                {\n  background: transparent !important;\n}\n"
+            show:
+              icon: false
+              name: true
+              state: true
+              legend: true
+              fill: true
+              labels: true
+              graph: line
+              align_state: right
+              align_name: state
+              icon_adaptive_color: true
+              points_per_hour: 1
+          - type: custom:mini-graph-card
+            entities:
+            - entity: sensor.switchbot_t01_humidity
+              name: Ground floor
+              color: cyan
+            - entity: sensor.switchbot_t02_humidity
+              name: 1st floor
+              color: var(--purple)
+            - entity: sensor.switchbot_t03_humidity
+              name: 2nd floor
+              color: var(--green)
+            - entity: sensor.switchbot_meterplus_humidity
+              name: Cam's room
+              color: var(--blue)
+            name: Home humidity
+            hours_to_show: 24
+            card_mod:
+              style: ".graph .graph__container .graph__container__svg svg g mask .line
+                {\n  animation-duration: 5s !important;\n  animation-delay: 0s !important;\n
+                \ animation-timing-function: linear !important;\n}    \nha-card {\n
+                \ background-color: var(--blue-tint) !important;\n}\nha-card .graph
+                {\n  background: transparent !important;\n}\n"
+            show:
+              icon: false
+              name: true
+              state: faltruese
+              legend: true
+              fill: true
+              labels: true
+              graph: line
+              align_state: right
+              align_name: state
+              icon_adaptive_color: true
+              points_per_hour: 1
+    enabled: true
+  mode: single
+popup_lights:
+  alias: Popup - Lights - Main panel
+  sequence:
+  - service: browser_mod.popup
+    data_template:
+      deviceID: '{{ deviceID }}'
+      card_mod:
+        style:
+          ha-dialog$: "div.mdc-dialog div.mdc-dialog__scrim {\n   background: rgba(0,
+            0, 0, 0.6);\n   backdrop-filter: blur(8px); pointer-events: auto;\n}      \n"
+      dismissable: true
+      content:
+        type: custom:mod-card
+        style: "ha-card {\n  background-color:  rgba(30, 28, 19, 1) !important;\n
+          \ padding: 0px;\n  margin: 0px;\n}\n"
+        card:
+          type: vertical-stack
+          cards:
+          - type: entities
+            no_card: true
+            entities:
+            - entity: switch.ex05_01
+              name: Light panel - Left
+              icon: phu:elgato-key-light
+            - entity: switch.ex05_03
+              name: Light panel - Right
+              icon: phu:elgato-key-light
+            - entity: switch.ex01_03
+              name: iCue light strip
+              icon: phu:lightstrip-tv
+          - type: horizontal-stack
+            cards:
+            - type: light
+              entity: light.sb_table_light_c_side
+              no_card: true
+              double_tap_action:
+                action: none
+              hold_action:
+                action: more-info
+              name: ⠀
+            - type: light
+              entity: light.sb_light_strip_bed
+              icon: mdi:bed-double
+              no_card: true
+              double_tap_action:
+                action: none
+              hold_action:
+                action: more-info
+              name: ⠀
+          - type: horizontal-stack
+            cards:
+            - type: light
+              entity: light.sb_light_strip_door
+              icon: mdi:door
+              no_card: true
+              double_tap_action:
+                action: none
+              hold_action:
+                action: more-info
+              name: ⠀
+            - type: light
+              entity: light.sb_light_strip_pc
+              icon: mdi:desktop-tower-monitor
+              no_card: true
+              double_tap_action:
+                action: none
+              hold_action:
+                action: more-info
+              name: ⠀
+          - type: custom:mini-graph-card
+            card_mod:
+              style: ".graph .graph__container .graph__container__svg svg g mask .line
+                {\n  animation-duration: 5s !important;\n  animation-delay: 0s !important;\n
+                \ animation-timing-function: linear !important;\n}    \nha-card {\n
+                \ background-color: transparent !important;\n}\nha-card .graph {\n
+                \ background: transparent !important;\n}\n"
+            animate: true
+            hours_to_show: 0.5
+            points_per_hour: 24
+            detail: 3
+            color_thresholds:
+            - value: 20
+              color: var(--yellow)
+            - value: 1
+              color: var(--blue-tint)
+            line_color: '#fffec1'
+            name: Room illuminance (1hr)
+            tap_action:
+              action: none
+            show:
+              icon: false
+              name: false
+              state: true
+              legend: false
+              fill: fade
+              labels: hover
+              graph: line
+            entities:
+            - entity: sensor.fp2_floor_2_light_sensor_light_level
+  mode: single
+popup_time:
+  alias: Popup - Time
+  sequence:
+  - service: browser_mod.popup
+    data_template:
+      deviceID: '{{ deviceID }}'
+      card_mod:
+        style:
+          ha-dialog$: "div.mdc-dialog div.mdc-dialog__scrim {\n   background: rgba(0,
+            0, 0, 0.6);\n   backdrop-filter: blur(8px); pointer-events: auto;\n}      \n"
+      dismissable: true
+      content:
+        type: vertical-stack
+        cards:
+        - type: custom:gap-card
+          height: 170
+        - type: custom:mushroom-template-card
+          no_card: false
+          entity: person.cam
+          triggers_update: all
+          layout: vertical
+          show_icon: false
+          primary: '{{now().strftime(''%I'').lstrip(''0'')}}:{{now().strftime(''%M'')}}
+
+            {{(now().strftime(''%p'') | lower )}}
+
+            '
+          secondary: '{{ now().strftime(''%a'') }}, {{ now().strftime(''%d'') | replace("
+            0", "") }} {{ now().strftime(''%B'') }}
+
+            '
+          card_mod:
+            style: "ha-card {                     \n  background-color: rgba(36, 46,
+              58, 1) !important;      \n  }      \n:host {   \n --mush-card-primary-font-size:
+              62px;       \n --mush-card-secondary-font-size: 31px;            \n
+              --primary-text-color: var(--contrast17);\n --secondary-text-color: var(--contrast8);
+              \   \n --mush-card-primary-font-weight: light;\n --mush-card-secondary-font-weight:
+              light;    \n --mush-icon-size: 0px;     \n}\n"
+  mode: single
+example_templates:
+  alias: 001.  Example templates
+  sequence:
+  - if:
+    - alias: Template - If 5min has passed since last triggered
+      condition: template
+      value_template: '{{ now() - state_attr(''script.as_test_time_delay'', ''last_triggered'')
+        > timedelta(minutes=5) }}'
+    then:
+    - stop: ''
+    alias: IF template conditions
+  - service: cover.open_cover
+    data: {}
+    target:
+      entity_id:
+      - cover.sb_curtain_left
+      - cover.sb_curtain_right
+    alias: Device - Curtains - Both open
+  - service: cover.close_cover
+    data: {}
+    target:
+      entity_id:
+      - cover.sb_curtain_left
+      - cover.sb_curtain_right
+    alias: Device - Curtains - Both close
+  - alias: Notification - PC
+    service: notify.a
+    data:
+      title: Hello world
+      message: The sun is {% if is_state('sun.sun', 'above_horizon') %}up{% else %}down{%
+        endif %} right now.
+      data:
+        image: https://ichef.bbci.co.uk/news/976/cpsprodpb/4694/production/_130386081_whatsubject.jpg.webp
+    enabled: true
+  - if:
+    - condition: and
+      conditions:
+      - condition: zone
+        entity_id: person.cam
+        zone: zone.home
+        alias: If C is home (Purley)
+      - condition: state
+        entity_id: sensor.a_sessionstate
+        state: Unlocked
+        for:
+          hours: 0
+          minutes: 0
+          seconds: 1
+        alias: If PC is unlocked
+    then:
+    - alias: Notification - PC
+      service: notify.a
+      data:
+        title: Overwatch
+        message: C room - Door closed
+      enabled: true
+    alias: Notify PC
+  - service: notify.lg_webos_tv_eg960v
+    data:
+      message: The sun is {% if is_state('sun.sun', 'above_horizon') %}up{% else %}down{%
+        endif %}!
+    alias: Notification - TV Lounge
+  - service: browser_mod.popup
+    data_template:
+      deviceID: '{{ deviceID }}'
+      card_mod:
+        style:
+          ha-dialog$: "div.mdc-dialog div.mdc-dialog__scrim {\n   background: rgba(0,
+            0, 0, 0.6);\n   backdrop-filter: blur(8px); pointer-events: auto;\n}      \n"
+      dismissable: true
+      content:
+        type: custom:vertical-stack-in-card
+        no_card: false
+        cards:
+        - type: custom:swipe-card
+          parameters:
+            spaceBetween: 3
+            effect: fade
+            fadeEffect:
+              crossFade: true
+            slideShadows: false
+            autoplay:
+              delay: 5000
+            speed: 1500
+          cards:
+          - type: custom:mini-graph-card
+            entities:
+            - entity: sensor.switchbot_t01_temp
+              name: Ground floor
+              color: cyan
+            - entity: sensor.switchbot_t02_temp
+              name: 1st floor
+              color: var(--purple)
+            - entity: sensor.switchbot_t03_temp
+              name: 2nd floor
+              color: var(--green)
+            - entity: sensor.switchbot_meterplus_temp
+              name: Cam's room
+              color: var(--blue)
+            name: Home temperature
+            hours_to_show: 24
+            card_mod:
+              style: ".graph .graph__container .graph__container__svg svg g mask .line
+                {\n  animation-duration: 5s !important;\n  animation-delay: 0s !important;\n
+                \ animation-timing-function: linear !important;\n}    \nha-card {\n
+                \ background-color: var(--blue-tint) !important;\n}\nha-card .graph
+                {\n  background: transparent !important;\n}\n"
+            show:
+              icon: false
+              name: true
+              state: true
+              legend: true
+              fill: true
+              labels: true
+              graph: line
+              align_state: right
+              align_name: state
+              icon_adaptive_color: true
+              points_per_hour: 1
+          - type: custom:mini-graph-card
+            entities:
+            - entity: sensor.switchbot_t01_humidity
+              name: Ground floor
+              color: cyan
+            - entity: sensor.switchbot_t02_humidity
+              name: 1st floor
+              color: var(--purple)
+            - entity: sensor.switchbot_t03_humidity
+              name: 2nd floor
+              color: var(--green)
+            - entity: sensor.switchbot_meterplus_humidity
+              name: Cam's room
+              color: var(--blue)
+            name: Home humidity
+            hours_to_show: 24
+            card_mod:
+              style: ".graph .graph__container .graph__container__svg svg g mask .line
+                {\n  animation-duration: 5s !important;\n  animation-delay: 0s !important;\n
+                \ animation-timing-function: linear !important;\n}    \nha-card {\n
+                \ background-color: var(--blue-tint) !important;\n}\nha-card .graph
+                {\n  background: transparent !important;\n}\n"
+            show:
+              icon: false
+              name: true
+              state: faltruese
+              legend: true
+              fill: true
+              labels: true
+              graph: line
+              align_state: right
+              align_name: state
+              icon_adaptive_color: true
+              points_per_hour: 1
+    enabled: true
+    alias: Popup - Climate panel
+  - service: browser_mod.popup
+    data_template:
+      deviceID: '{{ deviceID }}'
+      card_mod:
+        style:
+          ha-dialog$: "div.mdc-dialog div.mdc-dialog__scrim {\n   background: rgba(0,
+            0, 0, 0.6);\n   backdrop-filter: blur(8px); pointer-events: auto;\n}      \n"
+      dismissable: true
+      content:
+        type: custom:mod-card
+        style: "ha-card {\n  background-color:  rgba(30, 28, 19, 1) !important;\n
+          \ padding: 0px;\n  margin: 0px;\n}\n"
+        card:
+          type: vertical-stack
+          cards:
+          - type: entities
+            no_card: true
+            entities:
+            - entity: switch.ex05_01
+              name: Light panel - Left
+              icon: phu:elgato-key-light
+            - entity: switch.ex05_03
+              name: Light panel - Right
+              icon: phu:elgato-key-light
+            - entity: switch.ex01_03
+              name: iCue light strip
+              icon: phu:lightstrip-tv
+          - type: horizontal-stack
+            cards:
+            - type: light
+              entity: light.sb_table_light_c_side
+              no_card: true
+              double_tap_action:
+                action: none
+              hold_action:
+                action: more-info
+              name: ⠀
+            - type: light
+              entity: light.sb_light_strip_bed
+              icon: mdi:bed-double
+              no_card: true
+              double_tap_action:
+                action: none
+              hold_action:
+                action: more-info
+              name: ⠀
+          - type: horizontal-stack
+            cards:
+            - type: light
+              entity: light.sb_light_strip_door
+              icon: mdi:door
+              no_card: true
+              double_tap_action:
+                action: none
+              hold_action:
+                action: more-info
+              name: ⠀
+            - type: light
+              entity: light.sb_light_strip_pc
+              icon: mdi:desktop-tower-monitor
+              no_card: true
+              double_tap_action:
+                action: none
+              hold_action:
+                action: more-info
+              name: ⠀
+          - type: custom:mini-graph-card
+            card_mod:
+              style: ".graph .graph__container .graph__container__svg svg g mask .line
+                {\n  animation-duration: 5s !important;\n  animation-delay: 0s !important;\n
+                \ animation-timing-function: linear !important;\n}    \nha-card {\n
+                \ background-color: transparent !important;\n}\nha-card .graph {\n
+                \ background: transparent !important;\n}\n"
+            animate: true
+            hours_to_show: 0.5
+            points_per_hour: 24
+            detail: 3
+            color_thresholds:
+            - value: 20
+              color: var(--yellow)
+            - value: 1
+              color: var(--blue-tint)
+            line_color: '#fffec1'
+            name: Room illuminance (1hr)
+            tap_action:
+              action: none
+            show:
+              icon: false
+              name: false
+              state: true
+              legend: false
+              fill: fade
+              labels: hover
+              graph: line
+            entities:
+            - entity: sensor.fp2_floor_2_light_sensor_light_level
+    alias: Popup - Lights panel
+  - service: browser_mod.popup
+    data_template:
+      deviceID: '{{ deviceID }}'
+      card_mod:
+        style:
+          ha-dialog$: "div.mdc-dialog div.mdc-dialog__scrim {\n   background: rgba(0,
+            0, 0, 0.6);\n   backdrop-filter: blur(8px); pointer-events: auto;\n}      \n"
+      dismissable: true
+      content:
+        type: vertical-stack
+        cards:
+        - type: custom:gap-card
+          height: 170
+        - type: custom:mushroom-template-card
+          no_card: false
+          entity: person.cam
+          triggers_update: all
+          layout: vertical
+          show_icon: false
+          primary: '{{now().strftime(''%I'').lstrip(''0'')}}:{{now().strftime(''%M'')}}
+
+            {{(now().strftime(''%p'') | lower )}}
+
+            '
+          secondary: '{{ now().strftime(''%a'') }}, {{ now().strftime(''%d'') | replace("
+            0", "") }} {{ now().strftime(''%B'') }}
+
+            '
+          card_mod:
+            style: "ha-card {                     \n  background-color: rgba(36, 46,
+              58, 1) !important;      \n  }      \n:host {   \n --mush-card-primary-font-size:
+              62px;       \n --mush-card-secondary-font-size: 31px;            \n
+              --primary-text-color: var(--contrast17);\n --secondary-text-color: var(--contrast8);
+              \   \n --mush-card-primary-font-weight: light;\n --mush-card-secondary-font-weight:
+              light;    \n --mush-icon-size: 0px;     \n}\n"
+    alias: Popup - Time panel
+  - service: browser_mod.popup
+    data_template:
+      deviceID: '{{ deviceID }}'
+      card_mod:
+        style:
+          ha-dialog$: "div.mdc-dialog div.mdc-dialog__scrim {\n   background: rgba(0,
+            0, 0, 0.6);\n   backdrop-filter: blur(8px); pointer-events: auto;\n}      \n"
+      dismissable: true
+      content:
+        type: custom:vertical-stack-in-card
+        no_card: false
+        cards:
+        - type: custom:layout-card
+          layout_type: custom:grid-layout
+          cards:
+          - type: custom:select-list-card
+            entity: input_select.alexa_send_command_to
+            max_options: 6
+            scroll_to_selected: true
+            truncate: true
+            view_layout:
+              grid-area: device
+          - type: entities
+            no_card: true
+            entities:
+            - entity: input_text.alexa_command_text
+              name: ⠀
+              icon: ⠀
+              card_mod:
+                style: ":host {\n  --mdc-text-field-fill-color: var(--contrast2);\n}\n"
+            view_layout:
+              grid-area: text
+          - type: custom:mushroom-template-card
+            icon: mdi:send
+            icon_color: '#525b73'
+            tap_action:
+              action: call-service
+              service: script.alexa_send_command
+              haptic: medium
+            style: "ha-card {\n  box-shadow: 0px 0px;\n}     \n"
+            card_mod:
+              style:
+                mushroom-shape-icon:
+                  $: "ha-icon {\n  --icon-animation: bounce 0.6s cubic-bezier(0.30,
+                    2.40, 0.85, 2.50) infinite;\n  transform-origin: 50% 100%;\n}\n@keyframes
+                    bounce { \n  0%, 100% { transform: translateY(0px) scaleY(0.9);
+                    }\n  80% { transform: translateY(-3px); }\n}\n"
+                  .: "ha-card {\n  box-shadow: none;\n  align-items: center;                  \n
+                    \n}\nmushroom-shape-icon {\n  --shape-color: none !important;\n
+                    \ --icon-size: 115px; \n}\n\n  \n"
+            view_layout:
+              grid-area: send
+          layout:
+            grid-template-columns: 15% 38% 37%
+            grid-template-rows: auto
+            grid-template-areas: '"text text text"
+
+              "space device send"
+
+              '
+        - type: custom:swipe-card
+          card_width: calc(20% - 20px)
+          parameters:
+            centeredSlides: false
+            slidesPerView: auto
+            spaceBetween: 11
+            initialSlide: 0
+          cards:
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_c01
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_c01
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}\n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_c02
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_c02
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_drive
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_drive
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_front_door
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_front_door
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_garden
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_garden
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_enhy
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_enhy
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_c04
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_c04
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}        \n"
+          - type: custom:button-card
+            entity: script.alexa_cam_feed_c01_2
+            show_name: false
+            aspect_ratio: 1/1
+            tap_action:
+              action: call-service
+              service: script.alexa_cam_feed_c01_2
+              haptic: medium
+            styles:
+              card:
+              - border-radius: 15px
+              - background-color: var(--blue)
+              icon:
+              - color: var(--black)
+            card_mod:
+              style: "ha-card:hover {\n background: color-mix(in srgb, var(--orange)
+                25%, var(--green)) !important; \n  z-index: 1;\n  transform: scale(0.96);\n
+                \ transition: all 0.1s;\n  box-shadow: 0 0 6px !important;\n}  \n"
+        - type: custom:gap-card
+          height: 20
+    enabled: true
+    alias: Popup - Echo Show panel
+  - alias: TTS - Alexa - Spelling
+    service: notify.alexa_media_cam_s_echo_show_5
+    data:
+      message: <say-as interpret-as="characters">hello</say-as>
+  - alias: TTS - Alexa - Speech volume
+    service: notify.alexa_media_cam_s_echo_show_5
+    data:
+      message: <speak>I can speak <prosody volume="x-loud">very loudly</prosody>,
+        or I can speak <prosody volume="x-soft">very quietly</prosody>. </speak>
+  - alias: TTS - Alexa - Whisper
+    service: notify.alexa_media_cam_s_echo_show_5
+    data:
+      message: <amazon:effect name='whispered'>{{'Hello world'}}</amazon:effect>
+  - alias: TTS - Alexa - Speech speed
+    service: notify.alexa_media_cam_s_echo_show_5
+    data:
+      message: <speak>I can speak <prosody rate="x-slow">really slowly</prosody>,
+        or  I can speak <prosody rate="x-fast">really fast</prosody></speak>
+  - alias: TTS - Alexa - Speech pitch
+    service: notify.alexa_media_cam_s_echo_show_5
+    data:
+      message: <speak>I can speak in a <prosody pitch="high">higher pitched voice</prosody>,
+        or I can speak <prosody pitch="low">in a lower pitched voice</prosody></speak>
+  - alias: TTS - Alexa - Voice styles
+    service: notify.alexa_media_cam_s_echo_show_8
+    data:
+      message: "<speak>\n    This is the normal voice. \n    <voice name=\"Brian\"><lang
+        xml:lang=\"en-GB\">This is Brian's voice.</lang></voice>.\n    <voice name=\"Amy\"><lang
+        xml:lang=\"en-GB\">This is Amy's voice.</lang></voice>.\n    <voice name=\"Emma\"><lang
+        xml:lang=\"en-GB\">This is Emma's voice.</lang></voice>.\n    <voice name=\"Kendra\"><lang
+        xml:lang=\"en-US\">This is Kendra's voice.</lang></voice>.\n    <voice name=\"Kimberly\"><lang
+        xml:lang=\"en-US\">This is Kimberly's voice.</lang></voice>.\n    <voice name=\"Matthew\"><lang
+        xml:lang=\"en-US\">This is Matthew's voice.</lang></voice>.\n    <voice name=\"Salli\"><lang
+        xml:lang=\"en-US\">This is Salli's voice.</lang></voice> .\n    <voice name=\"Ivy\"><lang
+        xml:lang=\"en-US\">This is Ivy's voice.</lang></voice>.\n    <voice name=\"Joanna\"><lang
+        xml:lang=\"en-US\">This is Joanna's voice.</lang></voice>.\n    <voice name=\"Joey\"><lang
+        xml:lang=\"en-US\">This is Joey's voice.</lang></voice>.\n    <voice name=\"Justin\"><lang
+        xml:lang=\"en-US\">This is Justin's voice.</lang></voice>.    \n    <voice
+        name=\"Penelope\"><lang xml:lang=\"es-US\">This is Penelope's voice.</lang></voice>.
+        \  \n    <voice name=\"Lupe\"><lang xml:lang=\"en-US\">This is Lupe's voice.</lang></voice>.
+        \  \n    <voice name=\"Miguel\"><lang xml:lang=\"en-US\">This is Miguel's
+        voice.</lang></voice>.   \n    <voice name=\"Conchita\"><lang xml:lang=\"es-ES\">This
+        is Conchita's voice.</lang></voice>.\n    <voice name=\"Enrique\"><lang xml:lang=\"es-ES\">This
+        is Enrique's voice.</lang></voice>.\n    <voice name=\"Lucia\"><lang xml:lang=\"es-ES\">This
+        is Lucia's voice.</lang></voice>.\n</speak>"
+  - service: light.turn_on
+    data:
+      rgb_color:
+      - 255
+      - 255
+      - 255
+      brightness_pct: 100
+    target:
+      entity_id:
+      - light.sb_table_light_c_side
+      - light.sb_light_strip_pc
+      - light.sb_light_strip_door
+      - light.sb_light_strip_bed
+    alias: Lights - White 100%
+  - alias: TTS - Alexa - Pronounciation/emphasis
+    service: notify.alexa_media_cam_s_echo_show_5
+    data:
+      message: "<speak>\n    <say-as interpret-as=\"interjection\">duh</say-as>.\n
+        \   <say-as interpret-as=\"interjection\">aw</say-as>.\n    <say-as interpret-as=\"interjection\">aw
+        man</say-as>.\n    <say-as interpret-as=\"interjection\">beep beep</say-as>.\n
+        \   <say-as interpret-as=\"interjection\">boo hoo</say-as>.      \n    <say-as
+        interpret-as=\"interjection\">caw</say-as>.\n    <say-as interpret-as=\"interjection\">cheerio</say-as>.\n
+        \   <say-as interpret-as=\"interjection\">choo choo</say-as>.\n    <say-as
+        interpret-as=\"interjection\">dun dun dun</say-as>.\n    <say-as interpret-as=\"interjection\">good
+        grief</say-as>.\n    <say-as interpret-as=\"interjection\">gosh</say-as>.\n
+        \   <say-as interpret-as=\"interjection\">ha</say-as>.\n    <say-as interpret-as=\"interjection\">ha
+        ha</say-as>.\n    <say-as interpret-as=\"interjection\">jeepers creepers</say-as>.\n
+        \   <say-as interpret-as=\"interjection\">ooh la la</say-as>.        \n    <say-as
+        interpret-as=\"interjection\">now now</say-as>.\n    <say-as interpret-as=\"interjection\">oy</say-as>.\n
+        \   <say-as interpret-as=\"interjection\">roger</say-as>.        \n    <say-as
+        interpret-as=\"interjection\">righto</say-as>.  \n    <say-as interpret-as=\"interjection\">simples</say-as>.
+        \ \n    <say-as interpret-as=\"interjection\">tee hee</say-as>.  \n    <say-as
+        interpret-as=\"interjection\">tick tock</say-as>.  \n    <say-as interpret-as=\"interjection\">uh
+        huh</say-as>.  \n    <say-as interpret-as=\"interjection\">uh oh</say-as>.
+        \ \n    <say-as interpret-as=\"interjection\">well well</say-as>.  \n    <say-as
+        interpret-as=\"interjection\">woo hoo</say-as>.  \n    <say-as interpret-as=\"interjection\">yadda
+        yadda yadda</say-as>.  \n</speak>"
+  - alias: TTS - Alexa - Pronounciation/emphasis
+    service: notify.alexa_media
+    data:
+      target: media_player.cam_s_echo_show_8
+      title: My title for Echo show
+      data:
+        type: announce
+        method: all
+      message: This is a test.
+  mode: single
+  icon: mdi:receipt-text-edit
+device_tv_lounge_power_on:
+  alias: Device - TV Lounge - Power on
+  sequence:
+  - service: media_player.turn_on
+    data: {}
+    target:
+      entity_id: media_player.lg_webos_tv_eg960v
+  mode: single
+002_example_alexa_sounds:
+  alias: 002. Example Alexa Sounds
+  variables:
+    media_player_entity: media_player.echo_show_15
+  sequence:
+  - alias: Alexa - Voice notification
+    action: notify.alexa_media_echo_show_15
+    data:
+      message: <speak><audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02"/>Hello
+        world.</speak>
+  - alias: Alexa Sound + voice message
+    data:
+      message: "<speak>   \n  <audio src=\"soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02\"/>\n
+        \ Eny has reached East Croydon train station. <say-as interpret-as=\"interjection\">choo
+        choo</say-as>.        \n</speak>"
+    action: notify.alexa_media_cam_s_echo_show_8
+  - alias: TTS - Alexa - Voice styles
+    data:
+      message: "<speak>\n    This is the normal voice. \n    <voice name=\"Brian\"><lang
+        xml:lang=\"en-GB\">This is Brian's voice.</lang></voice>.\n    <voice name=\"Amy\"><lang
+        xml:lang=\"en-GB\">This is Amy's voice.</lang></voice>.\n    <voice name=\"Emma\"><lang
+        xml:lang=\"en-GB\">This is Emma's voice.</lang></voice>.\n    <voice name=\"Kendra\"><lang
+        xml:lang=\"en-US\">This is Kendra's voice.</lang></voice>.\n    <voice name=\"Kimberly\"><lang
+        xml:lang=\"en-US\">This is Kimberly's voice.</lang></voice>.\n    <voice name=\"Matthew\"><lang
+        xml:lang=\"en-US\">This is Matthew's voice.</lang></voice>.\n    <voice name=\"Salli\"><lang
+        xml:lang=\"en-US\">This is Salli's voice.</lang></voice> .\n    <voice name=\"Ivy\"><lang
+        xml:lang=\"en-US\">This is Ivy's voice.</lang></voice>.\n    <voice name=\"Joanna\"><lang
+        xml:lang=\"en-US\">This is Joanna's voice.</lang></voice>.\n    <voice name=\"Joey\"><lang
+        xml:lang=\"en-US\">This is Joey's voice.</lang></voice>.\n    <voice name=\"Justin\"><lang
+        xml:lang=\"en-US\">This is Justin's voice.</lang></voice>.    \n    <voice
+        name=\"Penelope\"><lang xml:lang=\"es-US\">This is Penelope's voice.</lang></voice>.
+        \  \n    <voice name=\"Lupe\"><lang xml:lang=\"en-US\">This is Lupe's voice.</lang></voice>.
+        \  \n    <voice name=\"Miguel\"><lang xml:lang=\"en-US\">This is Miguel's
+        voice.</lang></voice>.   \n    <voice name=\"Conchita\"><lang xml:lang=\"es-ES\">This
+        is Conchita's voice.</lang></voice>.\n    <voice name=\"Enrique\"><lang xml:lang=\"es-ES\">This
+        is Enrique's voice.</lang></voice>.\n    <voice name=\"Lucia\"><lang xml:lang=\"es-ES\">This
+        is Lucia's voice.</lang></voice>.\n</speak>"
+    action: notify.alexa_media_cam_s_echo_show_8
+  - alias: Alexa Sound + voice message (alternative approach)
+    data:
+      message: '<audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_03"/>
+        Hi Cam <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_01"/> '
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Error short
+    data:
+      message: '<audio src="soundbank://soundlibrary/musical/amzn_sfx_buzz_electronic_01"/>  '
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Error long
+    data:
+      message: <audio src="soundbank://soundlibrary/scifi/amzn_sfx_scifi_alarm_06"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Tone high soft
+    data:
+      message: '<audio src="soundbank://soundlibrary/alarms/beeps_and_bloops/tone_05"/>   '
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Tone high solid
+    data:
+      message: '<audio src="soundbank://soundlibrary/musical/amzn_sfx_electronic_beep_01"/>   '
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Tone dual solid
+    data:
+      message: '<audio src="soundbank://soundlibrary/musical/amzn_sfx_electronic_beep_02"/> '
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Rayman chime
+    data:
+      message: <audio src="soundbank://soundlibrary/alarms/chimes_and_bells/chimes_bells_04"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Doorbell
+    data:
+      message: <audio src="soundbank://soundlibrary/home/amzn_sfx_doorbell_chime_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Radar low
+    data:
+      message: '<audio src="soundbank://soundlibrary/scifi/amzn_sfx_scifi_sonar_ping_4x_01"/>    '
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Radar medium
+    data:
+      message: '<audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_10"/> '
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Radar high
+    data:
+      message: '<audio src="soundbank://soundlibrary/scifi/amzn_sfx_scifi_radar_high_ping_01"/>  '
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Timer 32s ver1
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_countdown_loop_32s_full_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Timer 32s ver2
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_waiting_loop_30s_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Timer 64s ver1
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_countdown_loop_64s_minimal_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Timer 64s ver2
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_countdown_loop_64s_full_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Intro fantasy
+    data:
+      message: '<audio src="soundbank://soundlibrary/alarms/beeps_and_bloops/intro_02"/>  '
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Intro gameshow
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_intro_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Complete gameshow
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_outro_01"/>
+      data:
+        type: tts
+      target: media_player.cam_s_echo_show_8
+    action: notify.alexa_media
+  - alias: Alexa Sound - Correct gameshow 1
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_tally_positive_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Correct gameshow 2
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Notification gameshow 1
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Notification gameshow 2
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_bridge_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Notification gameshow 3
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_bridge_02"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Notification sci-fi 1
+    data:
+      message: <audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_08"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - Notification sci-fi 2
+    data:
+      message: <audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_09"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - 1 dot quick
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound -3 dots quick
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_03"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - joke fast
+    data:
+      message: <audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_12"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: TTS - Alexa - Whisper
+    data:
+      message: <amazon:effect name='whispered'>{{'Eny has finished work'}}</amazon:effect>
+    action: notify.alexa_media_cam_s_echo_show_8
+  - data:
+      message: <speak>     <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02"/>  It's
+        getting dark outside. I'll close the curtains.     </speak>
+    action: notify.alexa_media_cam_s_3g_white_dot
+  - alias: Alexa Sound - 1 dot alt
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_02"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - 1 dot success
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - 1 dot 2nd alt
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_player4_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  - alias: Alexa Sound - 1 dot 3rd alt
+    data:
+      message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_player3_01"/>
+      data:
+        type: tts
+      target: '{{ media_player_entity }}'
+    action: notify.alexa_media
+  mode: single
+light_all_on_dynamic:
+  alias: Light - C room - All on (dynamic)
+  sequence:
+  - alias: Night time
+    if:
+    - alias: Night time
+      condition: time
+      after: 00:00:00
+      before: 05:59:59
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 20
+        target:
+          entity_id: "{{ [\"scene.bedroom_arctic_aurora\", \"scene.bedroom_starlight\",
+            \"scene.bedroom_moonlight\", \"scene.bedroom_galaxy\", \"scene.bedroom_nebula\",
+            \"scene.bedroom_memento\", \"scene.bedroom_resplendent\", \"scene.bedroom_scarlet_dream\"]\n
+            \ | random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+        target:
+          entity_id: scene.bedroom_white_late_evening
+  - alias: Morning
+    if:
+    - alias: during time period
+      condition: time
+      after: 06:00:00
+      before: 08:59:59
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 100
+        target:
+          entity_id: "{{ [\"scene.bedroom_adrift\", \"scene.bedroom_blossom\", \"scene.bedroom_lake_mist\",
+            \"scene.bedroom_painted_sky\", \"scene.bedroom_emerald_flutter\", \"scene.bedroom_ruby_glow\",
+            \"scene.bedroom_still_waters\", \"scene.bedroom_majestic_morning\", \"scene.bedroom_blue_lagoon\",
+            \"scene.bedroom_palm_beach\", \"scene.bedroom_mountain_breeze\"]\n  |
+            random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          dynamic: true
+          transition: 1
+        target:
+          entity_id: scene.bedroom_beginnings
+    enabled: true
+  - alias: Day time
+    if:
+    - condition: time
+      alias: during time period
+      after: 09:00:00
+      before: '18:00:00'
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 255
+        target:
+          entity_id: "{{ [\"scene.bedroom_amethyst_valley\", \"scene.bedroom_winter_mountain\",
+            \"scene.bedroom_midwinter\", \"scene.bedroom_sunflare\"]\n  | random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          dynamic: true
+          transition: 1
+          brightness: 255
+        target:
+          entity_id: scene.bedroom_white_daytime
+  - alias: Evening
+    if:
+    - condition: time
+      alias: during time period
+      after: '18:00:00'
+      before: '22:00:00'
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 255
+        target:
+          entity_id: "{{ [\"scene.bedroom_ocean_dawn\", \"scene.bedroom_lily\", \"scene.bedroom_meriete\",
+            \"scene.bedroom_magneto\", \"scene.bedroom_rio\", \"scene.bedroom_valley_dawn\"]\n
+            \ | random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          dynamic: true
+          transition: 1
+          brightness: 255
+        target:
+          entity_id: scene.bedroom_white_evening
+  - alias: Evening late
+    if:
+    - condition: time
+      alias: during time period
+      after: '22:00:00'
+      before: 00:00:00
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 255
+        target:
+          entity_id: "{{ [\"scene.bedroom_tropical_twilight\", \"scene.bedroom_rolling_hills\",
+            \"scene.bedroom_dreamy_dusk\", \"scene.bedroom_tokyo\", \"scene.bedroom_savanna_sunset\",
+            \"scene.bedroom_warm_embrace\", \"scene.bedroom_cancun\", \"scene.bedroom_ibiza\",
+            \"scene.bedroom_pensive\", \"scene.bedroom_sundown\", \"scene.bedroom_lake_placid\",
+            \"scene.bedroom_first_light\"]\n  | random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          dynamic: true
+          transition: 1
+        target:
+          entity_id: scene.bedroom_white_late_evening
+  mode: single
+window_set_position_close:
+  alias: Window - Set position - Close
+  sequence:
+  - data:
+      position: 50
+    target:
+      entity_id: cover.window_motor
+    action: cover.set_cover_position
+  mode: single
+alexa_display_ha_dashboard_show_8:
+  alias: Alexa - Display HA dashboard - Show 8
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: open dashboard viewer
+      media_content_type: custom
+    target:
+      entity_id: media_player.cam_s_echo_show_8
+  mode: single
+alexa_display_ha_dashboard_show_15:
+  alias: Alexa - Display HA dashboard - Show 15
+  sequence:
+  - service: media_player.play_media
+    data:
+      media_content_id: open dashboard viewer
+      media_content_type: custom
+    target:
+      entity_id:
+      - media_player.echo_show_15
+  mode: single
+lights_incoming_phone_call:
+  alias: Lights - Incoming phone call
+  sequence:
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: media_player.echo_show_15
+        state: idle
+      - condition: state
+        entity_id: media_player.echo_show_15
+        state: paused
+      - condition: state
+        entity_id: media_player.echo_show_15
+        state: playing
+      - condition: state
+        entity_id: media_player.echo_show_15
+        state: standby
+      alias: Check if Echo Show 15 is on
+    then:
+    - service: notify.alexa_media_echo_show_15
+      data:
+        message: <speak><audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_03"/></speak>
+    else:
+    - if:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: media_player.cam_s_echo_show_8
+          state: idle
+        - condition: state
+          entity_id: media_player.cam_s_echo_show_8
+          state: paused
+        - condition: state
+          state: playing
+          entity_id: media_player.cam_s_echo_show_8
+        - condition: state
+          state: standby
+          entity_id: media_player.cam_s_echo_show_8
+        alias: Check if Echo Show 8 is on
+      then:
+      - alias: Alexa - Voice notification
+        service: notify.alexa_media_cam_s_echo_show_8
+        data:
+          message: <speak><audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_02"/></speak>
+      else:
+      - if:
+        - condition: or
+          conditions:
+          - condition: state
+            entity_id: media_player.cam_s_echo_show_5
+            state: idle
+          - condition: state
+            entity_id: media_player.cam_s_echo_show_5
+            state: paused
+          - condition: state
+            state: playing
+            entity_id: media_player.cam_s_echo_show_5
+          - condition: state
+            state: standby
+            entity_id: media_player.cam_s_echo_show_5
+          alias: Check if Echo Show 5 is on
+        then:
+        - service: notify.alexa_media_cam_s_echo_show_5
+          data:
+            message: <speak><audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_02"/></speak>
+    alias: 'Echo Show voice notification - Whisper (priority order: use 15, else use
+      8, else use 5)'
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+      color_temp: 300
+      transition: 1
+    target:
+      entity_id: light.bedroom
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: light.turn_on
+    data:
+      color_temp: 300
+      transition: 1
+      brightness_pct: 50
+    target:
+      entity_id: light.bedroom
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  mode: single
+lights_random_hue_scene:
+  alias: Lights - Random Hue scene
+  variables:
+    scene: '{{- area_entities(''Bedroom'') |select(''match'', ''scene'') |list |random
+      -}}'
+    transition: 2
+  sequence:
+  - service: hue.activate_scene
+    data:
+      transition: '{{ transition }}'
+      dynamic: true
+    target:
+      entity_id: '{{ scene }}'
+  - service: notify.alexa_media_cam_s_echo_show_8
+    data:
+      message: "<speak>\n    <voice name=\"Emma\"><lang xml:lang=\"en-GB\"> \"{{ scene
+        | replace('scene.bedroom_','') | replace('_',' ')}}\".</lang></voice>.\n</speak>"
+'1696204031285':
+  alias: Graduated Room Lights
+  sequence:
+  - variables:
+      settings: "{# Build a graduated room #}\n\n{%- macro h_complementary(c) -%}\n
+        \ {{- ((c + 180) % 360) | round(3) -}}\n{%- endmacro -%}\n\n{%- macro h_random_analogous(c)
+        -%}\n  {{- ((c + ([-30, 30] | random)) % 360) | round(3) -}}\n{%- endmacro
+        -%}\n\n{%- macro h_random_analogous_close(c) -%}\n  {{- ((c + ([-15, 15] |
+        random)) % 360) | round(3) -}}\n{%- endmacro -%}\n\n{%- macro h_random_analogous_subtle(c)
+        -%}\n  {{- ((c + ([-7.5, 7.5] | random)) % 360) | round(3) -}}\n{%- endmacro
+        -%}\n\n{%- macro h_random_triadic(c) -%}\n  {{- ((c + 120 * ([1, 2] | random))
+        % 360) | round(3) -}}\n{%- endmacro -%}\n\n{%- macro h_random_tetradic(c)
+        -%}\n  {{- ((c + 90 * ([1, 2, 3] | random)) % 360) | round(3) -}}\n{%- endmacro
+        -%}\n\n{%- macro h_select_alt(h_mode,c) -%}\n  {%- if h_mode == \"complementary\"
+        -%}\n    {{- h_complementary(c)|float -}}\n  {%- elif h_mode == \"analogous\"
+        -%}\n    {{- h_random_analogous(c)|float -}}\n  {%- elif h_mode == \"close\"
+        -%}\n    {{- h_random_analogous_close(c)|float -}}\n  {%- elif h_mode == \"subtle\"
+        -%}\n    {{- h_random_analogous_subtle(c)|float -}}\n  {%- elif h_mode ==
+        \"triadic\" -%}\n    {{- h_random_triadic(c)|float -}}\n  {%- elif h_mode
+        == \"tetradic\" -%}\n    {{- h_random_tetradic(c)|float -}}\n  {%- elif h_mode
+        == \"random\" -%}\n    {{- pick_hue()|float -}}\n  {%- else -%}\n    {{- c
+        -}}\n  {%- endif -%}\n{%- endmacro -%}\n\n{%- macro pick_hue() -%}\n{{- (range(0,36000)
+        | random) / 100 -}}\n{%- endmacro -%}\n\n{%- macro pick_sat() -%}\n{{- (range(4000,10000)
+        | random) / 100 -}}\n{%- endmacro -%}\n\n{%- macro pick_br() -%}\n{{- (range(20000,25500)
+        | random) / 100 -}}\n{%- endmacro -%}\n\n{%- macro next_hue() -%}\n{{ c_set.hue
+        }}\n{%- set c_set.hue = ((c_set.hue + steps.hue) % 360) -%}\n{%- endmacro
+        -%}\n\n{%- macro next_sat() -%}\n{{ c_set.sat }}\n{%- set c_set.sat = (c_set.sat
+        + steps.sat) -%}\n{%- endmacro -%}\n\n{%- macro next_br() -%}\n{{ c_set.br
+        }}\n{%- set c_set.br = (c_set.br + steps.br) -%}\n{%- endmacro -%}\n\n{%-
+        macro pick_hs(lights) -%}\n{%- for light in lights -%}\n  \"{{- light -}}\":
+        {\"state\":\"on\",\"hs_color\": [ {{- next_hue()|round(3) -}}, {{- next_sat()|round(3)
+        -}} ],\"brightness\": {{- next_br()|round(3) -}}},\n{%- endfor -%}\n{%- endmacro
+        -%}\n\n{%- macro breakdown_group(group) -%}\n  {%- if state_attr(group, 'is_hue_group')
+        -%}\n    {%- set entities = state_attr(group, 'lights') | map('lower') | map('regex_replace',
+        '^(.*)', 'light.\\\\1') -%}\n  {%- elif state_attr(group, 'entity_id') is
+        not none -%}\n    {%- set entities = state_attr(group, 'entity_id') | map('lower')
+        | list -%}\n  {%- else -%}\n    {%- set entities = [group] | map('lower')
+        -%}\n  {%- endif -%}\n  {{- entities | unique | join(',') -}}\n{%- endmacro
+        -%}\n\n{%- macro lights(list) -%}\n  {%- set t = namespace(lights = []) -%}\n
+        \ {%- if list is string -%}\n    {%- set t.lights = breakdown_group(list).split(',')
+        -%}\n  {%- else -%}\n    {%- for l in list -%}\n      {%- set t.lights = t.lights
+        + breakdown_group(l).split(',') -%}\n    {%- endfor -%}\n  {%- endif -%}\n
+        \ {{- t.lights | unique | join(',') -}}\n{%- endmacro -%}\n\n{%- macro get_lights(include,
+        exclude) -%}\n  {{- lights(include).split(',') | reject('in', lights(exclude).split(','))
+        | unique | join(',') -}}\n{%- endmacro -%}\n\n{%- macro moded_vector(s,f,t,m)
+        -%}\n{%- set x_tf = (t-f)|abs -%}\n{%- set x_mtf = m - x_tf -%}\n{%- if x_tf
+        <= (m/2) -%}\n  {%- set x_d = 1 if f<t else -1 -%}\n{%- else -%}\n  {%- set
+        x_d = -1 if f<t else 1 -%}\n{%- endif -%}\n{%- set x_d = x_d if s else (x_d
+        * -1) -%}\n{{ ([x_tf, x_mtf]|min)*x_d }}\n{%- endmacro -%}\n\n{%- set hue_mode
+        = hue_mode if hue_mode is defined else \"close\" -%}\n{%- set f_hue = from.hue|float
+        if \n  from is defined and from.hue is defined \n  and from.hue != \"random\"
+        else pick_hue()|float -%}\n{%- set f_sat = from.saturation|float if \n  from
+        is defined and from.saturation is defined \n  and from.saturation != \"random\"
+        else pick_sat()|float -%}\n{%- set t_hue = to.hue|float if \n  to is defined
+        and to.hue is defined \n  and to.hue != \"random\" else h_select_alt(hue_mode,f_hue)|float
+        -%}\n{%- set t_sat = to.saturation|float if \n  to is defined and to.saturation
+        is defined\n  and to.saturation != \"random\" else pick_sat()|float -%}\n{%-
+        set f_br = from.brightness|float if \n  from is defined and from.brightness
+        is defined \n  and from.brightness != \"random\" else pick_br()|float -%}\n{%-
+        set t_br = to.brightness|float if \n  to is defined and to.brightness is defined\n
+        \ and to.brightness != \"random\" else pick_br()|float -%}\n{%- set hue_shortest
+        = hue_shortest if \n  hue_shortest is defined else true -%}\n{%- set steps
+        = namespace(count=0,hue=0,sat=0,br=0) -%}\n{%- set c_set = namespace(hue=f_hue,sat=f_sat,br=f_br)
+        -%}\n{%- set exclude = exclude if exclude is defined else [] -%}\n{%- set
+        lights = (get_lights(room,exclude)).split(',') -%}\n{%- set steps.count =
+        (lights|length) - 1 -%}\n{%- set steps.hue = moded_vector(hue_shortest,f_hue,t_hue,360)|float
+        /\nsteps.count -%}\n{%- set steps.sat = (t_sat - f_sat) / steps.count -%}\n{%-
+        set steps.br = (t_br - f_br) / steps.count -%}\n{{- (\"{\" + pick_hs(lights)[:-1]
+        + \"}\") | from_json -}}"
+  - service: scene.apply
+    data: '{ {% if transition is defined %}"transition": {{ transition }},{% endif
+      %}"entities": {{ settings }} }'
+  mode: parallel
+  icon: mdi:palette-outline
+  max: 10
+'1696204148321':
+  alias: Front Hall Rainbow
+  sequence:
+  - service: script.1696204031285
+    data:
+      room:
+      - light.hue_go_2
+      - light.hue_lightstrip_bed_e_side
+      - light.e_table_lamp
+      - light.c_table_lamp
+      - light.hue_lightstrip_bed_c_side
+      - light.hue_go_1
+      - light.hue_gradient_lightstrip_1
+      hue_mode: random
+      from:
+        saturation: random
+        brightness: 255
+      to:
+        saturation: random
+        brightness: 255
+      hue_shortest: false
+      transition: 1
+  mode: restart
+  icon: mdi:palette-outline
+bin_collection_reset_alert:
+  alias: Bin collection - Reset alert
+  sequence:
+  - service: input_number.set_value
+    data:
+      value: 0
+    target:
+      entity_id: input_number.bin_collection_alert
+  mode: single
+lights_c_room_toggle:
+  alias: Lights - C room toggle
+  sequence:
+  - alias: Lights toggle
+    if:
+    - alias: If any bed light are on
+      condition: or
+      conditions:
+      - condition: state
+        entity_id: light.bedroom
+        state: 'on'
+        for:
+          hours: 0
+          minutes: 0
+          seconds: 2
+    then:
+    - parallel:
+      - service: media_player.play_media
+        data:
+          media_content_id: turn your screen off
+          media_content_type: custom
+        target:
+          entity_id:
+          - media_player.cam_s_echo_show_5
+          - media_player.cam_s_echo_show_8
+          - media_player.echo_show_15
+        alias: Echo Show - All - Screen off
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.bedroom
+    else:
+    - service: hue.activate_scene
+      data:
+        dynamic: true
+      target:
+        entity_id: scene.bedroom_natural_light
+  mode: single
+lights_c_room_brightness_up:
+  alias: Lights - C room brightness up
+  sequence:
+  - service: light.turn_on
+    data:
+      brightness_pct: 100
+      transition: 1
+    target:
+      entity_id: light.bedroom
+    alias: Brightness up
+  mode: single
+lights_c_room_brightness_down:
+  alias: Lights - C room brightness down
+  sequence:
+  - alias: Brightness up
+    service: light.turn_on
+    data:
+      brightness_pct: 10
+      transition: 1
+    target:
+      entity_id: light.bedroom
+  mode: single
+light_hue_scene:
+  alias: Light - Hue scene
+  description: This script tries to replicate the Hue scenes. Colors are distributed
+    randomly on participating lights. Each scene currently has five different colors
+    represented by XY values. The script is only applied to lights that support XY
+    color mode.
+  fields:
+    target:
+      name: Target
+      required: true
+      description: Select one or more areas or light entities.
+      selector:
+        target:
+          entity:
+            domain: light
+    scene:
+      name: Scene
+      description: Which scene? Scenes are taken from the Hue app.
+      required: true
+      default: Adrift
+      selector:
+        select:
+          options:
+          - Adrift
+          - Golden Pond
+          - Horizon
+          - Frosty Dawn
+    onlyonlights:
+      name: Only lights currently on?
+      description: If enabled, the scene is only applied to the lights currently on.
+      required: false
+      default: false
+      selector:
+        boolean:
+    skipgroups:
+      name: Skip groups
+      description: If enabled, group light entities will be skipped.
+      required: false
+      default: true
+      selector:
+        boolean:
+  sequence:
+  - variables:
+      colors: "{% set scenes = {\n  \"Adrift\": {\n    \"colors\": [[0.1743, 0.1333],[0.2789,
+        0.2025],[0.2044, 0.164],[0.1547, 0.1045],[0.4802, 0.3112]]\n  },\n  \"Amber
+        bloom\": {\n    \"colors\": [[0.6178, 0.3413],[0.5946, 0.3811],[0.5717, 0.3983],[0.4934,
+        0.3675],[0.5341, 0.3975]]\n  },\n  \"Amethyst valley\": {\n    \"colors\":
+        [[0.2752, 0.2042],[0.2883, 0.2235],[0.25, 0.1781],[0.2977, 0.2444],[0.2278,
+        0.1424]]\n  },\n  \"Arctic aurora\": {\n    \"colors\": [[0.1868, 0.3328],[0.1541,
+        0.0844],[0.1868, 0.3348],[0.1581, 0.1508],[0.2072, 0.4525],[0.2359, 0.3855]]\n
+        \ },\n  \"Autumn gold\": {\n    \"colors\": [[0.4714, 0.3964],[0.4439, 0.4013],[0.4636,
+        0.4073],[0.457, 0.4406],[0.4436, 0.4271]]\n  },\n  \"Beginnings\": {\n    \"colors\":
+        [[0.1649, 0.1443],[0.2726, 0.2045],[0.3537, 0.2546],[0.1587, 0.1368],[0.1914,
+        0.1543]]\n  },\n  \"Blood moon\": {\n    \"colors\": [[0.1803, 0.1298],[0.4651,
+        0.3463],[0.1596, 0.0684],[0.3041, 0.2368],[0.3918, 0.2958]]\n  },   \n  \"Blossom\":
+        {\n    \"colors\": [[0.2674, 0.3018],[0.24, 0.2761],[0.3985, 0.4025],[0.5119,
+        0.4249],[0.4419, 0.4164],[0.3972, 0.4025]]\n  },    \n  \"Blue lagoon\": {\n
+        \   \"colors\": [[0.304, 0.3777],[0.3962, 0.4341],[0.464, 0.3618],[0.1623,
+        0.3254],[0.24, 0.3475],[0.4654, 0.3617]]\n  },    \n  \"Blue planet\": {\n
+        \   \"colors\": [[0.1566, 0.1795],[0.3314, 0.5391],[0.1915, 0.3638],[0.1672,
+        0.593],[0.3309, 0.5403],[0.1624, 0.4067]]\n  },    \n  \"Cancun\": {\n    \"colors\":
+        [[0.5352, 0.2797],[0.6153, 0.3655],[0.6156, 0.2808],[0.5121, 0.4371],[0.6696,
+        0.3237]]\n  },              \n  \"Crocus\": {\n    \"colors\": [[0.2194, 0.1332],[0.4212,
+        0.38],[0.3818, 0.485],[0.4195, 0.4216],[0.3807, 0.4859],[0.2877, 0.2519]]\n
+        \ },    \n  \"Dreamy dusk\": {\n    \"colors\": [[0.5009, 0.2926],[0.5579,
+        0.3308],[0.5493, 0.3702],[0.5189, 0.3924],[0.5199, 0.3918],[0.4416, 0.2813]]\n
+        \ },    \n  \"Emerald flutter\": {\n    \"colors\": [[0.1593, 0.25],[0.1569,
+        0.1897],[0.1695, 0.3125],[0.2099, 0.344],[0.319, 0.3996]]\n  },              \n
+        \ \"Emerald isle\": {\n    \"colors\": [[0.255, 0.4176],[0.3134, 0.4131],[0.3924,
+        0.4132],[0.4648, 0.4254],[0.2709, 0.3235]]\n  },              \n  \"First
+        light\": {\n    \"colors\": [[0.2128, 0.1834],[0.4134, 0.2962],[0.5373, 0.4003],[0.1649,
+        0.1783],[0.5372, 0.4002],[0.3135, 0.2404]]\n  },              \n  \"Frosty
+        dawn\": {\n    \"colors\": [[0.387, 0.4328],[0.4013, 0.4172],[0.439, 0.3782],[0.4675,
+        0.3769],[0.4221, 0.386]]\n  },              \n  \"Galaxy\": {\n    \"colors\":
+        [[0.4844, 0.2608],[0.5351, 0.3287],[0.4845, 0.2799],[0.4412, 0.279],[0.3502,
+        0.1943],[0.4858, 0.2798]]\n  },    \n  \"Golden pond\": {\n    \"colors\":
+        [[0.482, 0.4489],[0.496, 0.4424],[0.5584, 0.4083],[0.5063, 0.4474],[0.5695,
+        0.3999]]\n  },\n  \"Honolulu\": {\n    \"colors\": [[0.6364, 0.2963],[0.5636,
+        0.3912],[0.5753, 0.3275],[0.4759, 0.4283],[0.5754, 0.3582]]\n  },   \n  \"Horizon\":
+        {\n    \"colors\": [[0.1811, 0.1979],[0.5247, 0.3877],[0.592, 0.385],[0.1731,
+        0.1978],[0.2779, 0.2188]]\n  },   \n  \"Ibiza\": {\n    \"colors\": [[0.4376,
+        0.4577],[0.4787, 0.4495],[0.5286, 0.4068],[0.5974, 0.36],[0.5982, 0.3599],[0.5714,
+        0.3806]]\n  },   \n  \"Lake mist\": {\n    \"colors\": [[0.4082, 0.3661],[0.2263,
+        0.2095],[0.3835, 0.3261],[0.248, 0.2567],[0.4094, 0.3667],[0.4237, 0.3449]]\n
+        \ },   \n  \"Lake placid\": {\n    \"colors\": [[0.2444, 0.253],[0.194, 0.1927],[0.5135,
+        0.348],[0.4216, 0.3347],[0.4656, 0.3479]]\n  },             \n  \"Lily\":
+        {\n    \"colors\": [[0.4703, 0.3501],[0.5407, 0.4008],[0.5113, 0.2913],[0.5793,
+        0.392],[0.5705, 0.272],[0.5099, 0.2918]]\n  },             \n  \"Magneto\":
+        {\n    \"colors\": [[0.1575, 0.2128],[0.171, 0.3389],[0.1593, 0.1341],[0.4215,
+        0.4895],[0.516, 0.4401]]\n  },   \n  \"Majestic morning\": {\n    \"colors\":
+        [[0.4659, 0.3561],[0.1879, 0.0644],[0.5481, 0.3582],[0.3979, 0.413],[0.4741,
+        0.43],[0.5471, 0.3588]]\n  },   \n  \"Memento\": {\n    \"colors\": [[0.1824,
+        0.0807],[0.1671, 0.0853],[0.1729, 0.146],[0.1554, 0.0996],[0.167, 0.0852],[0.4964,
+        0.4542]]\n  }           \n}%}\n{{scenes[scene].colors}}"
+      lights: "{% set l=[]%}\n{% if target.area_id %}\n  {% if target.area_id is iterable
+        and not target.area_id is string %}\n    {% for a in target.area_id %}\n      {%
+        set l = l + area_entities(a)|select('match', 'light.')|list %}              \n
+        \   {% endfor %}\n  {% else %}\n    {% set l = l + area_entities(target.area_id)|select('match',
+        'light.')|list %}\n  {% endif %}\n{% endif %}\n{% if target.entity_id %}\n
+        \ {% if target.entity_id is iterable and not target.entity_id is string %}\n
+        \   {% set l = l + (target.entity_id|list) %}\n  {% else %}\n    {% set l
+        = l + [target.entity_id] %}\n  {% endif %}\n{% endif %}\n\n{% if onlyonlights
+        %}\n{% set l = l| select('is_state', 'on')%}\n{% endif %}\n\n{% if skipgroups
+        %}\n{% set l|from_json %}\n[{%- for ll in l -%}\n  {%- if not state_attr(ll,
+        \"entity_id\")-%}\n  \"{{ ll }}\"\n  {%- if not loop.last-%},{%-endif-%}\n
+        \ {%-endif-%}\n{%- endfor -%}]\n{% endset %}\n{% endif %}\n\n[{%- for ll in
+        l %}\n  {%- set colormodes = state_attr(ll, \"supported_color_modes\") -%}\n
+        \ {%- if \"xy\" in colormodes -%}\n  \"{{ ll }}\"\n  {%- if not loop.last-%},{%-endif-%}\n
+        \ {%- endif -%}\n{%- endfor -%}]"
+  - repeat:
+      for_each: '{{ lights }}'
+      sequence:
+      - service: light.turn_on
+        data:
+          xy_color: '{{ colors|random}}'
+        target:
+          entity_id: '{{ repeat.item }}'
+  mode: single
+device_dyson_white_fan_power:
+  alias: Device - Dyson white fan - Power
+  sequence:
+  - service: switch.toggle
+    target:
+      entity_id:
+      - switch.dyson_fan_white
+      device_id: []
+      area_id: []
+    data: {}
+  - alias: Notify PC - C
+    if:
+    - alias: If PC is unlocked
+      condition: state
+      entity_id: sensor.a_sessionstate
+      state: Unlocked
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 0
+    then:
+    - alias: Notification - PC
+      service: notify.a
+      data_template:
+        title: Fan status
+        message: Power toggled
+      enabled: true
+    - alias: Vocal alert if headphones are used
+      if:
+      - condition: template
+        value_template: '{{  ''Headset'' in states.sensor.a_audio_default_device.state
+          }} '
+        alias: Headphones are on
+      then:
+      - service: input_number.set_value
+        data_template:
+          value: '{{ float(states(''sensor.a_currentvolume'')) }}'
+        target:
+          entity_id: input_number.pc_volume_level
+        alias: Record current PC volume level
+      - service: button.press
+        data: {}
+        target:
+          entity_id: button.a_setvolume_tts_start
+        alias: Set PC volume
+        enabled: true
+      - service: media_player.play_media
+        target:
+          entity_id: media_player.a
+        data:
+          media_content_id: media-source://media_source/local/sound/tech_close_2s_ver1.wav
+          media_content_type: audio/x-wav
+        metadata:
+          title: tech_close_2s_ver1.wav
+          thumbnail:
+          media_class: music
+          children_media_class:
+          navigateIds:
+          - {}
+          - media_content_type: app
+            media_content_id: media-source://media_source
+          - media_content_type: ''
+            media_content_id: media-source://media_source/local/sound
+  - service: input_boolean.toggle
+    target:
+      entity_id: input_boolean.device_dyson_white_fan_power_status
+    data: {}
+  mode: single
+device_dyson_white_fan_rotate:
+  alias: Device - Dyson white fan - Rotate
+  sequence:
+  - alias: 'IR Command: Dyson fan white - Rotate'
+    service: remote.send_command
+    target:
+      entity_id: remote.rm_mini3
+    data:
+      command: rotate
+      device: dyson_fan_white_model_am09
+  - service: input_boolean.toggle
+    data: {}
+    target:
+      entity_id: input_boolean.device_dyson_white_fan_rotate_status
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.a
+    data:
+      media_content_id: media-source://media_source/local/sound/mixkit-sci-fi-interface-zoom-890.wav
+      media_content_type: audio/x-wav
+    metadata:
+      title: mixkit-sci-fi-interface-zoom-890.wav
+      thumbnail:
+      media_class: music
+      children_media_class:
+      navigateIds:
+      - {}
+      - media_content_type: app
+        media_content_id: media-source://media_source
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/sound
+  mode: single
+device_dyson_white_fan_strength_up:
+  alias: Device - Dyson white fan - Strength up
+  sequence:
+  - alias: Dyson fan white increase fan
+    service: remote.send_command
+    target:
+      entity_id: remote.rm_mini3
+    data:
+      command: fan_increase
+      device: dyson_fan_white_model_am09
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.a
+    data:
+      media_content_id: media-source://media_source/local/sound/mixkit-sci-fi-interface-zoom-890.wav
+      media_content_type: audio/x-wav
+    metadata:
+      title: mixkit-sci-fi-interface-zoom-890.wav
+      thumbnail:
+      media_class: music
+      children_media_class:
+      navigateIds:
+      - {}
+      - media_content_type: app
+        media_content_id: media-source://media_source
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/sound
+  mode: single
+device_dyson_white_fan_strength_down:
+  alias: Device - Dyson white fan - Strength down
+  sequence:
+  - alias: Dyson fan white decrease fan
+    service: remote.send_command
+    target:
+      entity_id: remote.rm_mini3
+    data:
+      command: fan_decrease
+      device: dyson_fan_white_model_am09
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.a
+    data:
+      media_content_id: media-source://media_source/local/sound/mixkit-sci-fi-interface-zoom-890.wav
+      media_content_type: audio/x-wav
+    metadata:
+      title: mixkit-sci-fi-interface-zoom-890.wav
+      thumbnail:
+      media_class: music
+      children_media_class:
+      navigateIds:
+      - {}
+      - media_content_type: app
+        media_content_id: media-source://media_source
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/sound
+  mode: single
+device_dyson_white_fan_heat_toggle:
+  alias: Device - Dyson white fan - Heat toggle
+  sequence:
+  - service: remote.send_command
+    target:
+      entity_id: remote.rm_mini3
+    data:
+      device: dyson_fan_white_model_am09
+      command: heat_toggle
+    alias: Dyson fan white heat togglr
+  - service: input_boolean.toggle
+    data: {}
+    target:
+      entity_id: input_boolean.device_dyson_white_fan_heat_mode_status
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.a
+    data:
+      media_content_id: media-source://media_source/local/sound/mixkit-sci-fi-interface-zoom-890.wav
+      media_content_type: audio/x-wav
+    metadata:
+      title: mixkit-sci-fi-interface-zoom-890.wav
+      thumbnail:
+      media_class: music
+      children_media_class:
+      navigateIds:
+      - {}
+      - media_content_type: app
+        media_content_id: media-source://media_source
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/sound
+  mode: single
+alarm_c_phone_set_alarm:
+  alias: 'Alarm - C phone - Set alarm '
+  mode: restart
+  sequence:
+  - service: notify.mobile_app_phone_c
+    data:
+      message: command_activity
+      data:
+        intent_action: android.intent.action.SET_ALARM
+        intent_extras: "{% set timelist = states('input_datetime.alarm_c_phone_set_time').split(':')
+          %} {% set timehour = timelist[0] %} {% set timemin = timelist[1] %}\n  android.intent.extra.alarm.HOUR:{{
+          timehour }},android.intent.extra.alarm.MINUTES:{{ timemin }},android.intent.extra.alarm.SKIP_UI:true"
+system_update_zigbee_lqi:
+  alias: System - Update Zigbee LQI
+  sequence:
+  - service: homeassistant.update_entity
+    data: {}
+    target:
+      entity_id:
+      - sensor.ikea_of_sweden_tradfri_signal_repeater_lqi
+      - sensor.ikea_of_sweden_tradfri_signal_repeater_lqi_2
+      - sensor.ikea_of_sweden_tradfri_signal_repeater_lqi_3
+      - sensor.lumi_lumi_vibration_aq1_lqi
+      - sensor.ewelink_ms01_lqi_5
+      - sensor.ewelink_ms01_lqi_2
+      - sensor.ewelink_ms01_lqi
+      - sensor.ewelink_ms01_lqi_3
+      - sensor.ewelink_ms01_lqi_4
+      - sensor.ewelink_ms01_lqi_6
+  mode: single
+device_heater_power_toggle:
+  alias: Device - Heater - Power toggle
+  sequence:
+  - service: switch.toggle
+    data: {}
+    target:
+      entity_id: switch.heater_timer
+    alias: Send dud command (e.g. timer) to wake device if it's sleeping
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: switch.toggle
+    data: {}
+    target:
+      entity_id: switch.heater_power
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+  - service: input_boolean.toggle
+    data: {}
+    target:
+      entity_id: input_boolean.device_heater_power_status
+  - service: switch.toggle
+    data: {}
+    target:
+      entity_id: switch.heater_timer
+    alias: Add safety timer in case device left unattended
+  mode: single
+device_heater_rotate:
+  alias: Device - Heater - Rotate
+  sequence:
+  - alias: 'IR Command: Heater - Rotate'
+    service: remote.send_command
+    target:
+      entity_id: remote.rm_mini3
+    data:
+      command: rotate
+      device: heater
+  - service: input_boolean.toggle
+    data: {}
+    target:
+      entity_id: input_boolean.device_heater_rotate_status
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.a
+    data:
+      media_content_id: media-source://media_source/local/sound/mixkit-sci-fi-interface-zoom-890.wav
+      media_content_type: audio/x-wav
+    metadata:
+      title: mixkit-sci-fi-interface-zoom-890.wav
+      thumbnail:
+      media_class: music
+      children_media_class:
+      navigateIds:
+      - {}
+      - media_content_type: app
+        media_content_id: media-source://media_source
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/sound
+  mode: single
+alarm_c_phone_cancel_all_alarms:
+  sequence:
+  - service: notify.mobile_app_cancel_sleep_as_android_a
+    data:
+      message: command_broadcast_intencom.urbandroid.sleep.aom.urbandroid.sleep.alarmclock.CANCEL_ALARM
+sound_sonos_presence_alert:
+  alias: Sound - Sonos - Presence alert
+  sequence:
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.15
+    target:
+      device_id: fdf380b6e90286a33661e7e33d6ef86e
+  - service: media_player.play_media
+    target:
+      entity_id: media_player.sonos_speaker
+    data:
+      media_content_id: media-source://media_source/local/sound/tech_alert_4s_ver2.wav
+      media_content_type: audio/x-wav
+    metadata:
+      title: tech_alert_4s_ver2.wav
+      thumbnail:
+      media_class: music
+      children_media_class:
+      navigateIds:
+      - {}
+      - media_content_type: app
+        media_content_id: media-source://media_source
+      - media_content_type: ''
+        media_content_id: media-source://media_source/local/sound
+  mode: single
+'1699471930292':
+  alias: Light - Room 02 - All on (dynamic)
+  sequence:
+  - alias: Night time
+    if:
+    - alias: Night time
+      condition: time
+      after: 00:00:00
+      before: 05:59:59
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based_room_02
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 20
+        target:
+          entity_id: "{{ [\"scene.room_02_arctic_aurora\", \"scene.room_02_starlight\",
+            \"scene.room_02_moonlight\", \"scene.room_02_galaxy\", \"scene.room_02_nebula\",
+            \"scene.room_02_memento\", \"scene.room_02_resplendent\", \"scene.room_02_scarlet_dream\"]\n
+            \ | random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+        target:
+          entity_id: scene.room_02_white_late_evening
+  - alias: Morning
+    if:
+    - alias: during time period
+      condition: time
+      after: 06:00:00
+      before: 08:59:59
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based_room_02
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 100
+        target:
+          entity_id: "{{ [\"scene.room_02_adrift\", \"scene.room_02_blossom\", \"scene.room_02_lake_mist\",
+            \"scene.room_02_painted_sky\", \"scene.room_02_emerald_flutter\", \"scene.room_02_ruby_glow\",
+            \"scene.room_02_still_waters\", \"scene.room_02_majestic_morning\", \"scene.room_02_blue_lagoon\",
+            \"scene.room_02_palm_beach\", \"scene.room_02_mountain_breeze\"]\n  |
+            random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          dynamic: true
+          transition: 1
+        target:
+          entity_id: scene.room_02_beginnings
+    enabled: true
+  - alias: Day time
+    if:
+    - condition: time
+      alias: during time period
+      after: 09:00:00
+      before: '18:00:00'
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based_room_02
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 255
+        target:
+          entity_id: "{{ [\"scene.room_02_amethyst_valley\", \"scene.room_02_winter_mountain\",
+            \"scene.room_02_midwinter\", \"scene.room_02_sunflare\"]\n  | random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          dynamic: true
+          transition: 1
+          brightness: 255
+        target:
+          entity_id: scene.room_02_white_daytime
+  - alias: Evening
+    if:
+    - condition: time
+      alias: during time period
+      after: '18:00:00'
+      before: '22:00:00'
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based_room_02
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 255
+        target:
+          entity_id: "{{ [\"scene.room_02_ocean_dawn\", \"scene.room_02_lily\", \"scene.room_02_meriete\",
+            \"scene.room_02_magneto\", \"scene.room_02_rio\", \"scene.room_02_valley_dawn\"]\n
+            \ | random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          dynamic: true
+          transition: 1
+          brightness: 255
+        target:
+          entity_id: scene.room_02_white_evening
+  - alias: Evening late
+    if:
+    - condition: time
+      alias: during time period
+      after: '22:00:00'
+      before: 00:00:00
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+      - sun
+    then:
+    - if:
+      - condition: state
+        entity_id: input_boolean.lights_random_scenes_time_based_room_02
+        state: 'on'
+      then:
+      - service: hue.activate_scene
+        data:
+          transition: 1
+          dynamic: true
+          brightness: 255
+        target:
+          entity_id: "{{ [\"scene.room_02_tropical_twilight\", \"scene.room_02_rolling_hills\",
+            \"scene.room_02_dreamy_dusk\", \"scene.room_02_tokyo\", \"scene.room_02_savanna_sunset\",
+            \"scene.room_02_warm_embrace\", \"scene.room_02_cancun\", \"scene.room_02_ibiza\",
+            \"scene.room_02_pensive\", \"scene.room_02_sundown\", \"scene.room_02_lake_placid\",
+            \"scene.room_02_first_light\"]\n  | random}}\n"
+      else:
+      - service: hue.activate_scene
+        data:
+          dynamic: true
+          transition: 1
+        target:
+          entity_id: scene.room_02_white_late_evening
+  mode: single
+pc_set_ha_window_to_cover:
+  alias: PC - Set HA window to cover
+  sequence:
+  - service: browser_mod.navigate
+    data:
+      path: /50
+    target:
+      device_id: b9b256387742172d3be64972eef5f3f8
+  mode: single
+as_test_time_delay:
+  alias: As test time delay
+  sequence:
+  - if:
+    - alias: Template - If 5min has passed since last triggered
+      condition: template
+      value_template: '{{ now() - state_attr(''script.as_test_time_delay'', ''last_triggered'')
+        > timedelta(minutes=5) }}'
+    then:
+    - service: notify.mobile_app_phone_c
+      data:
+        message: Testing 123
+        title: Hello world!
+  mode: single
+01_reusable_yaml_code_templates:
+  alias: 01. Reusable YAML code & templates
+  sequence:
+  - alias: Jinja2 templates
+    if:
+    - alias: Templated conditions
+      condition: or
+      conditions:
+      - condition: template
+        value_template: '{{ states(''sensor.pm13_power'') | float >= 2 }}'
+        alias: Template - if value of ENTITY <=> NUMBER
+      - condition: template
+        value_template: "{% set start_time = state_attr('calendar.united_kingdom_eng',
+          'start_time') %} {% if start_time is string %}\n  {% set start_time = strptime(start_time.split('
+          ')[0], '%Y-%m-%d') %}\n{% endif %} {{ now().strftime('%Y-%m-%d') != start_time.strftime('%Y-%m-%d')
+          }}\n"
+        alias: returns TRUE if today is NOT a public holiday
+      - alias: Template - if TRIGGER DATA contains STRING
+        condition: template
+        value_template: '{{  ''-'' in trigger.event.data.key.remoteJid }}'
+      - alias: Template - if TRIGGER DATA matches STRING
+        condition: template
+        value_template: '{{ trigger.event.data.key.remoteJid == ''status@broadcast''
+          }}'
+      - alias: Template - if ENTITY has NOT been triggered in the last 5MIN
+        condition: template
+        value_template: '{{ now() - state_attr(''light.2nd_floor'', ''last_changed'')
+          > timedelta(minutes=5) }}'
+      - alias: Template - Camera detects no motion for atleast X min
+        condition: template
+        value_template: '{{ is_state(''binary_sensor.c08_motion'', ''off'') and now()
+          - (state_attr(''binary_sensor.c08_motion'', ''last_changed'') | default(as_datetime(0),
+          true)) > timedelta(minutes=1) }}'
+      - condition: template
+        value_template: '{{ states(''sensor.pm13_power'')|float >= 4 }}'
+        alias: Template - if POWER is being used by DEVICE
+      - condition: template
+        value_template: '{{ is_state(''input_boolean.lights_flash_sound'', ''on'')
+          }}'
+        alias: Template - If STATE is ON
+      - alias: Template - OR condition
+        condition: template
+        value_template: '{{ is_state(''input_boolean.flash_lights_active'', ''on'')
+          or is_state(''input_boolean.lights_flash_sound'', ''on'') }}'
+      - condition: template
+        value_template: '{{ states.sensor.pm13_power.state is defined }}'
+        alias: Template - if entity EXISTS
+      - condition: template
+        value_template: '{{  ''-'' not in trigger.event.data.key.remoteJid }}'
+        alias: Template - If entity DOES NOT contain X
+      - condition: template
+        value_template: '''{{ message_variable | trim != "" }}'''
+        alias: Template - if VARIABLE_STRING isn't blank (e.g. notification text)
+      - condition: template
+        value_template: '{{ not is_state(''cover.curtain_3_a659'', ''open'') }}'
+        alias: Template - If ENTITY is NOT state
+      - condition: template
+        value_template: " {{ ( now().weekday() in (0,1,2,3,4) and now().hour == 6)
+          or (\n      now().weekday() in (5,6) and now().hour == 8) }}"
+        alias: Template - If it's WEEKDAY and 6am OR WEEKEND and 8am
+      - condition: template
+        value_template: '{{ now().day == 1 }}'
+        alias: If day is first day of the month
+    then:
+    - data_template:
+        value: '{% set a = trigger.event.data.key.remoteJid  %}{{ (a.split("@")[0])
+          | replace(''447308254154'',''Enhy'') | replace(''447456628657'',''Hamish'')
+          | replace(''447710280844'',''Ghalia'') | replace(''447840843359'',''Ben'')
+          | replace(''447590262866'',''Dad'') | replace(''31642642942'',''Stephanie'')
+          | replace(''447407316613'',''Paddy'') | replace(''447932852161'',''Chris'')
+          | replace(''447889784842'',''Sam'') | replace(''447577294416'',''Lola'')
+          | replace(''447795518089'',''Charlotte'') | replace(''447875957239'',''Fiona'')
+          | replace(''447535892276'',''Renata'') | replace(''905488223385'',''Jordan'')
+          | replace(''447502349678'',''Tiana'') | replace(''447456628657'',''Hamish'')
+          }}: ⠀ {{ trigger.event.data.message.conversation }}'
+      target:
+        entity_id: input_text.whatsapp_received_text_all
+      alias: Template - Example of splitting a string
+      enabled: true
+      action: input_text.set_value
+  - alias: Alexa & Echo
+    parallel:
+    - data:
+        media_content_id: open dashboard viewer
+        media_content_type: custom
+      target:
+        entity_id: media_player.cam_s_echo_show_8
+      alias: Present HA dashboard through Echo Show 8
+      action: media_player.play_media
+    - alias: Set an alarm for 06:00
+      data:
+        media_content_id: set an alarm for six in the morning
+        media_content_type: custom
+      target:
+        entity_id:
+        - media_player.cam_s_echo_show_5
+      action: media_player.play_media
+    - alias: Alexa voice
+      parallel:
+      - alias: Alexa voice - TTS example
+        data:
+          target: media_player.cam_s_echo_show_8
+          title: My title for Echo show
+          data:
+            type: announce
+            method: all
+          message: This is a test.
+        action: notify.alexa_media
+      - alias: Alexa voice - Word styles
+        data:
+          message: "<speak>\n    <say-as interpret-as=\"interjection\">duh</say-as>.\n
+            \   <say-as interpret-as=\"interjection\">aw</say-as>.\n    <say-as interpret-as=\"interjection\">aw
+            man</say-as>.\n    <say-as interpret-as=\"interjection\">beep beep</say-as>.\n
+            \   <say-as interpret-as=\"interjection\">boo hoo</say-as>.      \n    <say-as
+            interpret-as=\"interjection\">caw</say-as>.\n    <say-as interpret-as=\"interjection\">cheerio</say-as>.\n
+            \   <say-as interpret-as=\"interjection\">choo choo</say-as>.\n    <say-as
+            interpret-as=\"interjection\">dun dun dun</say-as>.\n    <say-as interpret-as=\"interjection\">good
+            grief</say-as>.\n    <say-as interpret-as=\"interjection\">gosh</say-as>.\n
+            \   <say-as interpret-as=\"interjection\">ha</say-as>.\n    <say-as interpret-as=\"interjection\">ha
+            ha</say-as>.\n    <say-as interpret-as=\"interjection\">jeepers creepers</say-as>.\n
+            \   <say-as interpret-as=\"interjection\">ooh la la</say-as>.        \n
+            \   <say-as interpret-as=\"interjection\">now now</say-as>.\n    <say-as
+            interpret-as=\"interjection\">oy</say-as>.\n    <say-as interpret-as=\"interjection\">roger</say-as>.
+            \       \n    <say-as interpret-as=\"interjection\">righto</say-as>.  \n
+            \   <say-as interpret-as=\"interjection\">simples</say-as>.  \n    <say-as
+            interpret-as=\"interjection\">tee hee</say-as>.  \n    <say-as interpret-as=\"interjection\">tick
+            tock</say-as>.  \n    <say-as interpret-as=\"interjection\">uh huh</say-as>.
+            \ \n    <say-as interpret-as=\"interjection\">uh oh</say-as>.  \n    <say-as
+            interpret-as=\"interjection\">well well</say-as>.  \n    <say-as interpret-as=\"interjection\">woo
+            hoo</say-as>.  \n    <say-as interpret-as=\"interjection\">yadda yadda
+            yadda</say-as>.  \n</speak>"
+        action: notify.alexa_media_cam_s_echo_show_5
+      - alias: TTS - Alexa - Voice styles
+        data:
+          message: "<speak>\n    This is the normal voice. \n    <voice name=\"Brian\"><lang
+            xml:lang=\"en-GB\">This is Brian's voice.</lang></voice>.\n    <voice
+            name=\"Amy\"><lang xml:lang=\"en-GB\">This is Amy's voice.</lang></voice>.\n
+            \   <voice name=\"Emma\"><lang xml:lang=\"en-GB\">This is Emma's voice.</lang></voice>.\n
+            \   <voice name=\"Kendra\"><lang xml:lang=\"en-US\">This is Kendra's voice.</lang></voice>.\n
+            \   <voice name=\"Kimberly\"><lang xml:lang=\"en-US\">This is Kimberly's
+            voice.</lang></voice>.\n    <voice name=\"Matthew\"><lang xml:lang=\"en-US\">This
+            is Matthew's voice.</lang></voice>.\n    <voice name=\"Salli\"><lang xml:lang=\"en-US\">This
+            is Salli's voice.</lang></voice> .\n    <voice name=\"Ivy\"><lang xml:lang=\"en-US\">This
+            is Ivy's voice.</lang></voice>.\n    <voice name=\"Joanna\"><lang xml:lang=\"en-US\">This
+            is Joanna's voice.</lang></voice>.\n    <voice name=\"Joey\"><lang xml:lang=\"en-US\">This
+            is Joey's voice.</lang></voice>.\n    <voice name=\"Justin\"><lang xml:lang=\"en-US\">This
+            is Justin's voice.</lang></voice>.    \n    <voice name=\"Penelope\"><lang
+            xml:lang=\"es-US\">This is Penelope's voice.</lang></voice>.   \n    <voice
+            name=\"Lupe\"><lang xml:lang=\"en-US\">This is Lupe's voice.</lang></voice>.
+            \  \n    <voice name=\"Miguel\"><lang xml:lang=\"en-US\">This is Miguel's
+            voice.</lang></voice>.   \n    <voice name=\"Conchita\"><lang xml:lang=\"es-ES\">This
+            is Conchita's voice.</lang></voice>.\n    <voice name=\"Enrique\"><lang
+            xml:lang=\"es-ES\">This is Enrique's voice.</lang></voice>.\n    <voice
+            name=\"Lucia\"><lang xml:lang=\"es-ES\">This is Lucia's voice.</lang></voice>.\n</speak>"
+        action: notify.alexa_media_cam_s_echo_show_8
+      - alias: Alexa voice - Whisper mode
+        data:
+          message: <amazon:effect name='whispered'>{{'Hello world'}}</amazon:effect>
+        action: notify.alexa_media_cam_s_echo_show_5
+      - alias: Alexa voice - Speech volume
+        data:
+          message: <speak>I can speak <prosody volume="x-loud">very loudly</prosody>,
+            or I can speak <prosody volume="x-soft">very quietly</prosody>. </speak>
+        action: notify.alexa_media_cam_s_echo_show_5
+      - alias: Alexa voice - Speech pitch
+        data:
+          message: <speak>I can speak in a <prosody pitch="high">higher pitched voice</prosody>,
+            or I can speak <prosody pitch="low">in a lower pitched voice</prosody></speak>
+        action: notify.alexa_media_cam_s_echo_show_5
+      - alias: Alexa voice - Speech speed
+        data:
+          message: <speak>I can speak <prosody rate="x-slow">really slowly</prosody>,
+            or  I can speak <prosody rate="x-fast">really fast</prosody></speak>
+        action: notify.alexa_media_cam_s_echo_show_5
+      - alias: Alexa voice - Spell out words
+        data:
+          message: <say-as interpret-as="characters">hello</say-as>
+        action: notify.alexa_media_cam_s_echo_show_5
+    - alias: Alexa voice AND sound effect
+      data:
+        message: "<speak>   \n  <audio src=\"soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02\"/>\n
+          \ Eny has reached East Croydon train station. <say-as interpret-as=\"interjection\">choo
+          choo</say-as>.        \n</speak>"
+      action: notify.alexa_media_cam_s_echo_show_8
+    - parallel:
+      - alias: Alexa Sound - Error short
+        data:
+          message: '<audio src="soundbank://soundlibrary/musical/amzn_sfx_buzz_electronic_01"/>  '
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Error long
+        data:
+          message: <audio src="soundbank://soundlibrary/scifi/amzn_sfx_scifi_alarm_06"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Tone high soft
+        data:
+          message: '<audio src="soundbank://soundlibrary/alarms/beeps_and_bloops/tone_05"/>   '
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Tone high solid
+        data:
+          message: '<audio src="soundbank://soundlibrary/musical/amzn_sfx_electronic_beep_01"/>   '
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Tone dual solid
+        data:
+          message: '<audio src="soundbank://soundlibrary/musical/amzn_sfx_electronic_beep_02"/> '
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Rayman chime
+        data:
+          message: <audio src="soundbank://soundlibrary/alarms/chimes_and_bells/chimes_bells_04"/>
+          data:
+            type: tts
+          target: media_player.cam_s_4g_white_dot
+        action: notify.alexa_media
+      - alias: Alexa Sound - Doorbell
+        data:
+          message: <audio src="soundbank://soundlibrary/home/amzn_sfx_doorbell_chime_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Radar low
+        data:
+          message: '<audio src="soundbank://soundlibrary/scifi/amzn_sfx_scifi_sonar_ping_4x_01"/>    '
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Radar medium
+        data:
+          message: '<audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_10"/> '
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Radar high
+        data:
+          message: '<audio src="soundbank://soundlibrary/scifi/amzn_sfx_scifi_radar_high_ping_01"/>  '
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Timer 32s ver1
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_countdown_loop_32s_full_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Timer 32s ver2
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_waiting_loop_30s_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Timer 64s ver1
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_countdown_loop_64s_minimal_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Timer 64s ver2
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_countdown_loop_64s_full_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Intro fantasy
+        data:
+          message: '<audio src="soundbank://soundlibrary/alarms/beeps_and_bloops/intro_02"/>  '
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Intro gameshow
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_intro_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Complete gameshow
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_outro_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Correct gameshow 1
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_tally_positive_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Correct gameshow 2
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Notification gameshow 1
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Notification gameshow 2
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_bridge_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Notification gameshow 3
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_bridge_02"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Notification sci-fi 1
+        data:
+          message: <audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_08"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - Notification sci-fi 2
+        data:
+          message: <audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_09"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - 1 dot quick
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound -3 dots quick
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_03"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - joke fast
+        data:
+          message: <audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_12"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: TTS - Alexa - Whisper
+        data:
+          message: <amazon:effect name='whispered'>{{'Eny has finished work'}}</amazon:effect>
+        action: notify.alexa_media_cam_s_echo_show_8
+      - data:
+          message: <speak>     <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02"/>  It's
+            getting dark outside. I'll close the curtains.     </speak>
+        action: notify.alexa_media_cam_s_3g_white_dot
+      - alias: Alexa Sound - 1 dot alt
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_neutral_response_02"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - 1 dot success
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - 1 dot 2nd alt
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_player4_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      - alias: Alexa Sound - 1 dot 3rd alt
+        data:
+          message: <audio src="soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_player3_01"/>
+          data:
+            type: tts
+          target: media_player.cam_s_echo_show_8
+        action: notify.alexa_media
+      alias: Alexa sound effects
+    - data:
+        media_content_id: turn your screen off
+        media_content_type: custom
+      target:
+        entity_id:
+        - media_player.cam_s_echo_show_5
+        - media_player.cam_s_echo_show_8
+        - media_player.echo_show_15
+      alias: Turn multiple Show screens off
+      action: media_player.play_media
+  - alias: Phone
+    parallel:
+    - data:
+        message: command_activity
+        data:
+          intent_action: android.intent.action.SET_ALARM
+          intent_extras: "{% set timelist = states('input_datetime.alarm_c_phone_set_time').split(':')
+            %} {% set timehour = timelist[0] %} {% set timemin = timelist[1] %}\n
+            \ android.intent.extra.alarm.HOUR:{{ timehour }},android.intent.extra.alarm.MINUTES:{{
+            timemin }},android.intent.extra.alarm.SKIP_UI:true"
+      alias: Set phone clock alarm (via notification)
+      action: notify.mobile_app_phone_c
+    - data:
+        data:
+          tag: tempbuzzer
+        title: buzzer
+        message: buzzer
+      alias: Buzz phone (via notification, uses Routines app on phone)
+      action: notify.mobile_app_phone_c
+    - alias: Sending and removing notifications
+      if:
+      - condition: state
+        entity_id: person.apple
+        state: home
+        alias: '[placeholder to allow sequence structure, the below actions are in
+          the correct order]'
+      then:
+      - data:
+          title: cancel all alarms
+          data:
+            tag: tempcancelalarms
+        alias: Send initial notification
+        action: notify.mobile_app_phone_c
+      - delay: 00:00:01
+        alias: Delay for X
+      - data:
+          message: clear_notification
+          data:
+            tag: tempcancelalarms
+        alias: Send removal command
+        action: notify.mobile_app_phone_c
+    - data:
+        message: command_launch_app
+        data:
+          package_name: com.pg.oralb.oralbapp
+      alias: Open an app on phone (Example uses Oral B app)
+      action: notify.mobile_app_phone_c
+    - alias: Emergency critical alert for android phone (TTS, ignores volume settings)
+      parallel:
+      - data:
+          message: TTS
+          data:
+            ttl: 0
+            color: '#ff79c6'
+            sticky: 'true'
+            persistent: true
+            notification_icon: mdi:phone-check
+            tag: phone_finder_sound
+            vibrationPattern: 100, 100, 100, 100, 100
+            timeout: 15
+            visibility: public
+            priority: high
+            media_stream: alarm_stream_max
+            tts_text: Beep  beep! Beep beep! Your phone is over here! Beep beep! Beep
+              beep! Your phone is over here!
+          title: Phone finder
+        action: notify.mobile_app_phone_c
+      - data:
+          title: Wake up!
+          message: TTS
+          data:
+            ttl: 0
+            priority: high
+            media_stream: alarm_stream_max
+            tts_text: Beep  beep!
+        action: notify.mobile_app_phone_c
+    - alias: Change phone ringer mode
+      parallel:
+      - data:
+          message: command_ringer_mode
+          data:
+            command: vibrate
+        alias: 'Change phone''s ringer mode to:  VIBRATE'
+        action: notify.mobile_app_phone_c
+      - data:
+          message: command_ringer_mode
+          data:
+            command: normal
+        alias: 'Change phone''s ringer mode to:  LOUD'
+        action: notify.mobile_app_phone_c
+      - alias: 'Change phone''s ringer mode to:  SILENT'
+        data:
+          message: command_ringer_mode
+          data:
+            command: silent
+        action: notify.mobile_app_phone_e
+    - data:
+        message: request_location_update
+      alias: Request GPS location update
+      action: notify.mobile_app_phone_c
+    - data:
+        message: command_update_sensors
+      alias: Request sensor update
+      action: notify.mobile_app_phone_e
+    - alias: All notification options
+      metadata: {}
+      data:
+        data:
+          ttl: 0
+          priority: high
+          media_stream: alarm_stream_max
+          channel: alarm_stream
+          confirmation: true
+          actions:
+          - action: 'yes'
+            title: 'Yes'
+          - action: 'no'
+            title: Not yet
+          color: '#ff79c6'
+          sticky: 'true'
+          persistent: true
+          notification_icon: mdi:dance-pole
+          tag: example_tag
+          vibrationPattern: 100, 100, 100, 100, 100
+          timeout: 60
+          car_ui: true
+          visibility: public
+        message: 'This is a <b><span style="color: red">HTML</span></b> <i>text</i><br><br>This
+          is a text after a new line
+
+          '
+        title: Testing message
+      action: notify.mobile_app_phone_c
+    - alias: 'Notification - List items in shopping list (no prefix) '
+      if: []
+      then:
+      - target:
+          entity_id: todo.shop_list
+        response_variable: mylist
+        data:
+          status: needs_action
+        action: todo.get_items
+      - data:
+          data:
+            ttl: 0
+            priority: high
+            media_stream: alarm_stream_max
+            channel: alarm_stream
+            confirmation: true
+            color: '#202334'
+            sticky: 'true'
+            persistent: true
+            notification_icon: mdi:cart
+            tag: shopping_list
+            vibrationPattern: 100, 1000, 100, 1000, 100
+            timeout: 1200
+            car_ui: true
+            visibility: public
+          title: Shopping list
+          message: "<p> </p>\n{%- for item in mylist['todo.shop_list']['items'] %}\n
+            \ {{ item.summary }}\n{%- endfor %}\n"
+        action: notify.mobile_app_phone_c
+      enabled: true
+    - alias: 'Test - List items in shopping list (no prefix) '
+      if: []
+      then:
+      - target:
+          entity_id: todo.shop_list
+        response_variable: mylist
+        data: {}
+        action: todo.get_items
+      - data:
+          data:
+            ttl: 0
+            priority: high
+            media_stream: alarm_stream_max
+            channel: alarm_stream
+            confirmation: true
+            color: '#202334'
+            sticky: 'true'
+            persistent: true
+            notification_icon: mdi:cart
+            tag: shopping_list
+            vibrationPattern: 100, 1000, 100, 1000, 100
+            timeout: 3600
+            car_ui: true
+            visibility: public
+          title: Shopping list
+          message: "<p> </p>\n{%- for item in mylist['todo.shop_list']['items'] %}\n
+            \ &nbsp;•&nbsp;&nbsp; {{ item.summary }}\n{%- endfor %}\n"
+        action: notify.mobile_app_phone_c
+      enabled: true
+  - alias: Computer
+    parallel:
+    - alias: Notification popup on PC
+      data:
+        title: Hello world
+        message: The sun is {% if is_state('sun.sun', 'above_horizon') %}up{% else
+          %}down{% endif %} right now.
+        data:
+          image: https://ichef.bbci.co.uk/news/976/cpsprodpb/4694/production/_130386081_whatsubject.jpg.webp
+      enabled: true
+      action: notify.a
+    - if:
+      - condition: template
+        value_template: '{{  ''Headset'' in states.sensor.a_audio_default_device.state
+          }} '
+        alias: 'If headphones are in use '
+      then: []
+  - alias: Frontend dashboard
+    parallel:
+    - data_template:
+        deviceID: '{{ deviceID }}'
+        card_mod:
+          style:
+            ha-dialog$: "div.mdc-dialog div.mdc-dialog__scrim {\n   background: rgba(0,
+              0, 0, 0.6);\n   backdrop-filter: blur(8px); pointer-events: auto;\n}
+              \     \n"
+        dismissable: true
+        content:
+          type: vertical-stack
+          cards:
+          - type: custom:gap-card
+            height: 170
+          - type: custom:mushroom-template-card
+            no_card: false
+            entity: person.cam
+            triggers_update: all
+            layout: vertical
+            show_icon: false
+            primary: '{{now().strftime(''%I'').lstrip(''0'')}}:{{now().strftime(''%M'')}}
+
+              {{(now().strftime(''%p'') | lower )}}
+
+              '
+            secondary: '{{ now().strftime(''%a'') }}, {{ now().strftime(''%d'') |
+              replace(" 0", "") }} {{ now().strftime(''%B'') }}
+
+              '
+            card_mod:
+              style: "ha-card {                     \n  background-color: rgba(36,
+                46, 58, 1) !important;      \n  }      \n:host {   \n --mush-card-primary-font-size:
+                62px;       \n --mush-card-secondary-font-size: 31px;            \n
+                --primary-text-color: var(--contrast17);\n --secondary-text-color:
+                var(--contrast8);    \n --mush-card-primary-font-weight: light;\n
+                --mush-card-secondary-font-weight: light;    \n --mush-icon-size:
+                0px;     \n}\n"
+      alias: Popup example (for all devices)
+      action: browser_mod.popup
+  mode: single
+  icon: fapro:duotone_code
+'1704345695698':
+  alias: Structure - Curtains - Open
+  sequence:
+  - alias: Open curtains
+    if:
+    - condition: template
+      value_template: '{{ is_state(''input_boolean.curtain_quietdrift_mode'', ''on'')
+        }}'
+      alias: 'Check if quiet-mode is: ON'
+    then:
+    - service: rest_command.curtain_sbapi_setposition_quiet
+      data:
+        position: 1
+      alias: 'Open curtains using mode: QUIETDRIFT'
+    - repeat:
+        count: 6
+        sequence:
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 30
+            milliseconds: 0
+        - service: homeassistant.update_entity
+          data: {}
+          target:
+            entity_id: sensor.curtain_position
+    else:
+    - if:
+      - condition: template
+        value_template: '{{ is_state(''input_boolean.curtain_quietdrift_mode'', ''off'')
+          }}'
+        alias: 'Check if quiet-mode is: OFF'
+      then:
+      - service: cover.open_cover
+        metadata: {}
+        data: {}
+        target:
+          entity_id: cover.curtain_3_a659
+        alias: 'Open curtains using mode: NORMAL'
+  mode: single
+'1704455948337':
+  alias: Structure - Curtains - Close
+  sequence:
+  - delay: 00:00:02
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.curtain_quietdrift_mode
+        state: 'on'
+      sequence:
+      - data:
+          position: 99
+        action: rest_command.curtain_sbapi_setposition_quiet
+      - repeat:
+          count: 6
+          sequence:
+          - delay: 00:00:30
+          - target:
+              entity_id: sensor.curtain_position
+            action: homeassistant.update_entity
+    default:
+    - target:
+        entity_id: cover.curtain_3_a659
+      action: cover.close_cover
+  mode: single
+aaa_temp_script_e_lights_slow_dim_to_off:
+  alias: aaa - temp script - E lights slow dim to off
+  sequence:
+  - service: light.turn_off
+    metadata: {}
+    data:
+      transition: 300
+    target:
+      entity_id: light.room_02
+  mode: single
+light_activate_energise_scene:
+  alias: 'Light - Activate energise scene '
+  description: Temporary script to enable dashboard light button to turn on the Energize
+    scene
+  sequence:
+  - if:
+    - condition: state
+      entity_id: light.bedroom
+      state: 'off'
+    then:
+    - service: hue.activate_scene
+      metadata: {}
+      data:
+        dynamic: true
+        brightness: 255
+        transition: 1
+      target:
+        entity_id: scene.bedroom_energise
+    else:
+    - service: light.turn_off
+      metadata: {}
+      data:
+        transition: 1
+      target:
+        entity_id: light.bedroom
+  mode: single
+device_govee_heater_api_control:
+  alias: Device - Govee Heater - API control
+  sequence:
+  - service: rest_command.rest_govee_appliance
+    data:
+      device: '{{ device_id or ''FD:67:60:74:F4:30:0C:7E'' }}'
+      model: '{{ model or ''H713B'' }}'
+      cmd_name: mode
+      cmd_value: '4'
+    alias: 'Mode: FAN'
+  - alias: 'Mode: HEAT - LOW'
+    service: rest_command.rest_govee_appliance
+    data:
+      device: '{{ device_id or ''FD:67:60:74:F4:30:0C:7E'' }}'
+      model: '{{ model or ''H713B'' }}'
+      cmd_name: mode
+      cmd_value: '1'
+  - alias: 'Mode: HEAT - MEDIUM'
+    service: rest_command.rest_govee_appliance
+    data:
+      device: '{{ device_id or ''FD:67:60:74:F4:30:0C:7E'' }}'
+      model: '{{ model or ''H713B'' }}'
+      cmd_name: mode
+      cmd_value: '2'
+  - alias: 'Mode: HEAT - HIGH'
+    service: rest_command.rest_govee_appliance
+    data:
+      device: '{{ device_id or ''FD:67:60:74:F4:30:0C:7E'' }}'
+      model: '{{ model or ''H713B'' }}'
+      cmd_name: mode
+      cmd_value: '3'
+  - alias: 'Mode: OFF'
+    service: rest_command.rest_govee_appliance
+    data:
+      device: '{{ device_id or ''FD:67:60:74:F4:30:0C:7E'' }}'
+      model: '{{ model or ''H713B'' }}'
+      cmd_name: turn
+      cmd_value: 'off'
+  - alias: 'Mode: HEAT - MANUAL'
+    service: rest_command.rest_govee_appliance
+    data:
+      device: FD:67:60:74:F4:30:0C:7E
+      model: H713B
+      cmd_name: turn
+      cmd_value: 'off'
+  - alias: 'Mode: HEAT - ROTATE TEST'
+    service: rest_command.rest_govee_appliance
+    data:
+      device: FD:67:60:74:F4:30:0C:7E
+      model: H713B
+      cmd_name: turn
+      cmd_value: 'off'
+  - alias: 'Mode: HEAT - Lvl 3'
+    service: rest_command.rest_govee_appliance
+    data:
+      device: FD:67:60:74:F4:30:0C:7E
+      model: H713B
+      cmd_name: mode
+      cmd_value: 3
+  - alias: 'Mode: HEAT - FAN MODE'
+    service: rest_command.rest_govee_appliance
+    data:
+      device: FD:67:60:74:F4:30:0C:7E
+      model: H713B
+      cmd_name: mode
+      cmd_value: 4
+  - alias: 'Mode: HEAT - OFF'
+    service: rest_command.rest_govee_appliance
+    data:
+      device: FD:67:60:74:F4:30:0C:7E
+      model: H713B
+      cmd_name: turn
+      cmd_value: 'off'
+  mode: single
+  icon: fapro:duotone_fire
+structure_blinds_control:
+  alias: Structure - Blinds control
+  sequence:
+  - service: number.set_value
+    metadata: {}
+    data:
+      value: '0'
+    target:
+      entity_id: number.blinds_left_number_current_position
+    alias: 'LEFT side: OPEN'
+  - alias: 'LEFT side: CLOSE'
+    service: number.set_value
+    metadata: {}
+    data:
+      value: '100'
+    target:
+      entity_id: number.blinds_left_number_current_position
+  - alias: 'RIGHT side: CLOSE'
+    service: number.set_value
+    metadata: {}
+    data:
+      value: '0'
+    target:
+      entity_id: number.blinds_right_number_current_position
+  - alias: 'RIGHT side: OPEN'
+    service: number.set_value
+    metadata: {}
+    data:
+      value: '100'
+    target:
+      entity_id: number.blinds_right_number_current_position
+  - alias: 'BOTH sides: OPEN'
+    parallel:
+    - alias: 'RIGHT side: OPEN'
+      service: number.set_value
+      metadata: {}
+      data:
+        value: '100'
+      target:
+        entity_id: number.blinds_right_number_current_position
+    - service: number.set_value
+      metadata: {}
+      data:
+        value: '0'
+      target:
+        entity_id: number.blinds_left_number_current_position
+      alias: 'LEFT side: OPEN'
+  - alias: 'BOTH sides: CLOSE'
+    parallel:
+    - alias: 'RIGHT side: CLOSE'
+      service: number.set_value
+      metadata: {}
+      data:
+        value: '0'
+      target:
+        entity_id: number.blinds_right_number_current_position
+    - alias: 'LEFT side: CLOSE'
+      service: number.set_value
+      metadata: {}
+      data:
+        value: '100'
+      target:
+        entity_id: number.blinds_left_number_current_position
+  mode: single
+timer_dashboard_timer:
+  alias: Timer - Dashboard timer
+  sequence:
+  - service: timer.start
+    data:
+      duration:
+        minutes: '{{ states(''input_number.test_time'')}}'
+    target:
+      entity_id: timer.test_timer
+  mode: single
+  icon: fapro:duotone_hourglass_half
+shopping_list_notification:
+  alias: Shopping list notification
+  sequence:
+  - service: notify.mobile_app_phone_e
+    metadata: {}
+    data:
+      title: Shopping list
+      message: Press to open
+      data:
+        actions:
+        - action: URI
+          title: Show list
+          uri: /todo?entity_id=todo.shop_list
+        ttl: 0
+        priority: high
+  mode: single
+'1713529804076':
+  alias: New Script
+  sequence:
+  - service: todo.get_items
+    target:
+      entity_id: todo.shop_list
+    response_variable: mylist
+    data:
+      status: needs_action
+  - service: input_text.set_value
+    data:
+      value: "{%- for item in mylist['todo.hass_ideas']['items'] %}\n  {{ item.summary
+        }}\n{%- endfor %}\n"
+    target:
+      entity_id: input_text.shopping_list
+shopping_list_phone_notification:
+  alias: Shopping list phone notification
+  sequence:
+  - service: todo.get_items
+    target:
+      entity_id: todo.shop_list
+    response_variable: mylist
+    data:
+      status: needs_action
+  - service: notify.mobile_app_phone_c
+    data:
+      data:
+        ttl: 0
+        priority: high
+        media_stream: alarm_stream_max
+        channel: alarm_stream
+        confirmation: true
+        color: '#5daeea'
+        sticky: 'true'
+        persistent: true
+        notification_icon: mdi:cart
+        tag: shopping_list
+        vibrationPattern: 100, 1000, 100, 1000, 100
+        timeout: 1200
+        car_ui: true
+        visibility: public
+      title: Shopping list
+      message: "Things to buy: <p> </p>\n{%- for item in mylist['todo.shop_list']['items']
+        %}\n  {{ item.summary }}\n{%- endfor %}\n"
+  mode: single
+  icon: fapro:solar_cart_large_2_bold_11
+persistent_notification_reminder:
+  alias: Persistent notification reminder
+  sequence:
+  - service: persistent_notification.create
+    metadata: {}
+    data:
+      notification_id: c_reminder
+      title: FOR CAM
+      message: 'The solar icom set to dl:  https://github.com/480-Design/Solar-Icon-Set/tree/main/icons/SVG'
+  mode: single
+'1714460343197':
+  alias: Cancel All and Ringing Alarms on Phone C
+  sequence:
+  - service: notify.mobile_app_phone_c
+    data:
+      message: request
+      data:
+        action: com.urbandroid.sleep.alarmclock.ALARM_DISMISS
+        tag: alarm_c_cancel_all
+  - service: notify.mobile_app_phone_c
+    data:
+      message: request
+      data:
+        action: com.urbandroid.sleep.alarmclock.ALARM_ALERT_DISMISS
+        tag: alarm_c_dismiss_ringing
+  mode: single
+  icon: mdi:alarm-off
+'1715486674147':
+  alias: Toggle Camera Day/Night Mode
+  sequence:
+  - variables:
+      cameras:
+      - select.c09_day_night_mode
+      - select.c08_day_night_mode
+  - repeat:
+      count: '{{ cameras | length }}'
+      sequence:
+      - target:
+          entity_id: '{{ cameras[repeat.index - 1] }}'
+        data:
+          option: "{% if is_state(cameras[repeat.index - 1], 'blackwhite') %}\n  color\n{%
+            else %}\n  blackwhite\n{% endif %}\n"
+        action: select.select_option
+show_toast:
+  alias: Show Toast
+  mode: restart
+  sequence:
+  - variables:
+      queue: "{% set json = states('input_text.toast_messages') %} {% if json and
+        json not in ['unknown', ''] %}\n  {{ json | from_json }}\n{% else %}\n  []\n{%
+        endif %}\n"
+      first_message: '{{ queue[0] if queue | length > 0 else none }}'
+  - condition: template
+    value_template: '{{ first_message is not none }}'
+  - service: browser_mod.toast
+    data:
+      message: '{{ first_message[''message''] }}'
+      duration: '{{ first_message[''duration''] }}'
+      style:
+        background: rgba(0,0,0,0.8)
+        color: white
+        right: 16px
+        bottom: 16px
+  - delay: '{{ first_message[''duration''] | int / 1000 }}'
+  - service: input_text.set_value
+    target:
+      entity_id: input_text.toast_messages
+    data:
+      value: '{{ queue[1:] | to_json }}'
+  - condition: template
+    value_template: '{{ queue | length > 1 }}'
+  - service: script.show_toast
+    data: {}
+alerts_room_alert_backup:
+  alias: Alerts - Room alert (backup)
+  sequence:
+  - if:
+    - condition: template
+      value_template: '{{ is_state(alert_light_entity, ''on'') }}'
+    then:
+    - alias: Log pre-alert light state
+      service: scene.create
+      data:
+        scene_id: '{{ alert_scene_name or ''light_state_before_flash'' }}'
+        snapshot_entities: '{{ alert_light_entity or ''light.bedroom'' }}'
+    - alias: Delay (prevents snapshot conflicts)
+      delay:
+        milliseconds: 500
+    - alias: Trigger room alert
+      parallel:
+      - alias: Play sound through a media device
+        if:
+        - condition: template
+          value_template: '{{ is_state(''input_boolean.room_alert_sound_mode'', ''on'')
+            }}'
+          alias: Test if sound alerts are enabled (checks frontend Boolean)
+        then:
+        - service: media_player.play_media
+          target:
+            entity_id: '{{ alert_sound_device or ''media_player.sonos_speaker'' }}'
+          data:
+            media_content_id: media-source://media_source/local/sound/{{ alert_sound_file
+              or 'tech_click_4s_ver4.wav' }}
+            media_content_type: audio/x-wav
+          metadata:
+            title: '{{ alert_sound_file or ''tech_click_4s_ver4.wav'' }}'
+            thumbnail:
+            media_class: music
+            children_media_class:
+            navigateIds:
+            - {}
+            - media_content_type: app
+              media_content_id: media-source://media_source
+            - media_content_type: ''
+              media_content_id: media-source://media_source/local/sound
+      - alias: Coloured flash of lights
+        if:
+        - condition: template
+          value_template: '{{ is_state(''input_boolean.room_alert_flash_mode'', ''on'')
+            }}'
+          alias: If flash-mode is enabled
+        then:
+        - alias: Flash lights (respects dim-mode)
+          if:
+          - condition: template
+            value_template: '{{ is_state(''input_boolean.room_alert_dim_mode_mode'',
+              ''on'') }}'
+            alias: If dim-mode is enabled
+          then:
+          - alias: Trigger flash (dimmed)
+            service: light.turn_on
+            data:
+              color_name: '{{ alert_flash_color or ''green'' }}'
+              brightness_pct: 10
+            target:
+              entity_id: '{{ alert_light_entity or ''light.bedroom'' }}'
+          else:
+          - alias: Trigger flash (bright)
+            service: light.turn_on
+            data:
+              color_name: '{{ alert_flash_color or ''green'' }}'
+              brightness_pct: 100
+            target:
+              entity_id: '{{ alert_light_entity or ''light.bedroom'' }}'
+    - alias: Delay (determines flash-length)
+      delay: '{{ alert_flash_duration or ''00:00:01'' }}'
+    - alias: Revert lights to pre-alert state
+      service: scene.turn_on
+      data: {}
+      target:
+        entity_id: scene.{{ alert_scene_name or 'light_state_before_flash' }}
+    else:
+    - if:
+      - condition: template
+        value_template: '{{ is_state(alert_light_entity, ''off'') }}'
+      then:
+      - alias: Activate flash & sound (conditionally)
+        parallel:
+        - alias: Play sound through a media device
+          if:
+          - condition: template
+            value_template: '{{ is_state(''input_boolean.room_alert_sound_mode'',
+              ''on'') }}'
+            alias: Test if sound alerts are enabled (checks frontend Boolean)
+          then:
+          - service: media_player.play_media
+            target:
+              entity_id: '{{ alert_sound_device or ''media_player.sonos_speaker''
+                }}'
+            data:
+              media_content_id: media-source://media_source/local/sound/{{ alert_sound_file
+                or 'tech_click_4s_ver4.wav' }}
+              media_content_type: audio/x-wav
+            metadata:
+              title: '{{ alert_sound_file or ''tech_click_4s_ver4.wav'' }}'
+              thumbnail:
+              media_class: music
+              children_media_class:
+              navigateIds:
+              - {}
+              - media_content_type: app
+                media_content_id: media-source://media_source
+              - media_content_type: ''
+                media_content_id: media-source://media_source/local/sound
+        - alias: Flash lights
+          if:
+          - condition: template
+            value_template: '{{ is_state(''input_boolean.room_alert_flash_mode'',
+              ''on'') }}'
+            alias: If flash-mode is enabled
+          then:
+          - alias: Flash lights (respects dim-mode)
+            if:
+            - condition: template
+              value_template: '{{ is_state(''input_boolean.room_alert_dim_mode_mode'',
+                ''on'') }}'
+              alias: If dim-mode is enabled
+            then:
+            - alias: Flash lights (dimmed)
+              service: light.turn_on
+              data:
+                color_name: '{{ alert_flash_color or ''green'' }}'
+                brightness_pct: 10
+              target:
+                entity_id: '{{ alert_light_entity or ''light.bedroom'' }}'
+            else:
+            - alias: Flash lights (bright)
+              service: light.turn_on
+              data:
+                color_name: '{{ alert_flash_color or ''green'' }}'
+                brightness_pct: 100
+              target:
+                entity_id: '{{ alert_light_entity or ''light.bedroom'' }}'
+      - alias: Delay (delay-length determines duration of the flash)
+        delay: '{{ alert_flash_duration or ''00:00:01'' }}'
+      - alias: Turn off lights
+        service: light.turn_off
+        data: {}
+        target:
+          entity_id: '{{ alert_light_entity or ''light.bedroom'' }}'
+  - delay:
+      seconds: 2
+  description: The Room Alert system is a method of notifying occupants of a specified
+    room when various events occur.
+  mode: queued
+  icon: fapro:duotone_light_emergency_on
+  variables:
+    alert_light_entity: '{{ light_entity | lower or ''light.bedroom'' }}'
+    alert_flash_color: '{{ flash_color | lower or ''blue'' }}'
+    alert_flash_duration: '{{ flash_duration or ''00:00:01'' }}'
+    alert_sound_file: '{{ sound_file or ''tech_click_4s_ver4.wav'' }}'
+    alert_sound_device: '{{ sound_device or ''media_player.sonos_speaker'' }}'
+    alert_tts_message: '{{ tts_message or ''Room alert has just been triggered.''
+      }}'
+    alert_notification_text: '{{ notification_text or ''Room alert has just been triggered!''
+      }}'
+    alert_notification_title: '{{ notification_title | upper or ''ALERT'' }}'
+    alert_scene_name: '{{ scene_name | lower or ''light_state_before_flash'' }}'
+  max: 10
+alexa_set_silent_alarm:
+  alias: Set Silent Alarm on Echo Show 15
+  sequence:
+  - alias: Set alarm
+    data:
+      media_content_id: set an alarm for 9am on Echo Show 15
+      media_content_type: custom
+    target:
+      entity_id:
+      - media_player.cam_s_echo_flex
+    action: media_player.play_media
+  - alias: Cancel all alarms
+    data:
+      media_content_id: cancel all alarms on Echo Show 15
+      media_content_type: custom
+    target:
+      entity_id:
+      - media_player.cam_s_echo_flex
+    action: media_player.play_media
+  - alias: Turn screen off
+    data:
+      media_content_id: turn your screen off
+      media_content_type: custom
+    action: media_player.play_media
+    target:
+      entity_id: media_player.echo_show_15
+  - alias: stop
+    data:
+      media_content_id: stop
+      media_content_type: custom
+    target:
+      entity_id:
+      - media_player.echo_show_15
+    action: media_player.play_media
+  mode: single
+ai_ask_about_c07_view:
+  alias: AI - Ask about C07 view
+  sequence:
+  - action: llmvision.stream_analyzer
+    data:
+      remember: false
+      duration: 2
+      max_frames: 3
+      include_filename: false
+      target_width: 1280
+      max_tokens: 100
+      temperature: 0.2
+      provider: 01JGCADAG52GEGWZGPST01164A
+      message: 'The security camera is positioned on floor 01 (first floor). It shows
+        two staircases: the "lower stairs" on the right descend to the ground floor,
+        where there''s a door to the lounge at the bottom right, and the house door
+        further ahead. The "upper stairs" on the left ascend to floor 02. On floor
+        01 itself, moving clockwise from the top right, there are five doors leading
+        to: the study, bathroom, boiler room, sitting room, and twin bedroom. There
+        are two white Westie dogs in the house. In a single concise sentence, describe
+        any people or dogs entering/exiting which room or going up/down which stairs.
+        If you see no movement, say "false_alarm". Don''t describe the timestamp or
+        the the lighting condition.'
+      image_entity:
+      - camera.c08_clear
+      generate_title: true
+      expose_images: true
+    response_variable: response
+  - data:
+      title: Motion
+      message: '{{ response.response_text }}'
+    action: rest_command.send_hass_agent_notification
+  description: ''
+  icon: fapro:duotone_comments_question_check
+notifications_c_devices:
+  alias: Motion/Presence Alert with Volume Control
+  description: Alerts on motion or presence by adjusting volume and playing a specific
+    sound.
+  fields:
+    volume_scene_name:
+      description: Name of the volume scene to revert to
+      example: volume_scene
+    media_player_id:
+      description: ID of the media player to use for the alert
+      example: media_player.sonos_speaker
+    trigger_id:
+      description: Trigger ID to determine the alert media
+      example: door_alert
+  variables:
+    volume_scene: '{{ volume_scene_name | default(''volume_scene'') }}'
+    media_player_entity: '{{ media_player_id | default(''media_player.sonos_speaker'')
+      }}'
+    alert_media: "{% if trigger_id == 'door_alert' %}\n  media-source://media_source/local/sound/config_www_sound_timer.mp3\n{%
+      else %}\n  media-source://media_source/local/sound/tech_open_3s_ver3.wav\n{%
+      endif %}\n"
+  sequence:
+  - alias: Log Pre-Alert Volume State
+    data:
+      scene_id: '{{ volume_scene }}'
+      snapshot_entities: '{{ media_player_entity }}'
+    action: scene.create
+  - alias: Delay to Prevent Snapshot Conflicts
+    delay:
+      seconds: 1
+  - alias: Set Volume and Play Alert
+    sequence:
+    - target:
+        entity_id: '{{ media_player_entity }}'
+      data:
+        volume_level: 0.2
+      action: media_player.volume_set
+    - target:
+        entity_id: '{{ media_player_entity }}'
+      data:
+        media_content_id: '{{ alert_media }}'
+        media_content_type: audio/x-wav
+      action: media_player.play_media
+  - alias: Wait for Media to Finish
+    wait_template: '{{ is_state(media_player_entity, ''idle'') }}'
+    timeout: 00:10:00
+    continue_on_timeout: true
+  - alias: Revert to Previous Volume
+    target:
+      entity_id: '{{ volume_scene }}'
+    action: scene.turn_on
+analyse_front_door:
+  alias: Analyse Front Door
+  sequence:
+  - data:
+      provider: OpenAI
+      detail: high
+      temperature: 0.4
+      message: '{{ states(''input_text.llm_user_question'') }}. Answer directly and
+        clearly, do not offer unsolicited assistance and do not say it is a camera
+        feed or image you are reviewing. If you cannot answer the question, simply
+        say you are not sure.'
+      image_entity:
+      - camera.front_door
+      max_tokens: 100
+    response_variable: response
+    action: llmvision.image_analyzer
+  - metadata: {}
+    data:
+      value: '{{response.response_text}}'
+    target:
+      entity_id: input_text.llmvision_response
+    action: input_text.set_value
+  description: ''
+  icon: mdi:cube-scan
+button_action_toggle_sound:
+  description: Toggle entity and play sound
+  variables:
+    entity_id: ''
+    device_id: ''
+  sequence:
+  - target:
+      entity_id: '{{ entity_id }}'
+    action: homeassistant.toggle
+  - target:
+      device_id: '{{ device_id }}'
+    data:
+      media_content_id: /local/media/sound/fairy_confirm_2s.wav
+      media_content_type: audio/wav
+    action: browser_mod.play_media
+motion_alert_enhanced:
+  alias: Motion Alert Enhanced
+  description: Handles motion and door alerts with volume management and notifications.
+  fields:
+    alert_type:
+      description: 'Type of alert: ''normal'' or ''door''.'
+      example: normal
+  sequence:
+  - alias: Notify - PC
+    data:
+      title: '{{ ''Door Alert'' if alert_type == ''door'' else ''Motion Alert'' }}
+
+        '
+      message: '{{ ''Front Door Activated'' if alert_type == ''door'' else ''Motion
+        Detected'' }}
+
+        '
+    action: rest_command.send_hass_agent_notification
+  - alias: Send Notification to C's Phone
+    data:
+      title: '{{ ''Door Alert'' if alert_type == ''door'' else ''Motion Alert'' }}
+
+        '
+      message: '{{ ''Front Door Activated'' if alert_type == ''door'' else ''Motion
+        Detected'' }}
+
+        '
+      data:
+        priority: high
+        channel: alarm_stream
+        color: '#FF918A'
+        sticky: true
+        persistent: false
+        notification_icon: mdi:run
+        tag: c_phone_notification
+        timeout: 60
+    action: notify.mobile_app_phone_c
+  - sequence:
+    - alias: Log Pre-Alert Volume State
+      data:
+        scene_id: scene.volume_backup
+        snapshot_entities: '{{ media_player_id }}'
+      action: scene.create
+    - alias: Delay (Prevents Snapshot Conflicts)
+      delay:
+        seconds: 1
+    - alias: Set Volume and Play Alert
+      sequence:
+      - target:
+          entity_id: '{{ media_player_id }}'
+        data:
+          volume_level: '{{ volume_level }}'
+        action: media_player.volume_set
+      - target:
+          entity_id: '{{ media_player_id }}'
+        data:
+          media_content_id: 'media-source://media_source/local/sound/{{ door_alert_sound
+            if alert_type == ''door'' else normal_alert_sound }}
+
+            '
+          media_content_type: audio/x-wav
+        action: media_player.play_media
+    - alias: Wait for Media to Finish
+      wait_template: '{{ is_state(media_player_id, ''idle'') }}'
+      timeout: 00:00:10
+      continue_on_timeout: true
+    - alias: Revert to Previous Volume
+      target:
+        entity_id: scene.volume_backup
+      action: scene.turn_on
+      data: {}
+pc_run_python_script_from_ha_to_pc:
+  alias: PC - Run Python script from HA to PC
+  sequence:
+  - action: mqtt.publish
+    data:
+      topic: homeassistant/switch/CPC/safemode_command/action
+      payload: '"D:\Home Assistant HASS scripts\minimize_windows.py"'
+  description: 'Scripts are stored here:  "D:\Home Assistant HASS scripts"'
+notify_c_examples:
+  alias: Notify C examples
+  description: ''
+  variables:
+    media_player_id: media_player.sonos_speaker
+    volume_level: 2
+    alert_sound: tech_click_4s_ver4.wav
+  sequence:
+  - sequence:
+    - alias: Log Pre-Alert Volume State
+      data:
+        scene_id: scene.volume_backup
+        snapshot_entities: '{{ media_player_id }}'
+      action: scene.create
+    - alias: Delay (Prevents Snapshot Conflicts)
+      delay:
+        seconds: 1
+    - alias: Set Volume and Play Alert
+      sequence:
+      - target:
+          entity_id: '{{ media_player_id or ''media_player.sonos_speaker'' }}'
+        data:
+          volume_level: '{{ volume_level or ''2.0'' }}'
+        action: media_player.volume_set
+      - target:
+          entity_id: '{{ media_player_id or ''media_player.sonos_speaker'' }}'
+        data:
+          media_content_id: 'media-source://media_source/local/sound/{{ alert_sound
+            or ''tech_click_4s_ver4.wav'' }}
+
+            '
+          media_content_type: audio/x-wav
+        action: media_player.play_media
+    - alias: Wait for Media to Finish
+      wait_template: '{{ is_state(media_player_id, ''idle'') }}'
+      timeout: 00:00:10
+      continue_on_timeout: true
+    - alias: Revert to Previous Volume
+      target:
+        entity_id: scene.volume_backup
+      action: scene.turn_on
+      data: {}
+    alias: 'Media player: Sound alert'
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: "{{ is_state('sensor.c_pc_a_monitorpowerstate', 'PowerOn')
+          and\n   is_state('sensor.c_pc_a_sessionstate', 'Unlocked') and\n   is_state('device_tracker.phone_c',
+          'home') and\n   (now().timestamp() - as_timestamp(states('sensor.c_pc_a_lastactive'))
+          < 600) }}\n"
+        alias: Check if PC is in use
+      sequence:
+      - data:
+          title: title
+          message: message
+        action: rest_command.send_hass_agent_notification
+        alias: Send notification to PC using HASS Agent
+      - alias: PC
+        data:
+          title: '{{ (trigger.to_state.attributes.friendly_name if trigger is defined
+            else ''[TEST] Title here'') }}
+
+            '
+          message: Motion
+        action: rest_command.send_hass_agent_notification
+      alias: 'Send notification: PC'
+    - conditions: []
+      sequence:
+      - alias: 'Temp notification: C tablet'
+        sequence:
+        - variables:
+            id: '{{ now().timestamp() }}'
+        - data:
+            data:
+              tag: c-tablet-{{ id }}
+            title: Is Enhy looking?
+            message: Probably not!
+          action: notify.mobile_app_ipad
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 30
+        - data:
+            message: clear_notification
+            data:
+              tag: c-tablet-{{ id }}
+          action: notify.mobile_app_ipad
+      alias: 'Send notification: iPad'
+    - conditions: []
+      sequence:
+      - alias: 'Send notification to: C phone'
+        data:
+          message: "<div style=\"font-family: 'Arial', sans-serif; line-height: 1.5;\">\n
+            \ <b><span style=\"color: #FF4E50; font-size: 18px;\">\U0001F6A8 <span
+            style=\"text-decoration: underline;\">Motion Detected</span>!</span></b><br/>\n
+            \ <span style=\"color: #FFFFFF; font-size: 15px;\">\U0001F534 <i>Location:</i></span>
+            \n  <b><span style=\"color: #FF918A; font-size: 16px;\">Floor 01</span></b><br/>\n
+            \ <span style=\"color: #E1E1E1; font-size: 14px;\">\U0001F440 Please check
+            the camera feed for activity.</span>\n</div>\n"
+          target: Alert
+          title: '<b style=''color: #FF4E50; font-size: 16px;''>⚠️ ALERT</b>'
+          data:
+            priority: high
+            media_stream: notification_stream
+            channel: alarm_stream
+            color: '#FF918A'
+            sticky: true
+            ledColor: red
+            persistent: true
+            notification_icon: mdi:run
+            tag: c_phone_notification
+            timeout: 60
+            car_ui: true
+            visibility: public
+            actions:
+            - action: DISMISS
+              title: Dismiss
+              destructive: true
+        action: notify.mobile_app_phone_c
+      - alias: 'Send notification to: C phone'
+        data:
+          data:
+            priority: high
+            media_stream: notification_stream
+            channel: alarm_stream
+            color: '#FF918A'
+            sticky: 'true'
+            persistent: true
+            notification_icon: mdi:run
+            tag: c_phone_notification
+            timeout: 60
+            car_ui: true
+            visibility: public
+          message: ' Motion detected: <b><span style=''color: #FF918A''>Floor 01</span></b>'
+          target: Alert
+          title: ⠀
+        action: notify.mobile_app_phone_c
+      alias: 'Send notification: Phone'
+weather_grab_recommendation:
+  alias: Weather Grab Recommendation
+  description: 'Checks the weather and asks the AI what to grab before heading out,
+    then plays a TTS announcement on the Echo Show 15 with a sound and the AI''s response.
+
+    '
+  mode: single
+  sequence:
+  - data:
+      context_messages: 1
+      temperature: 0.7
+      max_tokens: 1000
+      instance: sensor.ha_text_ai_weather_summary
+      question: "You're my roommate who just looked outside. In 10 words or less,
+        tell me what I should grab before heading out, based on the weather. Be super
+        casual and natural—exactly how a real person would phrase it. No weather reporter
+        words or overly proper language.\nCondition: {{ states('weather.pirateweather')
+        }}\nTemperature: {{ state_attr('weather.pirateweather','temperature') | int
+        }}°C\nHumidity: {{ state_attr('weather.pirateweather','humidity') }}%\nWind:
+        {{ state_attr('weather.pirateweather','wind_speed') | int }}km/h\nClouds:
+        {{ state_attr('weather.pirateweather','cloud_coverage') | int }}%\nNext 24-hour
+        forecast data:\n  - Feels Like (°C): [{{ state_attr('sensor.pirateweather_today_apparent_temperature','values')
+        }}]\n  - Rain (mm): [{{ state_attr('sensor.pirateweather_today_precip_accumulation','values')
+        }}]\n  - Wind Speeds (km/h): [{{ state_attr('sensor.pirateweather_today_wind_speed','values')
+        }}]\n"
+    action: ha_text_ai.ask_question
+  - delay: 00:00:05
+  - variables:
+      ai_response: '{{ state_attr(''sensor.ha_text_ai_weather_summary'', ''response'')
+        | default(''No recommendation available'') }}
+
+        '
+  - data:
+      message: "<speak>\n  <audio src=\"soundbank://soundlibrary/ui/gameshow/amzn_ui_sfx_gameshow_positive_response_02\"/>\n
+        \ {{ ai_response }}\n</speak>"
+    action: notify.alexa_media_echo_show_15
+tts_pronounce_enhys_name_correctly:
+  sequence:
+  - alias: 'Correctly pronounce: Enhy'
+    action: tts.speak
+    data:
+      media_player_entity_id: media_player.sonos_speaker
+      message: 'This is how I pronounce your names. The man who made me is called
+        Cam, he''s my owner. His girlfriend is called Eh-knee, I like her, she''s
+        nice. Oh also, they have two small dogs, Winnie and Mabel. They''re nice too,
+        though Mabel''s a bit fat. '
+    target:
+      entity_id: tts.openai_gpt_4o_mini_tts
+  alias: TTS - Pronounce Enhys name correctly
+  description: ''
+test_update_thumbnails:
+  sequence:
+  - target:
+      entity_id: input_text.ai_current_image
+    data:
+      value: /local/media/image/ai_generated/ai_image_20250521070052.jpg
+    action: input_text.set_value
+  - data:
+      message: 'Set current image to: /local/media/image/ai_generated/ai_image_20250521070052.jpg'
+      level: info
+    action: system_log.write

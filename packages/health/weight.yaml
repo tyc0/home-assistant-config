@@ -1,0 +1,230 @@
+# | START: weight.yaml
+# |  PATH: /config/packages/device/health/weight.yaml
+
+template:
+  - sensor:
+
+
+      # ────── USER C ──────
+      - name: "C Weight"
+        unique_id: sensor.c_weight
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_c_weight') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_c_weight') | float(0) }}
+
+      - name: "C Fat Mass"
+        unique_id: sensor.c_fat_mass
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_c_fat_mass') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_c_fat_mass') | float(0) }}
+
+      - name: "C Bone Mass"
+        unique_id: sensor.c_bone_mass
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_c_bone_mass') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_c_bone_mass') | float(0) }}
+
+      - name: "C Muscle Mass"
+        unique_id: sensor.c_muscle_mass
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_c_muscle_mass') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_c_muscle_mass') | float(0) }}
+
+      - name: "C Fat-Free Mass"
+        unique_id: sensor.c_fat_free_mass
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_c_fat_free_mass') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_c_fat_free_mass') | float(0) }}
+
+      - name: "C Hydration"
+        unique_id: sensor.c_hydration
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_c_hydration') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_c_hydration') | float(0) }}
+
+
+
+
+
+      # ────── USER E ──────
+      - name: "E Weight"
+        unique_id: sensor.e_weight
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_e_weight') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_e_weight') | float(0) }}
+
+      - name: "E Fat Mass"
+        unique_id: sensor.e_fat_mass
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_e_fat_mass') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_e_fat_mass') | float(0) }}
+
+      - name: "E Bone Mass"
+        unique_id: sensor.e_bone_mass
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_e_bone_mass') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_e_bone_mass') | float(0) }}
+
+      - name: "E Muscle Mass"
+        unique_id: sensor.e_muscle_mass
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_e_muscle_mass') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_e_muscle_mass') | float(0) }}
+
+      - name: "E Fat-Free Mass"
+        unique_id: sensor.e_fat_free_mass
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_e_fat_free_mass') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_e_fat_free_mass') | float(0) }}
+
+      - name: "E Hydration"
+        unique_id: sensor.e_hydration
+        unit_of_measurement: "kg"
+        state_class: measurement
+        availability: >
+          {{ states('sensor.withings_e_hydration') not in ['unknown', 'unavailable'] }}
+        state: >
+          {{ states('sensor.withings_e_hydration') | float(0) }}
+
+
+
+
+
+      # ────── PERCENTAGES ──────
+      - name: "C Fat Mass Percentage"
+        unit_of_measurement: "%"
+        state: >
+          {{ (states('sensor.withings_c_fat_mass')|float / states('sensor.withings_c_weight')|float) * 100 | round(1) }}
+
+      - name: "E Fat Mass Percentage"
+        unit_of_measurement: "%"
+        state: >
+          {{ (states('sensor.withings_e_fat_mass')|float / states('sensor.withings_e_weight')|float) * 100 | round(1) }}
+
+      - name: "C Bone Mass Percentage"
+        unit_of_measurement: "%"
+        state: >
+          {{ (states('sensor.withings_c_bone_mass')|float / states('sensor.withings_c_weight')|float) * 100 | round(1) }}
+
+      - name: "E Bone Mass Percentage"
+        unit_of_measurement: "%"
+        state: >
+          {{ (states('sensor.withings_e_bone_mass')|float / states('sensor.withings_e_weight')|float) * 100 | round(1) }}
+
+      - name: "C Lean Mass Percentage"
+        unit_of_measurement: "%"
+        state: >
+          {% set fat = states('sensor.withings_c_fat_mass')|float %}
+          {% set bone = states('sensor.withings_c_bone_mass')|float %}
+          {% set weight = states('sensor.withings_c_weight')|float %}
+          {{ ((weight - fat - bone) / weight) * 100 | round(1) }}
+
+      - name: "E Lean Mass Percentage"
+        unit_of_measurement: "%"
+        state: >
+          {% set fat = states('sensor.withings_e_fat_mass')|float %}
+          {% set bone = states('sensor.withings_e_bone_mass')|float %}
+          {% set weight = states('sensor.withings_e_weight')|float %}
+          {{ ((weight - fat - bone) / weight) * 100 | round(1) }}
+
+
+
+
+
+      # ────── BMI ──────
+      - name: "C BMI"
+        unit_of_measurement: "kg/m²"
+        state: >
+          {% set height = 1.82 %}
+          {{ (states('sensor.withings_c_weight')|float / (height ** 2)) | round(2) }}
+
+      - name: "E BMI"
+        unit_of_measurement: "kg/m²"
+        state: >
+          {% set height = 1.70 %}
+          {{ (states('sensor.withings_e_weight')|float / (height ** 2)) | round(2) }}
+
+
+
+
+
+      # ────── BODY SURFACE AREA ──────
+      - name: "C Body Surface Area"
+        unit_of_measurement: "m²"
+        state: >
+          {% set height = 1.82 %}
+          {{ 0.007184 * (states('sensor.withings_c_weight')|float**0.425) * (height**0.725) | round(2) }}
+
+      - name: "E Body Surface Area"
+        unit_of_measurement: "m²"
+        state: >
+          {% set height = 1.70 %}
+          {{ 0.007184 * (states('sensor.withings_e_weight')|float**0.425) * (height**0.725) | round(2) }}
+
+
+
+
+
+      # ────── MASS INDEX ──────
+      - name: "C Body Fat Mass Index"
+        unit_of_measurement: "kg/m²"
+        state: >
+          {% set height = 1.82 %}
+          {{ (states('sensor.withings_c_fat_mass')|float / (height ** 2)) | round(2) }}
+
+      - name: "E Body Fat Mass Index"
+        unit_of_measurement: "kg/m²"
+        state: >
+          {% set height = 1.70 %}
+          {{ (states('sensor.withings_e_fat_mass')|float / (height ** 2)) | round(2) }}
+
+      - name: "C Lean Mass Index"
+        unit_of_measurement: "kg/m²"
+        state: >
+          {% set height = 1.82 %}
+          {{ ((states('sensor.withings_c_weight')|float - states('sensor.withings_c_fat_mass')|float) / (height ** 2)) | round(2) }}
+
+      - name: "E Lean Mass Index"
+        unit_of_measurement: "kg/m²"
+        state: >
+          {% set height = 1.70 %}
+          {{ ((states('sensor.withings_e_weight')|float - states('sensor.withings_e_fat_mass')|float) / (height ** 2)) | round(2) }}
+
+
+
+
+
+# | END: weight.yaml

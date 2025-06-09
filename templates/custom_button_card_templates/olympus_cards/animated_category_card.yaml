@@ -1,0 +1,238 @@
+
+# | START: animated_category_card.yaml
+# |  PATH: /config/templates/custom_button_card_templates/olympus_cards/animated_category_card.yaml
+
+
+# ➔ Animated Category Card
+#   Custom button card template that displays a category with a text animation effect
+#   using CSS animations and JavaScript DOM manipulation. Core functionality:
+#
+#     • Text animation with configurable speed
+#     • Category input with default value
+#     • Navigation path input with default value
+#     • Index input with default value
+
+
+# ➔ Example Usage
+# type: custom:button-card
+# template: animated_category_card
+# variables:
+#   icon: fapro:solar_bed_bold_18
+#   name: Bedroom hello
+#   navigation_path: /dashboard-home/bedroom
+#   index: 0
+#   delay_speed: 1.8
+#   animation_speed: 1
+#   text_animation_speed: 1.4
+
+animated_category_card:
+  variables:
+    icon: fapro:solar_bed_bold_18
+    name: Bedroom hello
+    navigation_path: /dashboard-home/bedroom
+    index: 0
+    delay_speed: 1.8
+    animation_speed: 1
+    text_animation_speed: 1.4
+  icon: |
+    [[[ return variables.icon; ]]]
+  name: |
+    [[[
+      const name = variables.name || '';
+      const index = Number(variables.index) || 0;
+      const textAnimationSpeed = Number(variables.text_animation_speed) || 1.4;
+
+      const fadeText = (text, startDelay) => {
+        return [...text].map((char, idx) => {
+          if (char === ' ') {
+            return `<span style="width: 0.5em; display: inline-block;"></span>`;
+          }
+          return `<span style="
+            display: inline-block;
+            animation: textfadeintro ${1 / textAnimationSpeed}s both;
+            animation-delay: ${(startDelay + index * 0.2 + idx * 0.1) / textAnimationSpeed}s;
+            letter-spacing: 0.08rem;">
+            ${char}</span>`;
+        }).join('');
+      };
+
+      return `<span>${fadeText(name, 0.2)}</span>`;
+    ]]]
+  aspect_ratio: 1/1
+  styles:
+    card:
+      - padding: 10%
+      - '--mdc-ripple-color': transparent
+      - animation: |
+          [[[
+            const delaySpeed = Number(variables.delay_speed) || 1.8;
+            const animationSpeed = Number(variables.animation_speed) || 1;
+            const delay = (0.3 + (Number(variables.index) || 0) * 0.2) / delaySpeed;
+            return `cardpopintro ${1 / animationSpeed}s ${delay}s both`;
+          ]]]
+      - border: none
+      - box-shadow: none
+    img_cell:
+      - border-radius: 50%
+      - width: 30px
+      - height: 30px
+      - background-color: var(--contrast4)
+      - justify-self: start
+      - padding: 5%
+      - animation: |
+          [[[
+            const delaySpeed = Number(variables.delay_speed) || 1.8;
+            const animationSpeed = Number(variables.animation_speed) || 1;
+            const delay = (0.7 + (Number(variables.index) || 0) * 0.2) / delaySpeed;
+            return `cardpopintro 0.6s ${delay}s both`;
+          ]]]
+    icon:
+      - width: 50%
+      - animation: |
+          [[[
+            const delaySpeed = Number(variables.delay_speed) || 1.8;
+            const animationSpeed = Number(variables.animation_speed) || 1;
+            const delay = (0.85 + (Number(variables.index) || 0) * 0.2) / delaySpeed;
+            return `cardpopintro 0.6s ${delay}s both`;
+          ]]]
+    name:
+      - padding: 5%
+      - font-size: 0.8em
+      - justify-self: start
+      - align-self: end
+      - overflow: visible
+    grid:
+      - grid-template-areas: '"i ." "n n"'
+      - grid-template-rows: min-content 1fr
+      - grid-template-columns: 1fr 1fr
+  extra_styles: |
+    @keyframes cardpopintro {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes textfadeintro {
+      from { transform: scaleX(0.2) translateX(100px); filter: blur(20px); opacity: 0; }
+      to { transform: scaleX(1) translateX(0); filter: blur(0); opacity: 1; }
+    }
+toggle_button:
+  variables:
+    button_entity_id: switch.u02
+    button_icon_on: mdi:power
+    button_icon_off: mdi:power-off
+    button_icon_size: 68%
+    button_active_state: 'on'
+    button_inactive_state: 'off'
+  entity: '[[[ return `${variables.button_entity_id}`; ]]]'
+  icon: |
+    [[[
+      // Use state-specific icons
+      const state = states[`${variables.button_entity_id}`]?.state;
+      if (state === variables.button_active_state) {
+        return variables.button_icon_on;
+      } else if (state === variables.button_inactive_state) {
+        return variables.button_icon_off;
+      }
+      // Fallback to alert icon for problem states
+      return 'mdi:alert';
+    ]]]
+  show_icon: true
+  show_name: false
+  custom_fields:
+    loader: |
+      <img src="/local/loader.svg" width="100%">
+  tap_action:
+    loader: |
+      [[[
+        if (entity) {
+            let elt = this.shadowRoot,
+                icon = elt.querySelector("ha-icon"),
+                loader = (id, style, timeout) => {
+                  let loaderElt = elt.getElementById(id);
+                  if (loaderElt && icon) {
+                    let rect = icon.getBoundingClientRect(),
+                        parentRect = elt.getBoundingClientRect();
+
+                    // Position loader over icon
+                    if (id === 'loader') {
+                      loaderElt.style.top = (rect.top - parentRect.top) + 'px';
+                      loaderElt.style.left = (rect.left - parentRect.left) + 'px';
+                      loaderElt.style.width = rect.width + 'px';
+                      loaderElt.style.height = rect.height + 'px';
+                    }
+
+                    loaderElt.style.display = style;
+                    window.setTimeout(() => {
+                      elt.getElementById('loader').style.display = 'none'
+                    }, 20000)
+                  }
+                };
+            loader('circle', 'none', 'initial'),
+            loader('loader', 'initial', 'none');
+        }
+      ]]]
+  styles:
+    custom_fields:
+      loader:
+        - display: none
+        - position: absolute
+        - opacity: 0.5
+        - pointer-events: none
+        - filter: |
+            [[[
+              return variables.state_on
+                  ? 'none'
+                  : 'invert(1)';
+            ]]]
+    icon:
+      - color: |
+          [[[
+            const isProblem = ['unknown', 'unavailable'].includes(entity.state);
+            const activeColor = "var(--accent-color, #00CDB7)";
+            const errorColor = "var(--error-color, rgba(255, 145, 138, 1))";
+            return entity.state === variables.button_active_state
+              ? activeColor
+              : (isProblem ? errorColor : "var(--contrast10, #cccccc)");
+          ]]]
+      - transition: color 0.5s ease
+      - height: '[[[ return variables.button_icon_size; ]]]'
+      - width: '[[[ return variables.button_icon_size; ]]]'
+    card:
+      - transition: all 0.3s ease
+      - animation: |
+          [[[
+            const isProblem = ['unknown', 'unavailable'].includes(entity.state);
+            const baseAnimation = 'intro_pop_up 1.3s cubic-bezier(0.680, -0.550, 0.265, 1.550) both';
+            return isProblem ? `${baseAnimation}, pulse-border 1.6s infinite alternate ease-in-out` : baseAnimation;
+          ]]]
+      - height: 50px
+      - width: 50px
+      - border: |
+          [[[
+            const isProblem = ['unknown', 'unavailable'].includes(entity.state);
+            const activeColor = "var(--accent-color, #00CDB7)";
+            const errorColor = "var(--error-color, rgba(255, 145, 138, 1))";
+            const errorTint = "rgba(255, 145, 138, 0.47)";
+            return `2.82px solid ${entity.state === variables.button_active_state ? activeColor : (isProblem ? errorTint : "var(--contrast2, #cccccc)")}`;
+          ]]]
+      - border-radius: 50%
+      - margin: 5px
+      - cursor: pointer
+      - '--mdc-ripple-color': none
+  card_mod:
+    style: >
+      ha-card {  transition: border-color 0.3s ease !important;
+      }
+  extra_styles: |
+    @keyframes intro_pop_up {
+      0%      {  transform-origin: bottom; transform: scaleY(0); opacity: 0;  }
+      5%      {  transform: scaleY(0.5); opacity: 0;                          }
+      100%    {  transform: scaleY(1); opacity: 1;                            }
+    }
+    @keyframes pulse-border {
+      0%      {  border-color: rgba(255, 145, 138, 0.47);                     }
+      100%    {  border-color: var(--contrast2, #999999);                     }
+    }
+
+
+# | END: animated_category_card.yaml

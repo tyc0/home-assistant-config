@@ -1,0 +1,42 @@
+  icon_porch:
+    styles:
+      custom_fields:
+        icon:
+          - width: 120%
+          - margin-left: 0.00000001%
+          - margin-top: 3%
+    custom_fields:
+      icon: >
+        [[[
+          let state = variables.state_on && variables.timeout < 2000 ? 'on' : null;
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" shape-rendering="geometricPrecision" xmlns:v="https://vecta.io/nano">
+            <path d="M7 14h14l-6-4.29V6c0-1.61-1.06-4-4-4S7 4.39 7 6c0 .45-.19 1-1 1H5V3H3v9h2V9h1c2.2 0 3-1.79 3-3 0-.33.1-2 2-2 1.83 0 2 1.54 2 2v3.71L7 14z" fill="#888888"/>
+            <path class="${state}" fill="var(--light-color)" d="M16.248 14.716h-4.499c0 4.768 4.672 4.682 4.499 0" fill="#036ba6"/>
+            <path fill="#BEBEBE" d="M6.819 14.002l6.217-4.481v4.481h-2.688-1.904-1.624z"/>
+            <style>
+                @keyframes on {
+                  0% {
+                    transform: scale(0.85);
+                  }
+                  20% {
+                    transform: scale(1.1);
+                  }
+                  40% {
+                    transform: scale(0.95);
+                  }
+                  60% {
+                    transform: scale(1.03);
+                  }
+                  80% {
+                    transform: scale(0.97);
+                  }
+                }
+                .on {
+                  animation: on 0.8s;
+                  transform-origin: center;
+                }
+              </style>
+            </svg>
+          `;
+        ]]]

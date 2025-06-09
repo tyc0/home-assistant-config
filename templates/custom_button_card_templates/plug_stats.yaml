@@ -1,0 +1,70 @@
+
+
+
+# REQUIRED VARIABLES
+#variables:
+#  mpm01: smart_switch_2309059438981551080948e1e9d932d5
+#  unit_color: var(--green)
+
+
+
+plug_stats:
+  styles:
+    custom_fields:
+      plug_power_monitoring_stats:
+        - text-align: right
+        - color: var(--contrast17)
+        - font-family: Poppins, Raleway, SF Pro Text, sans-serif, system-ui
+        - color-scheme: light
+        - font-size: 14px
+        - font-weight: 300
+        - letter-spacing: 0.4px
+        - overflow-wrap: break-word
+        - overflow: visible
+        - text-overflow: ellipsis
+        - white-space: nowrap
+        - line-height: 20px
+        - text-align: start
+        - width: 150px
+  custom_fields:
+    plug_power_monitoring_stats: |
+      [[[
+        const entities = {
+          power: states[`sensor.${variables.mpm01}_power`],
+          energy: states[`sensor.${variables.mpm01}_energy`],
+          wifi: states[`sensor.${variables.mpm01}_signal_strength`],
+        };
+        const formatUnit = (value, highUnit, lowUnit, divisor = 1000) => {
+          const numericValue = parseFloat(value);
+          let formattedNumber = numericValue >= divisor ? 
+            (numericValue / divisor).toFixed(1) : 
+            Math.round(numericValue).toString();
+          if (formattedNumber % 1 === 0) {
+            formattedNumber = parseInt(formattedNumber);
+          }
+          const pointIndex = formattedNumber.toString().indexOf('.');
+          const beforePoint = formattedNumber.toString().slice(0, pointIndex);
+          const decimalPoint = formattedNumber.toString().slice(pointIndex, pointIndex + 1);
+          const afterPoint = formattedNumber.toString().slice(pointIndex + 1);
+          return pointIndex !== -1 ?
+            `${beforePoint}<span style="color: ${variables.unit_color}">${decimalPoint}</span>${afterPoint}<span style="font-size: 62%; color: ${variables.unit_color};">${highUnit}</span>` :
+            `${formattedNumber}<span style="font-size: 62%; color: ${variables.unit_color};">${lowUnit}</span>`;
+        };
+        const lastUpdated = entities.power ? formatTime(Date.now() - Date.parse(entities.power.last_updated)) : 'N/A';
+        
+        function formatTime(ms) {
+          const times = [1000, 60, 60, 24, 7].map((t, i, arr) => i ? t * arr[i-1] : t);
+          const units = ['s', 'm', 'h', 'd', 'w'];
+          let timeStr = 'Now';
+          times.some((t, i) => ms >= t && (timeStr = `${Math.floor(ms/t)}<span style="font-size: 70%; color: ${variables.unit_color};">${units[i]}</span>`, ms %= t, true));
+          return timeStr;
+        }
+        
+        return `
+          <table style="width:100%; margin: 0 auto;">
+            <tr><td style="text-align:right; padding-right: 21px;">Power:</td><td style="text-align:left;">${entities.power ? formatUnit(entities.power.state, 'kW', 'W') : 'N/A'}</td></tr>
+            <tr><td style="text-align:right; padding-right: 21px;">Energy:</td><td style="text-align:left;">${entities.energy ? formatUnit(entities.energy.state, 'kWh', 'Wh') : 'N/A'}</td></tr>
+            <tr><td style="text-align:right; padding-right: 21px;">Wifi:</td><td style="text-align:left;">${entities.wifi ? `${Math.round(entities.wifi.state)}<span style="font-size: 65%; color: ${variables.unit_color};">%</span>` : 'N/A'}</td></tr>
+            <tr><td style="text-align:right; padding-right: 21px;">Update:</td><td style="text-align:left;">${lastUpdated}</td></tr>
+          </table>`;
+      ]]]

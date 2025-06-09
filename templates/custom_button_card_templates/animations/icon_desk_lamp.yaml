@@ -1,0 +1,91 @@
+  icon_desk_lamp:
+    styles:
+      custom_fields:
+        icon:
+          - width: 92%
+          - margin-left: -10%
+          - margin-top: -5%
+    custom_fields:
+      icon: >
+        [[[
+          let state;
+          if (variables.state_on && variables.timeout < 2000) {
+            state = 'on';
+          } 
+          if (variables.state === 'off' && variables.timeout < 2000) {
+            state = 'off';
+          }
+          if (variables.state_on && variables.timeout > 2000) {
+            state = 'on_timeout';
+          }
+          return `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.002 512.002" xmlns:v="https://vecta.io/nano">
+              <style>
+                @keyframes off {
+                  0% {
+                    transform: rotateZ(0deg);
+                    animation-timing-function: cubic-bezier(0.7, 0, 0.84, 0);
+                  }
+                  70% {
+                    transform: rotateZ(-30deg);
+                    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+                  }
+                  75% {
+                    transform: rotateZ(-30deg);
+                    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+                  }
+                  88% {
+                    transform: rotateZ(-21deg);
+                  }
+                  100% {
+                    transform: rotateZ(-30deg);
+                  }
+                }
+                @keyframes on {
+                  0% {
+                    transform: rotateZ(-30deg);
+                    animation-timing-function: cubic-bezier(0.7, 0, 0.84, 0);
+                  }
+                  70% {
+                    transform: rotateZ(5deg);
+                    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+                  }
+                  75% {
+                    transform: rotateZ(5deg);
+                    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+                  }
+                  88% {
+                    transform: rotateZ(-4deg);
+                  }
+                  100% {
+                    transform: rotateZ(5deg);
+                  }
+                }
+                .on {
+                  animation: on 0.7s;
+                  transform-origin: 40% 20%;
+                  animation-fill-mode: forwards;
+                  animation-delay: -0.1s;
+                }
+                .off {
+                  animation: off 0.7s;
+                  transform-origin: 40% 20%;
+                  animation-fill-mode: forwards;
+                }
+                .on_timeout {
+                  transform: rotateZ(-15deg);
+                  transform-origin: 40% 20%;
+                }
+              </style>
+            
+              <path d="M381.56 512.002H135.042a18.96 18.96 0 1 1 0-37.926H381.56a18.96 18.96 0 1 1 0 37.926" fill="#b2b5c8"/>
+              <path d="M296.227 436.151c0-20.945-16.981-37.926-37.926-37.926s-37.926 16.981-37.926 37.926 16.981 37.926 37.926 37.926 37.926-16.982 37.926-37.926m180.148-180.149c0-20.945-16.981-37.926-37.926-37.926s-37.926 16.981-37.926 37.926 16.981 37.926 37.926 37.926 37.926-16.981 37.926-37.926" fill="#868ba5"/>
+              <path class="${state}" d="M49.034 84.663L35.627 98.069l134.087 134.087 13.407-13.407c37.025-37.025 37.025-97.062 0-134.087h0c-37.025-37.025-97.062-37.025-134.087.001" fill="#b2b5c8"/>
+              <path class="${state}" fill="var(--light-color)" d="M64.738 127.269c-10.088 21.144-6.438 47.199 11.074 64.702 17.503 17.512 43.558 21.163 64.702 11.074l-75.776-75.776z" fill="#ecba16"/>
+              <path d="M429.64 219.209L265.421 63.57c-2.304 6.002-5.812 11.653-10.648 16.488l-13.672 13.521 160.825 152.747c3.546-13.417 14.174-23.884 27.714-27.117m-27.776 46.272L266.743 399.246h0c2.588.588 5.063 1.46 7.415 2.551.199.095.379.218.578.313 2.181 1.062 4.238 2.304 6.163 3.745.123.085.228.19.341.275a38.43 38.43 0 0 1 5.471 5.129c.009.009.019.019.019.028 1.726 1.972 3.224 4.105 4.513 6.409 1.726 3.081 3.119 6.372 3.935 9.908l133.357-135.149c-13.075-3.555-23.267-13.842-26.671-26.974" fill="#b2b5c8"/>
+              <path class="${state}" d="M253.898 13.888c-18.517-18.517-48.526-18.517-67.044 0l-45.89 46.393c15.436 4.191 30.037 12.26 42.155 24.377h0c12.127 12.127 20.196 26.728 24.386 42.164l46.393-45.89c18.517-18.518 18.517-48.527 0-67.044" fill="#868ba5"/>
+              
+            </svg>
+            
+          `;
+        ]]]

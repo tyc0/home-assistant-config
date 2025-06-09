@@ -1,0 +1,33 @@
+
+# | START: ai_main.yaml
+# |  PATH: /config/packages/ai/ai_main.yaml
+
+
+# ╭────────────────────╮
+# │ INPUT TEXT
+# ╰────────────────────╯
+input_text:
+
+# ➔ User query input field
+#   Input field for the user query
+  ai_main_text_user_query:
+    name: 'How can I help?'
+    max: 255
+
+
+
+# ╭────────────────────╮
+# │ TEMPLATE SENSOR
+# ╰────────────────────╯
+template:
+  - sensor:
+
+# ➔ AI assistant response sensor
+#   Sensor for the AI assistant response
+      - name: "AI Assistant Response"
+        unique_id: ai_main_text_response
+        state: >-
+          {{ state_attr('sensor.ha_text_ai_my_assistant', 'response') }}
+
+
+# |   END: ai_main.yaml

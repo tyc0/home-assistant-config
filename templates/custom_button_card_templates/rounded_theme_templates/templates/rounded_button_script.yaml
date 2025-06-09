@@ -1,0 +1,13 @@
+rounded_button_script:
+  template: rounded_base
+  show_state: false
+  variables:
+    active_color: orange
+    show_last_triggered: true
+  tap_action:
+    action: toggle
+    haptic: medium
+  hold_action:
+    action: more-info
+    haptic: medium
+  

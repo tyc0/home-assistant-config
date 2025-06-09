@@ -1,0 +1,142 @@
+
+# | START: mobile_device.yaml
+# |  PATH: /config/packages/device/mobile_device.yaml
+
+
+#  ╭────────────────────╮
+#  │   INPUT NUMBER
+#  ╰────────────────────╯
+input_number:
+
+# ➔ C phone volumes
+  phone_c_volume_ringer:
+    name: C Phone Ringer Volume
+    min: 0
+    max: 100
+    step: 1
+
+  phone_c_volume_media:
+    name: C Phone Media Volume
+    min: 0
+    max: 100
+    step: 1
+
+  phone_c_volume_notification:
+    name: C Phone Notification Volume
+    min: 0
+    max: 100
+    step: 1
+
+  phone_c_volume_system:
+    name: C Phone System Volume
+    min: 0
+    max: 100
+    step: 1
+
+
+# ➔ E phone volumes
+  phone_e_volume_ringer:
+    name: E Phone Ringer Volume
+    min: 0
+    max: 100
+    step: 1
+
+  phone_e_volume_media:
+    name: E Phone Media Volume
+    min: 0
+    max: 100
+    step: 1
+
+  phone_e_volume_notification:
+    name: E Phone Notification Volume
+    min: 0
+    max: 100
+    step: 1
+
+  phone_e_volume_system:
+    name: E Phone System Volume
+    min: 0
+    max: 100
+    step: 1
+
+
+
+#  ╭────────────────────╮
+#  │   AUTOMATIONS
+#  ╰────────────────────╯
+automation:
+
+# ➔ Phone C - Update Volume Levels
+#   Update the volume levels for C's phone
+  - alias: Phone C - Update Volume Levels
+    id: phone_c_update_volume_levels
+    trigger:
+      - platform: state
+        entity_id:
+          - input_number.phone_c_volume_ringer
+          - input_number.phone_c_volume_media
+          - input_number.phone_c_volume_notification
+          - input_number.phone_c_volume_system
+    action:
+      service: notify.mobile_app_phone_c
+      data:
+        message: "command_volume_level"
+        data:
+          media_stream: >-
+            {% if trigger.entity_id == 'input_number.phone_c_volume_ringer' %}
+              ring_stream
+            {% elif trigger.entity_id == 'input_number.phone_c_volume_media' %}
+              music_stream
+            {% elif trigger.entity_id == 'input_number.phone_c_volume_notification' %}
+              notification_stream
+            {% elif trigger.entity_id == 'input_number.phone_c_volume_system' %}
+              system_stream
+            {% endif %}
+          command: "{{ trigger.to_state.state | int }}"
+
+
+# ➔ Phone E - Update Volume Levels
+#   Update the volume levels for E's phone
+  - alias: Phone E - Update Volume Levels
+    id: phone_e_update_volume_levels
+    trigger:
+      - platform: state
+        entity_id:
+          - input_number.phone_e_volume_ringer
+          - input_number.phone_e_volume_media
+          - input_number.phone_e_volume_notification
+          - input_number.phone_e_volume_system
+    action:
+      service: notify.mobile_app_phone_e
+      data:
+        message: "command_volume_level"
+        data:
+          media_stream: >-
+            {% if trigger.entity_id == 'input_number.phone_e_volume_ringer' %}
+              ring_stream
+            {% elif trigger.entity_id == 'input_number.phone_e_volume_media' %}
+              music_stream
+            {% elif trigger.entity_id == 'input_number.phone_e_volume_notification' %}
+              notification_stream
+            {% elif trigger.entity_id == 'input_number.phone_e_volume_system' %}
+              system_stream
+            {% endif %}
+          command: "{{ trigger.to_state.state | int }}"
+
+
+
+#  ╭────────────────────╮
+#  │   INPUT BOOLEAN
+#  ╰────────────────────╯
+input_boolean:
+
+# ➔ C device display notifications
+  c_phone_display_notifications:
+  c_tablet_display_notifications:
+
+# ➔ E device display notifications
+  e_phone_display_notifications:
+  e_tablet_display_notifications:
+
+
+# |   END: mobile_device.yaml

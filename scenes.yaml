@@ -1,0 +1,148 @@
+- id: '1703435419577'
+  name: 01-Cool_White
+  entities:
+    light.bedroom:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      supported_color_modes:
+      - color_temp
+      - xy
+      color_mode: xy
+      brightness: 255
+      color_temp_kelvin:
+      color_temp:
+      hs_color:
+      - 241.905
+      - 24.706
+      rgb_color:
+      - 194
+      - 192
+      - 255
+      xy_color:
+      - 0.2763
+      - 0.2529
+      is_hue_group: true
+      hue_scenes:
+      - Cool bright
+      - Hocus pocus
+      - Trick or treat
+      - Moonlight
+      - Golden star
+      - Pensive
+      - Cancun
+      - Arctic Aurora
+      - Adrift
+      - Dimmed
+      - Lake mist
+      - Rolling hills
+      - Winter mountain
+      - Misty ridge
+      - Evening dimmed
+      - Festive fun
+      - Natural light
+      - Mountain breeze
+      - Magneto
+      - Narcissa
+      - Yellow
+      - Winter beauty
+      - Under the tree
+      - Amethyst valley
+      - Relax
+      - Dreamy dusk
+      - Red
+      - Snow sparkle
+      - Blood moon
+      - Amber bloom
+      - Glowing grins
+      - White dimmed
+      - Memento
+      - Blue lagoon
+      - Witching hour
+      - Honolulu
+      - White - Daytime
+      - Blue
+      - Read
+      - Nightlight
+      - Rio
+      - Meriete
+      - White - Late evening
+      - Nebula
+      - Night light
+      - Lily
+      - Scarlet dream
+      - Silent night
+      - Crystalline
+      - Painted sky
+      - Ocean dawn
+      - Rosy sparkle
+      - White - Early morning
+      - Crocus
+      - Blossom
+      - Ibiza
+      - Ruby glow
+      - Orange
+      - First light
+      - Sunflare
+      - White - Morning
+      - Still waters
+      - Midwinter
+      - Precious
+      - Autumn gold
+      - Cam's Hue
+      - Jolly
+      - Sunday morning
+      - Green
+      - Palm Beach
+      - White - Evening
+      - Colour burst
+      - Pandemonium
+      - Energise
+      - Blue Planet
+      - Galaxy
+      - Emerald flutter
+      - Tokyo
+      - Concentrate
+      - Spellbound
+      - Nutcracker
+      - Frosty dawn
+      - Tropical twilight
+      - Horizon
+      - Emerald isle
+      - Hue living
+      - Golden pond
+      - Lake Placid
+      - Warm embrace
+      - Toil and trouble
+      - Savanna sunset
+      - Starlight
+      - Resplendent
+      - Valley dawn
+      - Sundown
+      - Purple
+      - Bright
+      - Spring blossom
+      - Rest
+      - Beginnings
+      - Phantom
+      - Majestic morning
+      hue_type: room
+      lights:
+      - Hue lightstrip plus 2
+      - Hue color spot 4
+      - Hue desk light
+      - Hue gradient lightstrip 2
+      - Hue lightstrip plus 1
+      - Hue color spot 6
+      - Hue color spot 5
+      - Hue gradient lightstrip 1
+      - Hue Go 2
+      - C table lamp
+      - E table lamp
+      dynamics: false
+      icon: hue:ceiling-fugato-three-alt
+      friendly_name: All
+      supported_features: 40
+      state: 'on'
+  metadata: {}

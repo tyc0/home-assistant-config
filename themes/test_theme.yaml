@@ -1,0 +1,95 @@
+
+
+
+
+
+
+test_theme:
+  card-mod-theme: Test Theme
+
+  card-mod-root-yaml: |
+    .: |
+
+      /* Header: make background transparent */
+      .header {
+        background-color: transparent !important;
+      }
+
+      /* Toolbar: add blur and dark translucent background */
+      .toolbar {
+        backdrop-filter: blur(10px) saturate(100%);
+        background-color: rgba(0, 0, 0, .5);
+      }
+
+
+    ha-tabs$: |
+      /* Tab titles: switch from all-caps to normal case */
+      #tabsContainer {
+        text-transform: capitalize;
+        font-size: 25px;
+      }
+
+  card-mod-view-yaml: |
+    .: |
+    hui-vertical-stack-card$: |
+      /* View background: sets background of vertical-stack to solid black */
+      #root {
+        background-color: rgb(0, 0, 0);
+      }
+
+  card-mod-card-yaml: |
+    .: |
+      /* Heading card: white, bold text with larger size */
+      ha-card.type-heading .content {
+        color: white !important;
+        font-size: 22px;
+        font-weight: bold;
+      }
+
+      /* Tile card (inactive): blur effect with semi-transparent black background and white text/icons */
+      ha-card.type-tile:not(.active) {
+        backdrop-filter: blur(10px) saturate(100%);
+        background-color: rgba(0, 0, 0, .3);
+        --primary-text-color: white;
+        --tile-color: white !important;
+      }
+
+      /* Expander card (base): transparent background, no shadow or transition effects */
+      ha-card.expander-card {
+        background-color: transparent !important;
+        box-shadow: none;
+        transition: none !important;
+      }
+
+      /* Expander card (content spacing): adds top margin between header and expanded content */
+      ha-card.expander-card .children-container {
+        margin-top: 8px;
+      }
+
+      /* Expander card (hover): header highlights on hover when expanded */
+      ha-card.expander-card .header:hover {
+        background-color: rgba(255, 255, 255, 0.15);
+      }
+
+      /* Expander card (inactive): circular toggle button style for collapsed state */
+      ha-card.expander-card:not(.active) .header {
+        position: absolute;
+        right: 5px;
+        cursor: pointer;
+        padding: 5px;
+        margin: 0;
+        border-radius: 100%;
+        transition: background 0s;
+      }
+
+      /* Expander icon (inactive): disables animation when collapsed */
+      ha-card.expander-card:not(.active) .ico.svelte-icqkke {
+        transition-duration: 0s;
+      }
+
+      /* Vertical-stack-in-card: remove background, shadow, and allow overflow for child elements */
+      ha-card.type-custom-vertical-stack-in-card {
+        background-color: transparent !important;
+        box-shadow: none;
+        overflow: initial !important;
+      }

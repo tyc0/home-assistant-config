@@ -1,0 +1,17 @@
+
+# | START: sonos.yaml
+# |  PATH: /config/packages/device/sonos.yaml
+
+
+#  ╭────────────────────╮
+#  │   INPUT BOOLEAN
+#  ╰────────────────────╯
+input_boolean:
+
+# ➔ Sonos Play Notifications
+#   Toggle to play notification sounds from HA on sonos speaker
+  sonos_play_notifications:
+    initial: on
+
+
+# |   END: sonos.yaml

@@ -1,0 +1,129 @@
+
+
+# | START: frontend_animated_header_cycle.yaml
+# |  PATH: /config/packages/server/frontend_animated_header_cycle.yaml
+
+
+#  ╭────────────────────╮
+#  │   INPUT NUMBER
+#  ╰────────────────────╯
+input_number:
+
+  # ➔ Message Index
+  #   Displays the message index
+  message_index:
+    name: Message Index
+    initial: 0
+    min: 0
+    max: 10
+    step: 1
+
+
+
+#  ╭────────────────────╮
+#  │   INPUT TEXT
+#  ╰────────────────────╯
+input_text:
+
+# ➔ Current Message
+#   Displays the current message
+  current_message:
+    name: Current Message
+    max: 255
+
+# ➔ Next Message
+#   Displays the next message
+  next_message:
+    name: Next Message
+    max: 255
+
+# ➔ Message List
+#   Displays the message list
+  message_list:
+    name: Message List
+    max: 255
+    initial: "Welcome back, Enhy,Good morning, Cam,Stay hydrated!,Ready to conquer the day?,ABCDEFGHIJKLMNOPQRSTUVWXY"
+
+
+
+
+#  ╭────────────────────╮
+#  │   TIMER
+#  ╰────────────────────╯ 
+timer:
+
+# ➔ Message Cycle
+#   Cycles through the message list
+  message_cycle:
+    duration: "00:00:07"
+
+
+
+#  ╭────────────────────╮
+#  │   AUTOMATION
+#  ╰────────────────────╯
+automation:
+
+# ➔ Initialize Message Display
+#   Initializes the message display
+  - alias: Initialize Message Display
+    id: initialize_message_display
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.current_message
+          value: >
+            {% set messages = states('input_text.message_list').split(',') %}
+            {{ messages[0] }}
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.next_message
+          value: >
+            {% set messages = states('input_text.message_list').split(',') %}
+            {{ messages[1] }}
+      - service: timer.start
+        data:
+          entity_id: timer.message_cycle
+
+
+# ➔ Update Message Index
+#   Updates the message index
+  - alias: Update Message Index
+    id: update_message_index
+    description: "Cycle through the message list and update the displayed message."
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.message_cycle
+    action:
+      - service: input_number.set_value
+        data:
+          entity_id: input_number.message_index
+          value: >
+            {% set current_index = states('input_number.message_index') | int %}
+            {% set messages = states('input_text.message_list').split(',') %}
+            {{ (current_index + 1) % (messages | length) }}
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.current_message
+          value: >
+            {% set index = states('input_number.message_index') | int %}
+            {% set messages = states('input_text.message_list').split(',') %}
+            {{ messages[index] }}
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.next_message
+          value: >
+            {% set next_index = (states('input_number.message_index') | int + 1) %}
+            {% set messages = states('input_text.message_list').split(',') %}
+            {{ messages[next_index % (messages | length)] }}
+      - service: timer.start
+        data:
+          entity_id: timer.message_cycle
+
+
+# |   END: frontend_animated_header_cycle.yaml

@@ -1,0 +1,141 @@
+# | START: c_whatsapp_auto_reply.yaml
+# |  PATH: /config/packages/communication/c_whatsapp_auto_reply.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT NUMBER
+# ╰────────────────────╯
+input_number:
+
+#   Time window to collect multiple messages into a single response.
+#   Messages received within this window will be combined before AI processing.
+#   Lower values = faster responses but may miss related messages.
+#   Higher values = more complete context but slower responses.
+  whatsapp_message_window:
+    name: "WhatsApp Message Window"
+    min: 1
+    max: 540
+    step: 1
+    unit_of_measurement: "seconds"
+    initial: 6
+    mode: box
+
+#   Delay before sending AI response to make it feel more natural.
+#   Simulates human typing/thinking time.
+#   Lower values = faster responses but may seem too quick.
+#   Higher values = more natural but slower responses.
+  whatsapp_ai_delay:
+    name: "AI Response Delay"
+    min: 1
+    max: 600
+    step: 1
+    unit_of_measurement: "seconds"
+    initial: 8
+    mode: box
+
+#   Maximum number of concurrent reply processes.
+#   Higher values allow more parallel processing but increase system load.
+#   Lower values ensure more sequential processing.
+  whatsapp_max_concurrent:
+    name: "Max Concurrent Replies"
+    min: 1
+    max: 5
+    step: 1
+    initial: 3
+    mode: box
+
+# Message buffer for grouping rapid successive messages.
+# Stores incoming messages temporarily while waiting for the message window.
+# Maximum length of 1000 characters to prevent buffer overflow.
+input_text:
+  whatsapp_message_buffer:
+    name: "WhatsApp Message Buffer"
+    max: 1000
+    initial: ""
+
+
+
+# ╭────────────────────╮
+# │   AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ WhatsApp – AI Auto‑Reply to Enhy
+#   Automatically reply to Enhy's WhatsApp messages using AI generated responses.
+  - id: "whatsapp_ai_autoreply_enhy"
+    alias: "WhatsApp – AI Auto‑Reply to Enhy"
+    description: >
+      When Enhy sends C a WhatsApp message, send it to
+      sensor.ha_text_ai_c_chat_autoreply and return the generated response to Enhy.
+#   Trigger on new WhatsApp messages
+    triggers:
+      - event_type: new_whatsapp_message
+        trigger: event
+#   Ensure message is from Enhy and not a story/group message
+    conditions:
+#   Check if sender is Enhy
+      - condition: template
+        value_template: |-
+          {{  trigger.event.data.key.remoteJid
+              == '447308254154@s.whatsapp.net' }}
+#   Check if message is not a story or group message
+      - condition: template
+        value_template: |
+          {{ 'status@broadcast' not in trigger.event.data.key.remoteJid
+             and '@g.us' not in trigger.event.data.key.remoteJid }}
+#   Process message and generate AI response
+    actions:
+#   Extract message text based on message type
+      - variables:
+          incoming_text: |-
+            {% if trigger.event.data.type == 'conversation' %}
+              {{ trigger.event.data.message.conversation }}
+            {% elif trigger.event.data.type == 'extendedTextMessage' %}
+              {{ trigger.event.data.message.extendedTextMessage.text }}
+            {% else %}
+              {{ '[Unsupported message type]' }}
+            {% endif %}
+#   Store message in buffer and wait for potential follow-up messages
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.whatsapp_message_buffer
+          value: >-
+            {% set current_buffer = states('input_text.whatsapp_message_buffer') %}
+            {% if current_buffer == 'unavailable' or current_buffer == 'unknown' %}
+              {{ incoming_text }}
+            {% else %}
+              {{ current_buffer ~ ' ' ~ incoming_text }}
+            {% endif %}
+#   Wait for potential follow-up messages
+      - delay:
+          seconds: "{{ states('input_number.whatsapp_message_window') | float }}"
+#   Get final buffered message
+      - variables:
+          final_message: "{{ states('input_text.whatsapp_message_buffer') }}"
+#   Clear the buffer
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.whatsapp_message_buffer
+          value: ""
+#   Send buffered message to AI for response generation
+      - data:
+          instance: sensor.ha_text_ai_c_chat_autoreply
+          question: "{{ final_message }}"
+        action: ha_text_ai.ask_question
+#   Brief delay to allow AI response generation
+      - delay:
+          seconds: "{{ states('input_number.whatsapp_ai_delay') | float }}"
+#   Send AI-generated response back to Enhy
+      - data:
+          clientId: c
+          to: 447308254154@s.whatsapp.net
+          body:
+            text: |
+              {{ state_attr('sensor.ha_text_ai_c_chat_autoreply', 'response') }}
+        action: whatsapp.send_message
+# Queue mode with max 2 concurrent executions
+    mode: queued
+    max: "{{ states('input_number.whatsapp_max_concurrent') | int }}"
+
+
+# |   END: c_whatsapp_auto_reply.yaml

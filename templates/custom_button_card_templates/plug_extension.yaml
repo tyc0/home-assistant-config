@@ -1,0 +1,308 @@
+
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰
+#    ______        _                     _                                    
+#   |  ____|      | |                   (_)                                   
+#   | |__   __  __| |_  ___  _ __   ___  _   ___   _ __                       
+#   |  __|  \ \/ /| __|/ _ \| '_ \ / __|| | / _ \ | '_ \                      
+#   | |____  >  < | |_|  __/| | | |\__ \| || (_) || | | |                     
+#   |______|/_/\_\ \__|\___||_| |_||___/|_| \___/ |_| |_|                     
+#           _                                         _                       
+#          | |                                       | |                      
+#    _ __  | | _   _   __ _       ___  __ _  _ __  __| |                      
+#   | '_ \ | || | | | / _` |     / __|/ _` || '__|/ _` |                      
+#   | |_) || || |_| || (_| |    | (__| (_| || |  | (_| |                      
+#   | .__/ |_| \__,_| \__, |     \___|\__,_||_|   \__,_|                      
+#   | |                __/ |                                                  
+#   |_|               |___/                                                   
+#                                                                             
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰
+
+
+
+#────────┨  Title  ║  Info  ┠──────────────────────────────────────────────────┒
+
+
+
+extension_lead:
+  variables:
+    extension_name: EX01
+    wall_plug_name: MPM01    
+    za_extension_formatted: '[[[ return variables.extension_name.toLowerCase().match(/ex\d{2}/)[0]; ]]]'
+    zb_last_two_numbers: '[[[ return variables.za_extension_formatted.slice(2); ]]]'
+    za_wallplug_formatted: '[[[ return variables.wall_plug_name.toLowerCase().match(/(mpm|pm)\d{2}/)[0]; ]]]'
+
+  show_name: true
+  show_label: false
+  show_state: true
+  show_entity_picture: true
+  triggers_update: all
+  entity: '[[[ return `person.${variables.za_user_formatted}` ]]]'
+  name: |
+    [[[
+      let postal_code = states[variables.zc_mobile_app_geocoded_location].attributes.postal_code;
+      if (postal_code) {
+        let location = states[variables.zd_places_integration].attributes.street || states[variables.zc_mobile_app_geocoded_location].attributes.thoroughfare;
+        if (location) {
+          return `<span>
+            ${location.replace('Avenue','Av').replace('Road','Rd').replace('Street','St')}
+            <br>
+            ${postal_code.split(' ')[0]}
+          </span>`;
+        }
+      }
+    ]]]
+  state_display: |
+    [[[
+      let devicetracker_zone = states[variables.zd_places_integration].attributes.devicetracker_zone;
+      if (devicetracker_zone) {
+        return `${devicetracker_zone.replace("Train Station - ","").replace("not_home", states[variables.zd_places_integration].attributes.postal_town,1).replace("undefined","Searching...",1)}`;
+      }
+      let place_name = states[variables.zd_places_integration].attributes.place_name;
+      if (place_name && !devicetracker_zone) {
+        return `${place_name}`; 
+      }
+    ]]]
+  styles:
+    card:
+      - justify-content: flex-end
+      - background: var(--card-background-color)
+      - transition: 0.3s
+      - cursor: default
+      - '--mdc-ripple-color': none
+      - backdrop-filter: blur(2px)
+      - '-webkit-backdrop-filter': blur(2px)
+      - text-shadow: 0px 0px 1px rgba(var(--contrast2-rgb)0.001)
+      - margin-bottom: 24px
+      - min-height: 220px
+      - max-height: 220px
+      - height: 220px
+      - width: 180px
+      - border-radius: 53px 15px 15px 15px
+      - box-shadow: var(--ha-card-box-shadow)
+      - font-family: Poppins, Raleway, SF Pro Text, sans-serif, system-ui
+      - color: |
+          [[[
+            return "rgba(var(--contrast3-rgb), 0.6)";
+          ]]]
+    img_cell:
+      - background: none
+      - height: 100px
+      - width: 300px
+      - top: '-74px'
+      - left: '-120px'
+      - border-bottom-right-radius: 500% 300%
+      - box-shadow: 14px 0px 7px 7px var(--blue) inset, -8px 2px 8px 0px var(--green)
+    icon:
+      - background: none
+      - box-shadow: none
+      - border: none
+      - height: '[[[ return `${variables.profile_pic_zoom}px` ]]]'
+      - width: '[[[ return `${variables.profile_pic_zoom}px` ]]]'
+      - top: '[[[ return `${variables.profile_pic_vertical_position}px` ]]]'
+      - left: '[[[ return `${variables.profile_pic_horizontal_position}px` ]]]'
+      - opacity: '[[[ return `${variables.profile_pic_transparency}` ]]]'
+    state:
+      - color: var(--green)
+      - color-scheme: light
+      - font-size: 17px
+      - font-weight: 200
+      - letter-spacing: 0px
+      - word-spacing: 0px
+      - overflow-wrap: break-word
+      - overflow: visible
+      - text-overflow: ellipsis
+      - position: absolute
+      - top: 52.5%
+      - left: 7%
+      - text-transform: capitalize
+    name:
+      - color: var(--contrast17)
+      - font-family: Poppins, Raleway, SF Pro Text, sans-serif, system-ui
+      - color-scheme: light
+      - font-size: 12px
+      - font-weight: 100
+      - letter-spacing: 0.8px
+      - overflow-wrap: break-word
+      - overflow: visible
+      - text-overflow: ellipsis
+      - white-space: nowrap
+      - line-height: 18.5px
+      - text-align: start
+      - position: absolute
+      - top: 64%
+      - left: 7%
+    custom_fields:
+      time:
+        - display: flex
+        - justify-content: flex-end
+        - background: none
+        - border: none
+        - box-shadow: none
+        - right: 13px
+        - bottom: 6px
+        - opacity: 0.6
+        - width: 180px
+        - position: absolute
+        - color-scheme: light
+        - font-size: 12px
+        - font-weight: 100
+        - letter-spacing: 0.6px
+        - word-spacing: 0px
+        - overflow-wrap: break-word
+        - overflow: visible
+        - text-overflow: ellipsis
+      phone_battery:
+        - background: none
+        - border: none
+        - box-shadow: none
+        - right: '-30px'
+        - bottom: 100px
+        - width: 115px
+        - position: absolute
+      travel_mode:
+        - background: none
+        - border: none
+        - transition: 0.8s ease
+        - box-shadow: none
+        - right: '-31px'
+        - bottom: 128px
+        - width: 115px
+        - overflow: visible
+        - position: absolute
+  custom_fields:
+    travel_mode: |
+      [[[
+        const icons = {
+          "Mums grave": "fapro:duotone_angel",
+          "work": "fapro:duotone_building",
+          "Train Station": "fapro:duotone_train_subway",
+          "in_vehicle": "fapro:duotone_car_bus",
+          "ing": "fapro:duotone_person_running_fast",
+          "home": "fapro:duotone_house_chimney_blank",
+          "still": "fapro:duotone_street_view"
+        };
+  
+        const state = entity.state.toLowerCase();
+        const activity = states[variables.ze_mobile_app_detected_activity].state;
+        const sleepConfidence = states[variables.zh_mobile_app_sleep_confidence].state;
+  
+        for (let key in icons) {
+          if (state.includes(key) || activity.includes(key)) {
+            return `<ha-icon
+              icon="${icons[key]}"
+              style="width: 20px; height: 20px; opacity: 1.0; color: var(--contrast17);">
+            </ha-icon>`;
+          }
+        }
+  
+        if (sleepConfidence > 90) {
+          return `<ha-icon
+            icon="fapro:duotone_snooze"
+            style="width: 20px; height: 20px; opacity: 1.0; color: var(--purple);">
+          </ha-icon>`;
+        }
+      ]]]
+    time: |
+      [[[
+        if (entity) {
+          let time = c => {
+            let s = (c/1e3),
+                m = (c/6e4),
+                h = (c/36e5),
+                d = (c/864e5);
+            return s < 60
+              ? {value: parseInt(s) + 's', color: 'var(--green)'}
+              : m < 10 ? {value: parseInt(m) + 'm', color: 'var(--green)'}
+              : m < 60 ? {value: parseInt(m) + 'm', color: 'var(--yellow)'}
+              : h < 24 ? {value: parseInt(h) + 'h', color: 'var(--orange)'}
+              : {value: parseInt(d) + 'd', color: 'var(--red)'};
+          };
+          let result = time(Date.now() - Date.parse(entity.last_updated));
+          return `<span style="color: ${result.color}; display: flex; align-items: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 25 25">
+              <rect width="25" height="25" fill="none"/>
+              <path fill="var(--contrast17)" d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,20a9,9,0,1,1,9-9A9,9,0,0,1,12,21Z"/>
+              <rect width="2" height="7" x="11" y="6" fill="var(--contrast17)" rx="1">
+                <animateTransform attributeName="transform" dur="9s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/>
+              </rect>
+              <rect width="2" height="9" x="11" y="11" fill="var(--contrast17)" rx="1">
+                <animateTransform attributeName="transform" dur="0.75s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/>
+              </rect>
+            </svg>
+            &nbsp;${result.value}&nbsp;<span style="color: var(--contrast17)">ago</span>
+          </span>`;
+        }
+  
+      ]]]
+    phone_battery:
+      card:
+        type: custom:apexcharts-card
+        header:
+          show: false
+        chart_type: radialBar
+        apex_config:
+          plotOptions:
+            radialBar:
+              startAngle: -135
+              endAngle: 225
+              hollow:
+                margin: 0
+                size: 65%
+                background: none
+                position: front
+                dropShadow:
+                  enabled: true
+                  top: 3
+                  left: 0
+                  blur: 4
+                  opacity: 0.24
+              dataLabels:
+                name:
+                  offsetY: -25
+                  show: false
+                  color: '#888'
+                  fontSize: 17px
+                value:
+                  color: '#111'
+                  fontSize: 36px
+                  show: false
+                  offsetY: 0
+              track:
+                background: transparent
+                strokeWidth: 3%
+                margin: 1
+                dropShadow:
+                  enabled: true
+                  top: -3
+                  left: 2
+                  blur: 1
+                  opacity: 1
+            background:
+              enabled: true
+          fill:
+            type: gradient
+            gradient:
+              shadeIntensity: 0
+              type: horizontal
+              opacityFrom: 1
+              opacityTo: 1
+              colorStops:
+                - color: var(--green)
+                  opacity: 0.77
+          stroke:
+            lineCap: round
+          legend:
+            show: false
+        series:
+          - entity: '[[[ return `${variables.zf_mobile_app_battery_level}` ]]]'
+        card_mod:
+          style: |
+            ha-card {
+              background: none;
+              border: none;
+              box-shadow: none;
+              }
+
+
+
+#──────────────────────────────────────────────────────────────────────────────┚

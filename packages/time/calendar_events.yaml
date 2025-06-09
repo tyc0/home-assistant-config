@@ -1,0 +1,268 @@
+# | START: calendar_events.yaml
+# | PATH: /config/packages/time/calendar_events.yaml
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Calendars
+#   Notifications for calendar events
+  - id: '1709870803991'
+    alias: Calendars
+    description: 'All calendar event automations '
+    trigger:
+    - platform: calendar
+      event: start
+      entity_id: calendar.special_day
+      id: Event start - Special Day
+      alias: Event start - Special day
+    - platform: calendar
+      event: start
+      entity_id: calendar.both
+      id: Event start - Both
+      alias: Event start - Both
+    - platform: calendar
+      event: start
+      entity_id: calendar.cam
+      id: Event start - Cam
+      alias: Event start - Cam
+    - platform: calendar
+      event: start
+      entity_id: calendar.enhy
+      id: Event start - Enhy
+      alias: Event start -Enhy
+    action:
+    - if:
+      - condition: trigger
+        id:
+        - Event start - Special Day
+        - Event start - Both
+        - Event start - Cam
+        - Event start - Enhy
+      then:
+      - service: persistent_notification.create
+        data:
+          message: 'Calendar event due today: {{ trigger.calendar_event.summary }}'
+    mode: parallel
+    max: 10
+
+# ➔ Calendar Event Notifications
+#   Detailed event notifications with reminders
+  - id: '1735996285679'
+    alias: Calendar Event Notifications
+    description: Sends notifications for calendar events based on specific criteria
+      and timing
+    triggers:
+    - hours: '*'
+      minutes: '0'
+      trigger: time_pattern
+    actions:
+    - data:
+        start_date: '{{ now().strftime(''%Y-%m-%d'') }}'
+        end_date: '{{ (now() + timedelta(days=4)).strftime(''%Y-%m-%d'') }}'
+      response_variable: all_events
+      action: calendar.list_events
+    - variables:
+        upcoming_events: "{% set events = [] %} {% for calendar in all_events %}\n  {%
+          for event in calendar.events %}\n    {% set event_dict = {\n      'calendar':
+          calendar.name,\n      'summary': event.summary,\n      'start': event.start,\n
+          \     'end': event.end,\n      'all_day': event.all_day,\n      'description':
+          event.description | default(''),\n      'location': event.location | default('')\n
+          \   } %}\n    {% set events = events + [event_dict] %}\n  {% endfor %}\n{%
+          endfor %} {{ events }}\n"
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: '{{ now().strftime(''%H:%M'') == ''15:00'' }}'
+        sequence:
+        - variables:
+            notification_events: "{% set events_to_notify = {} %} {% for event in upcoming_events
+              %}\n  {% set event_date = event.start.strftime('%Y-%m-%d') %}\n  {% if
+              (as_datetime(event_date) - now()).days == 3 %}\n    {% if event_date not
+              in events_to_notify %}\n      {% set events_to_notify = events_to_notify
+              | combine({event_date: []}) %}\n    {% endif %}\n    {% set events_to_notify
+              = events_to_notify | combine({\n      event_date: events_to_notify[event_date]
+              + [event]\n    }, recursive=True) %}\n  {% endif %}\n{% endfor %} {{ events_to_notify
+              }}\n"
+        - data:
+            message: "{% for date, events in notification_events.items() %}\n  {% set
+              cam_events = [] %}\n  {% for event in events %}\n    {% if event.calendar
+              in cam_calendars %}\n      {% set cam_events = cam_events + [event] %}\n
+              \   {% endif %}\n  {% endfor %}\n  {% if cam_events | length > 0 %}\n
+              \   Upcoming in 3 days ({{ date }}):\n    {% for event in cam_events %}\n
+              \     {{ event.summary }}\n      {%- if not event.all_day %} at {{ event.start.strftime('%H:%M')
+              }}{% endif %}\n      {%- if event.location %} ({{ event.location }}){%
+              endif %}\n      {%- if event.description %}: {{ event.description }}{%
+              endif %}\n    {% endfor %}\n  {% endif %}\n{% endfor %}\n"
+            title: Calendar Events - 3 Day Reminder
+          action: notify.mobile_app_phone_c
+        - data:
+            message: "{% for date, events in notification_events.items() %}\n  {% set
+              enhy_events = [] %}\n  {% for event in events %}\n    {% if event.calendar
+              in enhy_calendars %}\n      {% set enhy_events = enhy_events + [event]
+              %}\n    {% endif %}\n  {% endfor %}\n  {% if enhy_events | length > 0
+              %}\n    Upcoming in 3 days ({{ date }}):\n    {% for event in enhy_events
+              %}\n      {{ event.summary }}\n      {%- if not event.all_day %} at {{
+              event.start.strftime('%H:%M') }}{% endif %}\n      {%- if event.location
+              %} ({{ event.location }}){% endif %}\n      {%- if event.description %}:
+              {{ event.description }}{% endif %}\n    {% endfor %}\n  {% endif %}\n{%
+              endfor %}\n"
+            title: Calendar Events - 3 Day Reminder
+          action: notify.mobile_app_phone_e
+      - conditions:
+        - condition: template
+          value_template: '{{ now().strftime(''%H:%M'') == ''09:00'' }}'
+        sequence:
+        - variables:
+            notification_events: "{% set events_to_notify = {} %} {% for event in upcoming_events
+              %}\n  {% set event_date = event.start.strftime('%Y-%m-%d') %}\n  {% if
+              (as_datetime(event_date) - now()).days == 1 %}\n    {% if event_date not
+              in events_to_notify %}\n      {% set events_to_notify = events_to_notify
+              | combine({event_date: []}) %}\n    {% endif %}\n    {% set events_to_notify
+              = events_to_notify | combine({\n      event_date: events_to_notify[event_date]
+              + [event]\n    }, recursive=True) %}\n  {% endif %}\n{% endfor %} {{ events_to_notify
+              }}\n"
+        - data:
+            message: "{% for date, events in notification_events.items() %}\n  {% set
+              cam_events = [] %}\n  {% for event in events %}\n    {% if event.calendar
+              in cam_calendars %}\n      {% set cam_events = cam_events + [event] %}\n
+              \   {% endif %}\n  {% endfor %}\n  {% if cam_events | length > 0 %}\n
+              \   Tomorrow's events ({{ date }}):\n    {% for event in cam_events %}\n
+              \     {{ event.summary }}\n      {%- if not event.all_day %} at {{ event.start.strftime('%H:%M')
+              }}{% endif %}\n      {%- if event.location %} ({{ event.location }}){%
+              endif %}\n      {%- if event.description %}: {{ event.description }}{%
+              endif %}\n    {% endfor %}\n  {% endif %}\n{% endfor %}\n"
+            title: Calendar Events - Tomorrow
+          action: notify.mobile_app_phone_c
+        - data:
+            message: "{% for date, events in notification_events.items() %}\n  {% set
+              enhy_events = [] %}\n  {% for event in events %}\n    {% if event.calendar
+              in enhy_calendars %}\n      {% set enhy_events = enhy_events + [event]
+              %}\n    {% endif %}\n  {% endfor %}\n  {% if enhy_events | length > 0
+              %}\n    Tomorrow's events ({{ date }}):\n    {% for event in enhy_events
+              %}\n      {{ event.summary }}\n      {%- if not event.all_day %} at {{
+              event.start.strftime('%H:%M') }}{% endif %}\n      {%- if event.location
+              %} ({{ event.location }}){% endif %}\n      {%- if event.description %}:
+              {{ event.description }}{% endif %}\n    {% endfor %}\n  {% endif %}\n{%
+              endfor %}\n"
+            title: Calendar Events - Tomorrow
+          action: notify.mobile_app_phone_e
+      - conditions:
+        - condition: template
+          value_template: '{{ now().strftime(''%H:%M'') == ''06:00'' }}'
+        sequence:
+        - variables:
+            notification_events: "{% set events_to_notify = {} %} {% for event in upcoming_events
+              %}\n  {% set event_date = event.start.strftime('%Y-%m-%d') %}\n  {% if
+              event_date == now().strftime('%Y-%m-%d') %}\n    {% if event.all_day or
+              event.start.strftime('%H:%M') >= '06:00' %}\n      {% if event_date not
+              in events_to_notify %}\n        {% set events_to_notify = events_to_notify
+              | combine({event_date: []}) %}\n      {% endif %}\n      {% set events_to_notify
+              = events_to_notify | combine({\n        event_date: events_to_notify[event_date]
+              + [event]\n      }, recursive=True) %}\n    {% endif %}\n  {% endif %}\n{%
+              endfor %} {{ events_to_notify }}\n"
+        - data:
+            message: "{% for date, events in notification_events.items() %}\n  {% set
+              cam_events = [] %}\n  {% for event in events %}\n    {% if event.calendar
+              in cam_calendars %}\n      {% set cam_events = cam_events + [event] %}\n
+              \   {% endif %}\n  {% endfor %}\n  {% if cam_events | length > 0 %}\n
+              \   Today's events:\n    {% for event in cam_events %}\n      {{ event.summary
+              }}\n      {%- if not event.all_day %} at {{ event.start.strftime('%H:%M')
+              }}{% endif %}\n      {%- if event.location %} ({{ event.location }}){%
+              endif %}\n      {%- if event.description %}: {{ event.description }}{%
+              endif %}\n    {% endfor %}\n  {% endif %}\n{% endfor %}\n"
+            title: Calendar Events - Today
+          action: notify.mobile_app_phone_c
+        - data:
+            message: "{% for date, events in notification_events.items() %}\n  {% set
+              enhy_events = [] %}\n  {% for event in events %}\n    {% if event.calendar
+              in enhy_calendars %}\n      {% set enhy_events = enhy_events + [event]
+              %}\n    {% endif %}\n  {% endfor %}\n  {% if enhy_events | length > 0
+              %}\n    Today's events:\n    {% for event in enhy_events %}\n      {{
+              event.summary }}\n      {%- if not event.all_day %} at {{ event.start.strftime('%H:%M')
+              }}{% endif %}\n      {%- if event.location %} ({{ event.location }}){%
+              endif %}\n      {%- if event.description %}: {{ event.description }}{%
+              endif %}\n    {% endfor %}\n  {% endif %}\n{% endfor %}\n"
+            title: Calendar Events - Today
+          action: notify.mobile_app_phone_e
+      - conditions:
+        - condition: template
+          value_template: '{{ now().minute == 0 }}'
+        sequence:
+        - variables:
+            notification_events: "{% set events_to_notify = {} %} {% for event in upcoming_events
+              %}\n  {% if not event.all_day %}\n    {% set event_start = event.start
+              %}\n    {% set hour_before = event_start - timedelta(hours=1) %}\n    {%
+              if hour_before.strftime('%Y-%m-%d %H:%M') == now().strftime('%Y-%m-%d
+              %H:%M') %}\n      {% set event_date = event_start.strftime('%Y-%m-%d')
+              %}\n      {% if event_date not in events_to_notify %}\n        {% set
+              events_to_notify = events_to_notify | combine({event_date: []}) %}\n      {%
+              endif %}\n      {% set events_to_notify = events_to_notify | combine({\n
+              \       event_date: events_to_notify[event_date] + [event]\n      }, recursive=True)
+              %}\n    {% endif %}\n  {% endif %}\n{% endfor %} {{ events_to_notify }}\n"
+        - data:
+            message: "{% for date, events in notification_events.items() %}\n  {% set
+              cam_events = [] %}\n  {% for event in events %}\n    {% if event.calendar
+              in cam_calendars %}\n      {% set cam_events = cam_events + [event] %}\n
+              \   {% endif %}\n  {% endfor %}\n  {% if cam_events | length > 0 %}\n
+              \   Events starting in 1 hour:\n    {% for event in cam_events %}\n      {{
+              event.summary }} at {{ event.start.strftime('%H:%M') }}\n      {%- if
+              event.location %} ({{ event.location }}){% endif %}\n      {%- if event.description
+              %}: {{ event.description }}{% endif %}\n    {% endfor %}\n  {% endif %}\n{%
+              endfor %}\n"
+            title: Calendar Events - Starting Soon
+          action: notify.mobile_app_phone_c
+        - data:
+            message: "{% for date, events in notification_events.items() %}\n  {% set
+              enhy_events = [] %}\n  {% for event in events %}\n    {% if event.calendar
+              in enhy_calendars %}\n      {% set enhy_events = enhy_events + [event]
+              %}\n    {% endif %}\n  {% endfor %}\n  {% if enhy_events | length > 0
+              %}\n    Events starting in 1 hour:\n    {% for event in enhy_events %}\n
+              \     {{ event.summary }} at {{ event.start.strftime('%H:%M') }}\n      {%-
+              if event.location %} ({{ event.location }}){% endif %}\n      {%- if event.description
+              %}: {{ event.description }}{% endif %}\n    {% endfor %}\n  {% endif %}\n{%
+              endfor %}\n"
+            title: Calendar Events - Starting Soon
+          action: notify.mobile_app_phone_e
+    variables:
+      cam_calendars:
+      - calendar.cam
+      - calendar.both
+      - calendar.special_day
+      enhy_calendars:
+      - calendar.enhy
+      - calendar.both
+      - calendar.special_day
+
+# ➔ Update e_Sleep Summary with AI Response
+#   Updates the sleep summary using AI
+  - id: '1724982754965'
+    alias: Update e_Sleep Summary with AI Response
+    description: ''
+    trigger:
+    - platform: state
+      entity_id:
+      - sensor.withings_e_light_sleep
+    condition:
+    - condition: template
+      value_template: '{{ (as_timestamp(now()) - as_timestamp(states.sensor.withings_e_light_sleep.last_changed))
+        > 1800 }}
+
+        '
+      enabled: false
+    action:
+    - target:
+        entity_id:
+        - sensor.e_sleep_summary_response
+      action: homeassistant.update_entity
+      data: {}
+    - target:
+        entity_id:
+        - sensor.ai_text_response
+      action: homeassistant.update_entity
+      data: {}
+
+
+# | END: calendar_events.yaml

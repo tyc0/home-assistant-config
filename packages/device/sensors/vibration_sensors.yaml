@@ -1,0 +1,27 @@
+# | START: vibration_sensors.yaml
+# |  PATH: /config/packages/sensors/vibration_sensors.yaml
+
+
+#  ╭──────────────────────────────╮
+#  │   TEMPLATE (trigger-based)
+#  ╰──────────────────────────────╯
+template:
+
+# ➔ VS00  Last Trigger (including events)
+#   Last time the vibration sensor was triggered (accounts for events and state changes)
+  - trigger:
+      - platform: state
+        entity_id: binary_sensor.vs00_vibration
+    sensor:
+      - name: VS00 Vibration Last Trigger
+        unique_id: vs00_vibration_last_trigger
+        state: >
+          {% if trigger.to_state %}
+            {{ trigger.to_state.last_changed | as_timestamp | timestamp_local }}
+          {% else %}
+            unknown
+          {% endif %}
+        icon: mdi:vibrate
+
+
+# |   END: vibration_sensors.yaml

@@ -1,0 +1,69 @@
+
+# | START: structure.yaml
+# |  PATH: /config/packages/device/structure.yaml
+
+
+#  ╭────────────────────╮
+#  │   INPUT BOOLEAN
+#  ╰────────────────────╯
+input_boolean:
+
+# ➔ Blind - Left side closing
+#   Toggle for the left side blind
+  blind_left_closing:
+    name: Blind - Left side closing
+    initial: off
+
+# ➔ Blind - Right side closing
+#   Toggle for the right side blind
+  blind_right_closing:
+    name: Blind - Right side closing
+    initial: off
+
+# ➔ Blind - Left side opening
+#   Toggle for the left side blind
+  blind_left_opening:
+    name: Blind - Left side closing
+    initial: off  
+
+# ➔ Blind - Right side opening
+#   Toggle for the right side blind
+  blind_right_opening:
+    name: Blind - Right side opening
+    initial: off
+
+# ➔ Blinds - Auto mode
+#   Toggle for the auto mode  
+  blinds_automode:
+    name: Blinds - Auto mode
+
+
+
+#  ╭────────────────────╮
+#  │   COVER
+#  ╰────────────────────╯
+cover:
+
+# ➔ C Bedroom Window Motor
+#   Covers:
+  - platform: template
+    covers:
+      c_bedroom_window:
+        friendly_name: "C Bedroom Window Motor"
+        device_class: curtain
+        open_cover:
+          service: cover.open_cover
+          data:
+            entity_id: "{{ states('input_text.c_bedroom_window_motor_id') }}"
+        close_cover:
+          service: cover.close_cover
+          data:
+            entity_id: "{{ states('input_text.c_bedroom_window_motor_id') }}"
+        stop_cover:
+          service: cover.stop_cover
+          data:
+            entity_id: "{{ states('input_text.c_bedroom_window_motor_id') }}"
+        position_template: "{{ 100 - state_attr(states('input_text.c_bedroom_window_motor_id'), 'current_position') | int }}"
+
+
+# |   END: structure.yaml

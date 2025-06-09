@@ -1,0 +1,805 @@
+
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰ 
+
+
+#     _____                _         _   _                         
+#    / ____|              ( )       | | | |                        
+#   | |     __ _ _ __ ___ |/ ___    | |_| |__   ___ _ __ ___   ___ 
+#   | |    / _` | '_ ` _ \  / __|   | __| '_ \ / _ | '_ ` _ \ / _ \
+#   | |___| (_| | | | | | | \__ \   | |_| | | |  __| | | | | |  __/
+#    \_____\__,_|_| |_| |_| |___/    \__|_| |_|\___|_| |_| |_|\___|
+#                                                                  
+#                                                                  
+
+
+#▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰▰ 
+
+
+
+#────────┨  Title  ║  Info  ┠──────────────────────────────────────────────────┒
+
+#──────────────────────────────────────────────────────────────────────────────┚
+
+
+
+
+
+
+cams_theme:
+  card-mod-root: |
+    "body > home-assistant$home-assistant-main$ha-drawer > ha-sidebar .notifications-container > paper-icon-item > span.notification-badge":
+      $: |
+        .notification-badge {
+          color: #1E2030 !important;
+        }
+        span.notification-badge {
+          color: #1E2030 !important;
+        }
+
+  card-mod-card: |
+    ha-card.type-light {
+      .header-footer, .card-content .attributes {
+        display: none;
+      }
+    }
+
+
+
+
+
+
+
+  lovelace-background: 'center / cover no-repeat fixed url("/local/media/image/svg/animated/looped/background/spotlight.svg")'    # Sets the background image for the Lovelace UI.
+
+#################################################
+#                                               #
+#   -  COLOURS                                  #
+#                                               #
+#################################################
+
+  # Color RGB variables
+  purple-rgb: 239, 177, 255                                                                                                     # Defines the RGB value for the purple color.
+  yellow-rgb: 255, 218, 120                                                                                                     # Defines the RGB value for the yellow color.
+  orange-rgb: 255, 181, 129                                                                                                     # Defines the RGB value for the orange color.
+  red-rgb: 255, 145, 138                                                                                                        # Defines the RGB value for the red color.
+  green-rgb: 68, 248, 202                                                                                                      # Defines the RGB value for the green color.
+  blue-rgb: 144, 191, 255                                                                                                       # Defines the RGB value for the blue color.
+
+  devicegreen-rgb: 127, 255, 216                                                                                                # RGB value for the green color used in device themes.
+  deviceblue-rgb: 146, 192, 254                                                                                                 # RGB value for the blue color used in device themes.
+  deviceorange-rgb: 255, 181, 129                                                                                               # RGB value for the orange color used in device themes.
+  deviceyellow-rgb: 255, 218, 120                                                                                               # RGB value for the yellow color used in device themes.
+  devicepink-rgb: 255, 192, 254                                                                                                 # RGB value for the pink color used in device themes.
+  devicered-rgb: 255, 145, 138                                                                                                  # RGB value for the red color used in device themes.
+
+  purple-dark-rgb: 139, 77, 155                                                                                                 # Defines the dark variant RGB value for the purple color.
+  yellow-dark-rgb: 61, 56, 40                                                                                                   # Defines the dark variant RGB value for the yellow color.
+  orange-dark-rgb: 61, 49, 43                                                                                                   # Defines the dark variant RGB value for the orange color.
+  red-dark-rgb: 155, 45, 38                                                                                                     # Defines the dark variant RGB value for the red color.
+  green-dark-rgb: 51, 61, 46                                                                                                    # Defines the dark variant RGB value for the green color.
+  blue-dark-rgb: 39, 50, 66                                                                                                     # Defines the dark variant RGB value for the blue color.
+
+  # Contrast variables
+  black1: "#000000"                                                                                                             # Hex value for pure black.
+  black2: "#111318"                                                                                                             # Slightly lighter shade of black.
+  black3: "#171A21"                                                                                                             # Another shade of black for contrast.
+  black4: "#1C1F27"                                                                                                             # Dark grayish black for contrast.
+  black5: "#262A35"                                                                                                             # Even lighter shade of black.
+  black6: "#353946"                                                                                                             # Mid-tone grayish black.
+  black7: "#434856"                                                                                                             # Lighter grayish black.
+  black8: "#535865"                                                                                                             # Another shade of lighter black.
+  black9: "#636774"                                                                                                             # Light grayish black.
+  black10: "#777A83"                                                                                                            # Very light grayish black.
+  white10: "#898C94"                                                                                                            # Darker shade of white.
+  white9: "#969AA6"                                                                                                             # Slightly lighter shade of white.
+  white8: "#A4A9B6"                                                                                                             # Mid-tone white.
+  white7: "#B3B8C6"                                                                                                             # Lighter shade of white.
+  white6: "#C3C8D5"                                                                                                             # Another lighter shade of white.
+  white5: "#D4D8E2"                                                                                                             # Very light shade of white.
+  white4: "#E1E5EF"                                                                                                             # Almost white.
+  white3: "#EAEDF6"                                                                                                             # Near white.
+  white2: "#F4F6FB"                                                                                                             # Very near white.
+  white1: "#FFFFFF"                                                                                                             # Pure white.
+
+  markdown-code-background-color: "#465d72"                                                                                     # Background color for code blocks in markdown.
+  background-color: "#404b5b"                                                                                                   # General background color.
+
+  # Black / White
+  black: "#000000"                                                                                                              # Pure black color.
+  white: "#FFFFFF"                                                                                                              # Pure white color.
+
+# '#ff00de'  This is strong pink colour 
+
+  # General Colors Light
+  wa-teal: var(--wa-primary)                                                                                                    # Teal color variable referencing primary color.
+  wa-green: '#25d366'                                                                                                           # Hex value for WhatsApp green color.
+  wa-blue: '#5daeea'                                                                                                            # Hex value for WhatsApp blue color.
+  wa-pink: '#ff2e74'                                                                                                            # Hex value for WhatsApp pink color.
+  wa-purple: '#7f66ff'                                                                                                          # Hex value for WhatsApp purple color.
+  wa-orange: '#fb7b4a'                                                                                                          # Hex value for WhatsApp orange color.
+  wa-red: '#ff6359'                                                                                                             # Hex value for WhatsApp red color.
+  wa-yellow: '#fff44a'                                                                                                          # Hex value for WhatsApp yellow color.
+  wa-cyan: '#2efbff'                                                                                                            # Hex value for WhatsApp cyan color.
+  wa-gray: '#a0a4a5'                                                                                                            # Hex value for WhatsApp gray color.
+  wa-black: '#00110d'                                                                                                           # Hex value for WhatsApp black color.
+  wa-gray-dark: '#1a2429'                                                                                                       # Dark gray color for WhatsApp theme.
+  wa-black-dark: '#00110d'                                                                                                      # Dark black color for WhatsApp theme.
+
+  # General Colors Dark
+  wa-teal-dark: var(--wa-primary-dark)                                                                                          # Dark teal color variable referencing primary dark color.
+  wa-green-dark: var(--wa-green-dark)                                                                                           # Dark green color variable referencing green dark color.
+  wa-blue-dark: var(--wa-blue)                                                                                                  # Dark blue color variable referencing blue color.
+  wa-pink-dark: var(--wa-pink)                                                                                                  # Dark pink color variable referencing pink color.
+  wa-purple-dark: var(--wa-purple)                                                                                              # Dark purple color variable referencing purple color.
+  wa-orange-dark: var(--wa-orange)                                                                                              # Dark orange color variable referencing orange color.
+  wa-red-dark: var(--wa-red)                                                                                                    # Dark red color variable referencing red color.
+  wa-yellow-dark: var(--wa-yellow)                                                                                              # Dark yellow color variable referencing yellow color.
+  wa-cyan-dark: var(--wa-cyan)                                                                                                  # Dark cyan color variable referencing cyan color.
+
+  # LIGHT THEME
+
+  # UI Colors Light - Hex
+  wa-bg: '#f7f7f7'                                                                                                              # Background color for light theme.
+  wa-bg-2: '#f7f8fa'                                                                                                            # Slightly different background color for sections.
+  wa-header: '#ffffff'                                                                                                          # Header background color.
+  wa-convo-bg: '#f7f7f7'                                                                                                        # Conversation background color.
+  wa-modal-bg: '#fff'                                                                                                           # Modal background color.
+  wa-primary: '#fb7b4a'                                                                                                         # Primary color for light theme.
+  wa-primary-2: '#feb193'                                                                                                       # Secondary primary color for accents.
+  wa-text: '#0e0e0e'                                                                                                            # Primary text color.
+  wa-text-2: '#b1b1b1'                                                                                                          # Secondary text color.
+  wa-badge-bg: '#c3c7c9'                                                                                                        # Background color for badges.
+  wa-bubble-bg: '#ffeadb'                                                                                                       # Background color for chat bubbles.
+  wa-divider: '#f5f2f1'                                                                                                         # Divider color.
+
+  # UI Colors Light - RGB
+  wa-bg-rgb: 247, 247, 247                                                                                                      # RGB value for background color.
+  wa-bg-2-rgb: 247, 248, 250                                                                                                    # RGB value for secondary background color.
+  wa-header-rgb: 255, 255, 255                                                                                                  # RGB value for header color.
+  wa-convo-bg-rgb: 247, 247, 247                                                                                                # RGB value for conversation background color.
+  wa-modal-bg-rgb: 255, 255, 255                                                                                                # RGB value for modal background color.
+  wa-primary-rgb: 251, 123, 74                                                                                                  # RGB value for primary color.
+  wa-primary-2-rgb: 254, 177, 147                                                                                               # RGB value for secondary primary color.
+  wa-text-rgb: 14, 14, 14                                                                                                       # RGB value for primary text color.
+  wa-text-2-rgb: 177, 177, 177                                                                                                  # RGB value for secondary text color.
+  wa-badge-bg-rgb: 195, 199, 201                                                                                                # RGB value for badge background color.
+  wa-bubble-bg-rgb: 255, 234, 219                                                                                               # RGB value for chat bubble background color.
+  wa-divider-rgb: 245, 242, 241                                                                                                 # RGB value for divider color.
+
+  # DARK THEME
+
+  # UI Colors Dark - Hex
+  wa-bg-dark: '#24273a'                                                                                                         # Background color for dark theme.
+  wa-header-dark: '#1e2030'                                                                                                     # Header background color for dark theme.
+  wa-convo-bg-dark: '#ff00de'                                                                                                   # Conversation background color for dark theme.
+  wa-modal-bg-dark : '#1e2030'                                                                                                  # Modal background color for dark theme.
+  wa-primary-dark: var(--green)      #'#41a8ff'                                                                                                    # Primary color for dark theme.
+  wa-primary-dark-2: '#3b4060'                                                                                                  # Secondary primary color for dark theme.
+  wa-text-dark: '#ffffff'                                                                                                       # Primary text color for dark theme.
+  wa-text-dark-2: '#a5adcb'                                                                                                     # Secondary text color for dark theme.
+  wa-badge-bg-dark: '#ff2e74'                                                                                                   # Badge background color for dark theme.
+  wa-bubble-bg-dark: '#34384c'                                                                                                  # Chat bubble background color for dark theme.
+  wa-divider-dark: '#ff2e74'                                                                                                    # Divider color for dark theme.
+
+  # UI Colors Dark - RGB
+  wa-bg-dark-rgb: 36, 39, 58                                                                                                    # RGB value for dark background color.
+  wa-header-dark-rgb: 30, 32, 48                                                                                                # RGB value for dark header color.
+  wa-convo-bg-dark-rgb: 255, 0, 222                                                                                             # RGB value for dark conversation background color.
+  wa-modal-bg-dark-rgb: 30, 32, 48                                                                                              # RGB value for dark modal background color.
+  wa-primary-dark-rgb: 65, 168, 255                                                                                             # RGB value for dark primary color.
+  wa-primary-dark-2-rgb: 59, 64, 96                                                                                             # RGB value for dark secondary primary color.
+  wa-text-dark-rgb: 255, 255, 255                                                                                               # RGB value for dark primary text color.
+  wa-text-dark-2-rgb: 165, 173, 203                                                                                             # RGB value for dark secondary text color.
+  wa-badge-bg-dark-rgb: 255, 46, 116                                                                                            # RGB value for dark badge background color.
+  wa-bubble-bg-dark-rgb: 52, 56, 76                                                                                             # RGB value for dark chat bubble background color.
+  wa-divider-dark-rgb: 255, 46, 116                                                                                             # RGB value for dark divider color.
+
+#################################################
+#                                               #
+#   -  DASHBOARD DESIGN                         #
+#                                               #
+#################################################
+
+# Background image
+#  lovelace-background: 'center / cover no-repeat url("/local/background.jpg") fixed'                                             # Uncomment to set a background image for the Lovelace dashboard.
+
+#################################################
+#                                               #
+#   -  CARD STRUCTURE                           #
+#                                               #
+#################################################
+
+  ha-card-border-width: 0px                                                                                                      # Sets the border width of Home Assistant cards to 0px.
+
+  #alternative font
+  #primary-font-family: Poppins, Raleway, SF Pro Text, sans-serif, system-ui                                                      # Uncomment to set alternative primary font family.
+  primary-font-family: SF Pro Text, Roboto, system-ui                                                                            # Primary font family used for the theme.
+  paper-font-common-base_-_font-family: var(--primary-font-family)                                                               # Base font family for paper elements.
+  paper-font-common-code_-_font-family: var(--primary-font-family)                                                               # Font family for code elements.
+  paper-font-body1_-_font-family: var(--primary-font-family)                                                                     # Font family for body1 elements.
+  paper-font-subhead_-_font-family: var(--primary-font-family)                                                                   # Font family for subhead elements.
+  paper-font-headline_-_font-family: var(--primary-font-family)                                                                  # Font family for headline elements.
+  paper-font-caption_-_font-family: var(--primary-font-family)                                                                   # Font family for caption elements.
+  paper-font-title_-_font-family: var(--primary-font-family)                                                                     # Font family for title elements.
+  ha-card-header-font-family: var(--primary-font-family)                                                                         # Font family for card headers.
+  mdc-typography-body1-font-family: var(--primary-font-family)                                                                   # Font family for typography body1.
+  mdc-typography-font-family: var(--primary-font-family)                                                                         # General font family for typography.
+
+#lovelace-background: 'center / cover no-repeat fixed url("/local/bluebg.jpg")'                                                   # Uncomment to set a different background image for the Lovelace UI.
+
+  honeycomb-menu-icon-color: var(--paper-item-icon-color);                                                                       # Color for honeycomb menu icons.
+  honeycomb-menu-icon-active-color: var(--paper-item-icon-active-color);                                                         # Color for active honeycomb menu icons.
+  honeycomb-menu-background-color: var(--paper-card-background-color);                                                           # Background color for honeycomb menu.
+  honeycomb-menu-active-background-color: var(--paper-card-active-background-color, var(--paper-card-background-color));         # Background color for active honeycomb menu items.
+
+  primary-background-color: radial-gradient(circle, hsla(231, 49%, 68%, 1) 0%, hsla(231, 76%, 59%, 1) 100%)                      # Radial gradient background color.
+
+  background-color-2: 'var(--background-color)'                                                                                  # Secondary background color.
+  secondary-background-color: 'var(--background-color)'                                                                          # Another secondary background color.
+
+# Colors
+  orange-color: var(--orange)                                                                                                    # Variable referencing the orange color.
+  green-color: var(--green)                                                                                                      # Variable referencing the green color.
+  blue-color: var(--blue)                                                                                                        # Variable referencing the blue color.
+  red-color: var(--red)                                                                                                          # Variable referencing the red color.
+  purple-color: var(--purple)                                                                                                    # Variable referencing the purple color.
+  yellow-color: var(--yellow)                                                                                                    # Variable referencing the yellow color.
+  grey-color: var(--contrast10)                                                                                                  # Variable referencing the gray color.
+
+  #######################################################
+  ############### Custom global variables ###############
+  #######################################################
+
+  # Colors
+  purple: rgb(var(--purple-rgb))                                                                                                # Custom variable for the purple color.
+  yellow: rgb(var(--yellow-rgb))                                                                                                # Custom variable for the yellow color.
+  orange: rgb(var(--orange-rgb))                                                                                                # Custom variable for the orange color.
+  red: rgb(var(--red-rgb))                                                                                                      # Custom variable for the red color.
+  green: rgb(var(--green-rgb))                                                                                                  # Custom variable for the green color.
+  blue: rgb(var(--blue-rgb))                                                                                                    # Custom variable for the blue color.
+
+  devicegreen: rgb(var(--devicegreen-rgb))                                                                                      # Custom variable for the device green color.
+  deviceblue: rgb(var(--deviceblue-rgb))                                                                                        # Custom variable for the device blue color.
+  deviceorange: rgb(var(--deviceorange-rgb))                                                                                    # Custom variable for the device orange color.
+  deviceyellow: rgb(var(--deviceyellow-rgb))                                                                                    # Custom variable for the device yellow color.
+  devicepink: rgb(var(--devicepink-rgb))                                                                                        # Custom variable for the device pink color.
+  devicered: rgb(var(--devicered-rgb))                                                                                          # Custom variable for the device red color.
+
+  #To-do list color scheme
+  mdc-text-field-fill-color: transparent                                                                                        # Transparent background color for text fields.
+  mdc-text-field-ink-color: var(--contrast18)                                                                                   # Ink color for text fields.
+  mdc-text-field-label-ink-color: var(--blue)                                                                                   # Label ink color for text fields.
+  mdc-text-field-idle-line-color: var(--contrast6)                                                                              # Line color for idle text fields.
+  mdc-text-field-hover-line-color: var(--blue-dark)                                                                             # Line color for hovered text fields.
+  mdc-theme-primary: var(--blue)                                                                                                # Primary theme color.
+
+  darker: "#0000001A"                                                                                                           # Darker shade with 10% opacity.
+  darker60: "#00000099"                                                                                                         # Darker shade with 60% opacity.
+
+  # Color tints
+  purple-tint: rgba(var(--purple-rgb),var(--color-tint))                                                                        # Tint color for purple with specified opacity.
+  yellow-tint: rgba(var(--yellow-rgb),var(--color-tint))                                                                        # Tint color for yellow with specified opacity.
+  orange-tint: rgba(var(--orange-rgb),var(--color-tint))                                                                        # Tint color for orange with specified opacity.
+  red-tint: rgba(var(--red-rgb),var(--color-tint))                                                                              # Tint color for red with specified opacity.
+  green-tint: rgba(var(--green-rgb),var(--color-tint))                                                                          # Tint color for green with specified opacity.
+  blue-tint: rgba(var(--blue-rgb),var(--color-tint))                                                                            # Tint color for blue with specified opacity.
+
+  # Color dark
+  purple-dark: rgb(var(--purple-dark-rgb))                                                                                      # Dark variant of the purple color.
+  yellow-dark: rgb(var(--yellow-dark-rgb))                                                                                      # Dark variant of the yellow color.
+  orange-dark: rgba(var(--orange-dark-rgb))                                                                                     # Dark variant of the orange color.
+  red-dark: rgb(var(--red-dark-rgb))                                                                                            # Dark variant of the red color.
+  green-dark: rgb(var(--green-dark-rgb))                                                                                        # Dark variant of the green color.
+  blue-dark: rgb(var(--blue-dark-rgb))                                                                                          # Dark variant of the blue color.
+
+  # Gradients
+  brightness: linear-gradient(90deg, rgba(var(--brightness-low-rgb), 0.4) 0%, rgba(var(--brightness-high-rgb), 1) 100%)         # Gradient for brightness levels.
+  brightness-tint: linear-gradient(90deg, rgba(var(--brightness-low-rgb), 0.06) 0%, rgba(var(--brightness-high-rgb), var(--color-tint)) 100%)  # Tint gradient for brightness.
+  temperature: linear-gradient(90deg, rgba(var(--temperature-low-rgb), 01) 0%, rgba(var(--temperature-high-rgb), 1) 100%)      # Gradient for temperature levels.
+  temperature-tint: linear-gradient(90deg, rgba(var(--temperature-low-rgb), var(--color-tint)) 0%, rgba(var(--temperature-high-rgb), var(--color-tint)) 100%)  # Tint gradient for temperature.
+
+  # Common
+  # Header
+  header-height: '64px'                                                                                                         # Sets the height of the header.
+
+#  #browser-mod popups (backup copy)
+#  dialog-backdrop-filter: blur(2em) brightness(0.75)                                                                            # Uncomment to apply a blur and brightness filter to the background of popups.
+#  popup-background-color: rgba(34,38,39,0.9)                                                                                    # Uncomment to set a semi-transparent dark background for popup windows.
+#  popup-border-width: 1px                                                                                                       # Uncomment to define a 1-pixel border around popup windows.
+#  popup-border-radius: 1em                                                                                                      # Uncomment to set rounded corners for popup windows.
+#  popup-padding-x: 0px                                                                                                          # Uncomment to specify horizontal padding inside popups.
+#  popup-padding-y: 0px                                                                                                          # Uncomment to specify vertical padding inside popups.
+#  popup-max-width: 600px                                                                                                        # Uncomment to ensure that popups have a maximum width of 600 pixels.
+#  popup-min-width: 440px                                                                                                        # Uncomment to ensure that popups have a minimum width of 440 pixels.
+#  tablet-popup-header-color: rgba(200, 218, 222, 0.05)                                                                          # Uncomment to set a very light, nearly transparent color for headers in tablet popups.
+#  tablet-popup-content-padding: 1.1em 2.2em 1.6em 1.5em                                                                         # Uncomment to define the padding around content in tablet popups.
+#  tablet-popup-button-padding: 0.1em 2em 1.8em 2em                                                                              # Uncomment to customize padding around buttons in tablet popups.
+#  tablet-popup-border-style: 1.5px solid rgba(0,0,0,0.2)                                                                        # Uncomment to add a subtle solid border to tablet popups.
+#  tablet-popup-align-dialog: center                                                                                             # Uncomment to center the popup dialog within the screen.
+#  tablet-popup-margin-top: 0px                                                                                                  # Uncomment to set the top margin of the tablet popup to 0px.
+
+  # Browser mod popup styling
+  dialog-backdrop-filter: blur(2em) brightness(0.75)                                                                            # Applies a blur and brightness filter to the background of popups for focus effect.
+  popup-background-color: rgba(34,38,39,0.9)                                                                                    # Sets a semi-transparent dark background for popup windows to enhance readability.
+  popup-border-width: 1px                                                                                                       # Defines a 1-pixel border around popup windows for visual separation from the background.
+  popup-border-radius: 1em                                                                                                      # Sets rounded corners for popup windows, with a radius of 1em for a smoother look.
+  popup-padding-x: 0px                                                                                                          # Specifies horizontal padding inside popups, set to 0px for full-width content usage.
+  popup-padding-y: 0px                                                                                                          # Specifies vertical padding inside popups, set to 0px to maximize space for content.
+  popup-min-width: 440px                                                                                                        # Ensures that popups have a minimum width of 440 pixels for consistency in design.
+  tablet-popup-header-color: rgba(200, 218, 222, 0.05)                                                                          # Sets a very light, nearly transparent color for headers in tablet popups.
+  tablet-popup-content-padding: 1.1em 2.2em 1.6em 1.5em                                                                         # Defines the padding around content in tablet popups, giving ample space for touch interactions.
+  tablet-popup-button-padding: 0.1em 2em 1.8em 2em                                                                              # Customizes padding around buttons in tablet popups to ensure they are easy to press.
+  tablet-popup-border-style: 1.5px solid rgba(0,0,0,0.2)                                                                        # Adds a subtle solid border to tablet popups, enhancing the visual structure.
+  tablet-popup-align-dialog: center                                                                                             # Centers the popup dialog within the screen or window, ideal for focus and balance.
+  tablet-popup-margin-top: 0px                                                                                                  # Sets the top margin of the tablet popup to 0px, aligning it closely to the top of the viewport.
+
+  # Text styling
+  paper-font-headline_-_font-size: '16px'                                                                                       # Sets the font size for headline text to 16px, ideal for titles and headers to stand out.
+
+  # Sidebar styling
+  sidebar-selected-background-color: var(--primary-background-color)                                                            # Uses the primary background color for selected items in the sidebar, highlighting the active section.
+  sidebar-icon-color: var(--secondary-text-color)                                                                               # Sets the color of icons in the sidebar to the secondary text color for subtle visibility.
+  sidebar-text-color: var(--primary-text-color)                                                                                 # Defines the main text color in the sidebar, ensuring it contrasts well against the background.
+  sidebar-selected-icon-color: var(--primary-color)                                                                             # Highlights icons of selected items in the sidebar with the primary color for emphasis.
+  sidebar-selected-text-color: var(--sidebar-selected-icon-color)                                                               # Aligns the text color of selected items with their icon color for a consistent look.
+
+  # Button styling
+  mdc-theme-on-primary: '#fff'                                                                                                  # Specifies the text color on primary buttons as white ('#fff'), offering optimal contrast.
+
+  # Card styling
+  ha-card-border-radius: '8px'                                                                                                  # Applies an 8px radius to card borders, softening the edges for a modern look.
+  ha-card-border-color: var(--divider-color)                                                                                    # Sets the border color of cards to match the divider color for thematic consistency.
+  ha-card-header-font-size: '16px'                                                                                              # Establishes a uniform 16px font size for card headers, making them distinct and readable.
+
+#  # Input styling
+#  paper-input-container-color: var(--secondary-text-color)                                                                      # Changes the color of input containers to secondary text color for aesthetic uniformity.
+#  paper-input-container-focus-color: var(--primary-color)                                                                       # Highlights input containers in the primary color when focused, drawing attention.
+#  paper-input-container-underline-focus_-_border-color: var(--primary-color)                                                    # Colors the underline border of focused inputs in the primary color for visual feedback.
+#  paper-input-container-underline_-_border-color: var(--secondary-text-color)                                                   # Sets the default underline border color for inputs to the secondary text color.
+
+#  # Checkboxes/radio buttons
+  mdc-checkbox-unchecked-color: var(--secondary-text-color)                                                                     # Assigns a discrete secondary text color to unchecked checkboxes for a subdued appearance.
+  mdc-radio-unchecked-color: var(--secondary-text-color)                                                                        # Applies the secondary text color to unchecked radio buttons, maintaining visual consistency.
+
+  # Slider styling
+  paper-slider-knob-color: var(--primary-color)                                                                                 # Uses the primary color for slider knobs, making them stand out as interactive elements.
+  paper-slider-knob-start-color: var(--paper-slider-knob-color)                                                                 # Sets the initial color of slider knobs to match the ongoing knob color.
+  paper-slider-pin-color: var(--paper-slider-knob-color)                                                                        # Colors the pin of sliders to match the knob, creating a cohesive design element.
+  paper-slider-active-color: var(--paper-slider-knob-color)                                                                     # Ensures the active part of the slider is the same color as the knob for visual continuity.
+  paper-slider-secondary-color: var(--light-primary-color)                                                                      # Chooses a lighter shade of the primary color for the secondary part of the slider.
+
+  # Modal styling
+  ha-dialog-border-radius: '10px'                                                                                               # Defines a 10px radius for dialog borders, ensuring a soft, approachable look for modals.
+  ha-card-background: rgba(30, 32, 48, 0.95)                                                                                    # Sets a dark semi-transparent background for cards in modals, adding depth and focus.
+  ha-card-box-shadow: '0px 2px 4px rgba(0,0,0,0.2)'                                                                             # Applies a light shadow to cards, enhancing their prominence and readability.
+
+  # Gauge styling
+  info-color: var(--primary-color)                                                                                              # Utilizes the primary color for informational gauges, ensuring they are both noticeable and aesthetically integrated.
+
+  # Table styling
+  table-row-background-color: var(--primary-background-color)                                                                   # Applies the primary background color to table rows, ensuring a seamless visual flow.
+  table-row-alternative-background-color: var(--secondary-background-color)                                                     # Provides an alternative background color for alternating table rows, enhancing readability.
+  data-table-background-color: var(--primary-background-color)                                                                  # Sets the overall background color for data tables to the primary background color.
+
+  # Custom cards
+  # Mini graph card
+  mcg-title-font-weight: '16px'                                                                                                 # Specifies a 16px font weight for titles in mini graph cards, highlighting important data.
+
+  # Mini media player card
+  mini-media-player-accent-color: var(--text-primary-color)                                                                     # Sets the accent color for mini media player cards to the primary text color, focusing user attention.
+  mini-media-player-icon-color: var(--text-primary-color)                                                                       # Matches the icon color in mini media player cards to the primary text color for consistency.
+
+  # Sun card
+  sun-card-text-color: var(--primary-text-color);                                                                               # Defines the text color on sun cards as the primary text color, ensuring clarity and focus.
+  sun-card-subtitle-color: var(--secondary-text-color);                                                                         # Sets the subtitle color on sun cards to the secondary text color, distinguishing it subtly from main text.
+
+  modes:
+    # Dark mode
+    dark:
+      # Black white contrats
+      contrast1: var(--black1)                                                                                                  # Variable for the first contrast color in dark mode.
+      contrast2: var(--black2)                                                                                                  # Variable for the second contrast color in dark mode.
+      contrast3: var(--black3)                                                                                                  # Variable for the third contrast color in dark mode.
+      contrast4: var(--black4)                                                                                                  # Variable for the fourth contrast color in dark mode.
+      contrast5: var(--black5)                                                                                                  # Variable for the fifth contrast color in dark mode.
+      contrast6: var(--black6)                                                                                                  # Variable for the sixth contrast color in dark mode.
+      contrast7: var(--black7)                                                                                                  # Variable for the seventh contrast color in dark mode.
+      contrast8: var(--black8)                                                                                                  # Variable for the eighth contrast color in dark mode.
+      contrast9: var(--black9)                                                                                                  # Variable for the ninth contrast color in dark mode.
+      contrast10: var(--black10)                                                                                                # Variable for the tenth contrast color in dark mode.
+      contrast11: var(--white10)                                                                                                # Variable for the eleventh contrast color in dark mode.
+      contrast12: var(--white9)                                                                                                 # Variable for the twelfth contrast color in dark mode.
+      contrast13: var(--white8)                                                                                                 # Variable for the thirteenth contrast color in dark mode.
+      contrast14: var(--white7)                                                                                                 # Variable for the fourteenth contrast color in dark mode.
+      contrast15: var(--white6)                                                                                                 # Variable for the fifteenth contrast color in dark mode.
+      contrast16: var(--white5)                                                                                                 # Variable for the sixteenth contrast color in dark mode.
+      contrast17: var(--white4)                                                                                                 # Variable for the seventeenth contrast color in dark mode.
+      contrast18: var(--white3)                                                                                                 # Variable for the eighteenth contrast color in dark mode.
+      contrast19: var(--white2)                                                                                                 # Variable for the nineteenth contrast color in dark mode.
+      contrast20: var(--white1)                                                                                                 # Variable for the twentieth contrast color in dark mode.
+
+      # Color tint transparancy
+      color-tint: "0.5"                                                                                                         # Transparency level for color tints in dark mode.
+
+      # Contrast RGB variables
+      contrast1-rgb: 0,0,0                                                                                                      # RGB value for the first contrast color in dark mode.
+      contrast2-rgb: 17, 19, 24                                                                                                 # RGB value for the second contrast color in dark mode.
+      contrast3-rgb: 23, 26, 33                                                                                                 # RGB value for the third contrast color in dark mode.
+      contrast4-rgb: 28, 31, 39                                                                                                 # RGB value for the fourth contrast color in dark mode.
+      contrast5-rgb: 38, 42, 53                                                                                                 # RGB value for the fifth contrast color in dark mode.
+      contrast6-rgb: 53, 57, 70                                                                                                 # RGB value for the sixth contrast color in dark mode.
+      contrast7-rgb: 67, 72,86                                                                                                  # RGB value for the seventh contrast color in dark mode.
+      contrast8-rgb: 83, 88, 101                                                                                                # RGB value for the eighth contrast color in dark mode.
+      contrast9-rgb: 99, 103, 116                                                                                               # RGB value for the ninth contrast color in dark mode.
+      contrast10-rgb: 119, 122, 131                                                                                             # RGB value for the tenth contrast color in dark mode.
+      contrast11-rgb: 137, 140, 148                                                                                             # RGB value for the eleventh contrast color in dark mode.
+      contrast12-rgb: 150, 154, 166                                                                                             # RGB value for the twelfth contrast color in dark mode.
+      contrast13-rgb: 164, 169, 182                                                                                             # RGB value for the thirteenth contrast color in dark mode.
+      contrast14-rgb: 179, 184, 198                                                                                             # RGB value for the fourteenth contrast color in dark mode.
+      contrast15-rgb: 195, 200, 213                                                                                             # RGB value for the fifteenth contrast color in dark mode.
+      contrast16-rgb: 212, 216, 226                                                                                             # RGB value for the sixteenth contrast color in dark mode.
+      contrast17-rgb: 225, 229, 239                                                                                             # RGB value for the seventeenth contrast color in dark mode.
+      contrast18-rgb: 234, 237, 246                                                                                             # RGB value for the eighteenth contrast color in dark mode.
+      contrast19-rgb: 244, 246, 251                                                                                             # RGB value for the nineteenth contrast color in dark mode.
+      contrast20-rgb: 255, 255, 255                                                                                             # RGB value for the twentieth contrast color in dark mode.
+
+      # Header:
+      app-header-background-color: var(--wa-header-dark)                                                                        # Background color of the app header.
+      app-header-text-color: 165, 173, 203                                                                                      # Text and icon color of horizontal page tabs at top of dashboard. 
+      app-header-border-bottom: 1px solid var(--divider-color)                                                                  # Bottom border of the app header.
+      app-header-edit-background-color: var(--wa-header-dark)                                                                   # Background color of the app header in edit mode.
+      app-header-edit-text-color: var(--primary-text-color)                                                                     # Text color of the app header in edit mode.
+      app-header-selection-bar-color: var(--primary-color)                                                                      # Color of the selection bar in the app header.
+      app-header-selection-text-color: var(--primary-color)                                                                     # Text color of the selected item in the app header.
+
+      # Main theme colors
+      primary-color: var(--wa-primary-dark)                                                                                     # Primary color used throughout the UI.
+      light-primary-color: var(--primary-color)                                                                                 # Lighter shade of the primary color.
+      primary-background-color: var(--wa-bg-dark)                                                                               # Background color for primary areas.
+      secondary-background-color: var(--wa-bg-dark)                                                                             # Background color for secondary areas.
+      divider-color: rgba(255,255,255,.03)                                                                                      # Color for dividers between UI elements.
+      accent-color: var(--wa-primary-dark)                                                                                      # Accent color used for highlights and active elements.
+      mdc-theme-primary: var(--wa-primary-dark)                                                                                 # Material components primary theme color.
+
+      # Text styling
+      primary-text-color: var(--wa-text-dark)                                                                                   # Main text color.
+      secondary-text-color: var(--wa-text-dark-2)                                                                               # Secondary text color for less prominent information.
+      text-primary-color: '#fff'                                                                                                # Primary text color, usually for buttons or titles.
+      disabled-text-color: var(--wa-text-dark-2)                                                                                # Text color for disabled elements.
+      mdc-theme-on-secondary: '#fff'                                                                                            # Text color on secondary background.
+
+      # Sidebar customization
+      sidebar-background-color: var(--wa-header-dark)                                                                           # Background color of the sidebar.
+
+      # Button styling
+      paper-item-icon-color: var(--wa-text-dark-2)                                                                              # Icon color in lists and paper items.
+      paper-item-icon-active-color: var(--wa-primary-dark)                                                                      # Icon color when active or selected.
+
+      # Labels and badges
+      label-badge-background-color: var(--wa-gray-dark)                                                                         # Background color of label badges.
+      label-badge-text-color: var(--red)                                                                               # Text color inside label badges.
+      label-badge-red: var(--wa-red-dark)                                                                                       # Color for red badges, indicating errors or warnings.
+      label-badge-green: var(--wa-teal-dark)                                                                                    # Color for green badges, indicating normal operation.
+      label-badge-blue: var(--wa-blue-dark)                                                                                     # Color for blue badges, typically informational.
+      label-badge-yellow: var(--wa-yellow-dark)                                                                                 # Color for yellow badges, typically for warnings.
+      label-badge-gray: var(--wa-gray-dark)                                                                                     # Color for gray badges, typically for disabled or inactive items.
+
+      # Card styling
+      card-background-color: rgba(var(--contrast1-rgb), 0.1)                                                                    # Background color of cards.
+      ha-card-background: rgba(var(--contrast1-rgb), 0.1)                                                                       # Alternative background color for cards.
+      ha-card-box-shadow: none                                                                                                  # Box shadow for cards, set to 'none' for a flat design.
+      paper-dialog-background-color: var(--wa-text-dark)                                                                        # Background color for dialogs.
+      paper-card-background-color: var(--card-background-color)                                                                 # Background color for paper-like cards.
+      ha-card-header-color: var(--wa-text-dark-2)                                                                               # Text color for card titles (such as the UI editable title field on entities cards).
+
+      # Switches
+      switch-checked-button-color: var(--wa-primary-dark)                                                                       # Button color when the switch is active/checked.
+      switch-checked-track-color: var(--wa-primary-dark)                                                                        # Track color when the switch is active/checked.
+      switch-unchecked-button-color: rgb(172, 176, 185)                                                                         # Button color when the switch is inactive/unchecked.
+      switch-unchecked-track-color: rgb(154, 160, 166)                                                                          # Track color when the switch is inactive/unchecked.
+
+      # Toggles
+      paper-toggle-button-checked-button-color: var(--switch-checked-button-color)                                               # Button color for checked toggle.
+      paper-toggle-button-checked-bar-color: var(--switch-checked-track-color)                                                   # Bar color for checked toggle.
+      paper-toggle-button-unchecked-button-color: var(--switch-unchecked-button-color)                                           # Button color for unchecked toggle.
+      paper-toggle-button-unchecked-bar-color: var(--switch-unchecked-track-color)                                               # Bar color for unchecked toggle.
+
+      # Dropdowns
+      material-background-color: var(--wa-modal-bg-dark)                                                                        # Background color for dropdowns.
+      material-secondary-background-color: var(--primary-background-color)                                                      # Secondary background color for dropdowns.
+      mdc-theme-surface: var(--wa-modal-bg-dark)                                                                                # Surface color for material components in dropdowns.
+      paper-listbox-background-color: var(--wa-modal-bg-dark)                                                                   # Background color for listbox in dropdowns.
+
+      # Code editor
+      markdown-code-background-color: var(--wa-bg-dark)                                                                         # Background color for code blocks in markdown.
+
+      # Checkboxes
+      mdc-select-ink-color: var(--primary-text-color)                                                                           # Text color for selected item in dropdown.
+      mdc-select-label-ink-color: var(--secondary-text-color)                                                                   # Label text color in dropdowns.
+      mdc-select-idle-line-color: var(--primary-text-color)                                                                     # Line color when dropdown is not focused.
+      mdc-select-dropdown-icon-color: var(--secondary-text-color)                                                               # Dropdown icon color.
+      mdc-select-hover-line-color: var(--accent-color)                                                                          # Line color when dropdown is hovered.
+
+      # Inputs
+      input-dropdown-icon-color: var(--secondary-text-color)                                                                    # Dropdown icon color in input fields.
+      input-ink-color: var(--primary-text-color)                                                                                # Text color for input fields.
+      input-label-ink-color: var(--secondary-text-color)                                                                        # Label color for input fields.
+      input-idle-line-color: var(--primary-text-color)                                                                          # Line color of inputs when not focused.
+      input-hover-line-color: var(--accent-color)                                                                               # Line color of inputs on hover.
+
+      # Modals
+      mdc-dialog-scrim-color: 'rgba(0, 0, 0, 0.5)'                                                                              # Background scrim color for modals.
+
+      # Ripple
+      mdc-ripple-color: '#67afff'                                                                                               # Color for ripple effects (e.g., on button clicks).
+      paper-tab-ink: var(--wa-primary-dark-2)                                                                                   # Ink color for paper tabs.
+
+      # Chips
+      ha-chip-background-color: var(--wa-badge-bg-dark)                                                                         # Background color for chips.
+      ha-chip-text-color: var(--primary-text-color)                                                                             # Text color for chips.
+
+      # States
+      state-icon-color: var(--green)                                                                                            # Default color for state icons.
+      state-icon-active-color: var(--wa-primary-dark)                                                                           # Color for active state icons.
+      state-icon-unavailable-color: var(--red)                                                                                  # Color for unavailable state icons.
+      state-on-color: var(--wa-teal)                                                                                            # Color indicating "on" state.
+      state-off-color: var(--contrast10)                                                                                        # Color indicating "off" state.
+      state-home-color: var(--wa-teal)                                                                                          # Color for "home" state.
+      state-not_home-color: var(--contrast10)                                                                                   # Color for "not home" state.
+      state-unknown-color: var(--red)                                                                                           # Color for "unknown" state.
+      state-idle-color: var(--wa-gray)                                                                                          # Color for "idle" state.
+      state-climate-cool-color: var(--primary-color)                                                                            # Color for "cool" state in climate controls.
+      state-climate-heat-color: var(--primary-color)                                                                            # Color for "heat" state in climate controls.
+
+      # Graphs
+      graph-color-1: var(--wa-teal-dark)                                                                                        # Primary graph color.
+      graph-color-2: var(--wa-blue-dark)                                                                                        # Second graph color.
+      graph-color-3: var(--wa-yellow-dark)                                                                                      # Third graph color.
+      graph-color-4: var(--wa-red-dark)                                                                                         # Fourth graph color.
+      graph-color-5: var(--wa-purple-dark)                                                                                      # Fifth graph color.
+      graph-color-6: var(--wa-pink-dark)                                                                                        # Sixth graph color.
+      graph-color-7: var(--wa-orange-dark)                                                                                      # Seventh graph color.
+      graph-color-8: var(--wa-cyan-dark)                                                                                        # Eighth graph color.
+      graph-color-9: var(--wa-green-dark)                                                                                       # Ninth graph color.
+
+      # Toasts
+      paper-toast-background-color: var(--wa-modal-bg-dark)                                                                     # Background color for toast notifications.
+      paper-toast-color: var(--primary-text-color)                                                                              # Text color for toast notifications.
+
+      # Progressbar
+      mdc-linear-progress-buffer-color: 'rgba(0,0,0,0.4)'                                                                       # Buffer color for linear progress bars.
+
+    # Light mode
+    light:
+      # Black white contrats
+      contrast1: var(--white1)                                                                                                  # Variable for the first contrast color in light mode.
+      contrast2: var(--white2)                                                                                                  # Variable for the second contrast color in light mode.
+      contrast3: var(--white3)                                                                                                  # Variable for the third contrast color in light mode.
+      contrast4: var(--white4)                                                                                                  # Variable for the fourth contrast color in light mode.
+      contrast5: var(--white5)                                                                                                  # Variable for the fifth contrast color in light mode.
+      contrast6: var(--white6)                                                                                                  # Variable for the sixth contrast color in light mode.
+      contrast7: var(--white7)                                                                                                  # Variable for the seventh contrast color in light mode.
+      contrast8: var(--white8)                                                                                                  # Variable for the eighth contrast color in light mode.
+      contrast9: var(--white9)                                                                                                  # Variable for the ninth contrast color in light mode.
+      contrast10: var(--white10)                                                                                                # Variable for the tenth contrast color in light mode.
+      contrast11: var(--black10)                                                                                                # Variable for the eleventh contrast color in light mode.
+      contrast12: var(--black9)                                                                                                 # Variable for the twelfth contrast color in light mode.
+      contrast13: var(--black8)                                                                                                 # Variable for the thirteenth contrast color in light mode.
+      contrast14: var(--black7)                                                                                                 # Variable for the fourteenth contrast color in light mode.
+      contrast15: var(--black6)                                                                                                 # Variable for the fifteenth contrast color in light mode.
+      contrast16: var(--black5)                                                                                                 # Variable for the sixteenth contrast color in light mode.
+      contrast17: var(--black4)                                                                                                 # Variable for the seventeenth contrast color in light mode.
+      contrast18: var(--black3)                                                                                                 # Variable for the eighteenth contrast color in light mode.
+      contrast19: var(--black2)                                                                                                 # Variable for the nineteenth contrast color in light mode.
+      contrast20: var(--black1)                                                                                                 # Variable for the twentieth contrast color in light mode.
+
+      # Color tint transparancy
+      color-tint: "0.5"                                                                                                         # Transparency level for color tints in light mode.
+
+      # Contrast RGB variables
+      contrast20-rgb: 0,0,0                                                                                                     # RGB value for the twentieth contrast color in light mode.
+      contrast19-rgb: 17, 19, 24                                                                                                # RGB value for the nineteenth contrast color in light mode.
+      contrast18-rgb: 23, 26, 33                                                                                                # RGB value for the eighteenth contrast color in light mode.
+      contrast17-rgb: 28, 31, 39                                                                                                # RGB value for the seventeenth contrast color in light mode.
+      contrast16-rgb: 38, 42, 53                                                                                                # RGB value for the sixteenth contrast color in light mode.
+      contrast15-rgb: 53, 57, 70                                                                                                # RGB value for the fifteenth contrast color in light mode.
+      contrast14-rgb: 67, 72, 86                                                                                                # RGB value for the fourteenth contrast color in light mode.
+      contrast13-rgb: 83, 88, 101                                                                                               # RGB value for the thirteenth contrast color in light mode.
+      contrast12-rgb: 99, 103, 116                                                                                              # RGB value for the twelfth contrast color in light mode.
+      contrast11-rgb: 119, 122, 131                                                                                             # RGB value for the eleventh contrast color in light mode.
+      contrast10-rgb: 137, 140, 148                                                                                             # RGB value for the tenth contrast color in light mode.
+      contrast9-rgb: 150, 154, 166                                                                                              # RGB value for the ninth contrast color in light mode.
+      contrast8-rgb: 164, 169, 182                                                                                              # RGB value for the eighth contrast color in light mode.
+      contrast7-rgb: 179, 184, 198                                                                                              # RGB value for the seventh contrast color in light mode.
+      contrast6-rgb: 195, 200, 213                                                                                              # RGB value for the sixth contrast color in light mode.
+      contrast5-rgb: 212, 216, 226                                                                                              # RGB value for the fifth contrast color in light mode.
+      contrast4-rgb: 225, 229, 239                                                                                              # RGB value for the fourth contrast color in light mode.
+      contrast3-rgb: 234, 237, 246                                                                                              # RGB value for the third contrast color in light mode.
+      contrast2-rgb: 244, 246, 251                                                                                              # RGB value for the second contrast color in light mode.
+      contrast1-rgb: 255, 255, 255                                                                                              # RGB value for the first contrast color in light mode.
+
+      # Header:
+      app-header-background-color: var(--wa-header)                                                                             # Background color of the app header in light mode.
+      app-header-text-color: '#b1b1b1'                                                                                          # Text color of the app header in light mode.
+      app-header-border-bottom: 1px solid var(--wa-bg)                                                                          # Bottom border of the app header in light mode.
+      app-header-edit-background-color: var(--wa-primary-2)                                                                     # Background color of the app header in edit mode in light mode.
+      app-header-edit-text-color: var(--wa-text-dark)                                                                           # Text color of the app header in edit mode in light mode.
+
+      # Main UI - hex
+      primary-color: var(--wa-primary)                                                                                          # Primary color for light mode.
+      light-primary-color: var(--wa-bubble-bg)                                                                                  # Lighter shade of the primary color for light mode.
+      primary-background-color: var(--wa-bg)                                                                                    # Background color for primary areas in light mode.
+      secondary-background-color: var(--wa-bg)                                                                                  # Background color for secondary areas in light mode.
+      divider-color: 'rgba(0, 0, 0, .02)'                                                                                       # Color for dividers between UI elements in light mode.
+      accent-color: var(--wa-primary)                                                                                           # Accent color used for highlights and active elements in light mode.
+      mdc-theme-primary: var(--wa-primary)                                                                                      # Material components primary theme color for light mode.
+
+      # Main UI - RGB
+      primary-color-rgb: var(--wa-primary)                                                                                      # RGB value for primary color in light mode.
+      light-primary-color-rgb: var(--wa-bubble-bg)                                                                              # RGB value for lighter shade of primary color in light mode.
+      primary-background-color-rgb: var(--wa-bg)                                                                                # RGB value for primary background color in light mode.
+      secondary-background-color-rgb: var(--wa-bg)                                                                              # RGB value for secondary background color in light mode.
+
+      accent-color-rgb: var(--wa-primary)                                                                                       # RGB value for accent color in light mode.
+      mdc-theme-primary-rgb: var(--wa-primary)                                                                                  # RGB value for material components primary theme color in light mode.
+
+      # Text
+      primary-text-color: var(--wa-text)                                                                                        # Main text color in light mode.
+      secondary-text-color: var(--wa-text-2)                                                                                    # Secondary text color for less prominent information in light mode.
+      text-primary-color: '#fff'                                                                                                # Primary text color, usually for buttons or titles in light mode.
+      disabled-text-color: var(--secondary-text-color)                                                                          # Text color for disabled elements in light mode.
+      mdc-theme-on-secondary: '#fff'                                                                                            # Text color on secondary background in light mode.
+
+      # Sidebar
+      sidebar-background-color: '#fff'                                                                                          # Background color of the sidebar in light mode.
+
+      # Buttons
+      paper-item-icon-color: var(--green)                                                                                       # Icon color in lists and paper items in light mode.
+      paper-item-icon-active-color: var(--green)                                                                                # Icon color when active or selected in light mode.
+
+      # Labels
+      label-badge-background-color: var(--wa-gray)                                                                              # Background color of label badges in light mode.
+      label-badge-text-color: var(--red)                                                                               # Text color inside label badges in light mode.
+      label-badge-red: var(--wa-red)                                                                                           # Color for red badges, indicating errors or warnings in light mode.
+      label-badge-green: var(--wa-teal)                                                                                         # Color for green badges, indicating normal operation in light mode.
+      label-badge-blue: var(--wa-blue)                                                                                          # Color for blue badges, typically informational in light mode.
+      label-badge-yellow: var(--wa-yellow)                                                                                      # Color for yellow badges, typically for warnings in light mode.
+      label-badge-gray: var(--wa-gray)                                                                                          # Color for gray badges, typically for disabled or inactive items in light mode.
+
+      # Cards
+      card-background-color: '#fff'                                                                                             # Background color of cards in light mode.
+      ha-card-background: '#fff'                                                                                                # Alternative background color for cards in light mode.
+      ha-card-box-shadow: '0 1px 1.5px rgba(11, 20, 26, .16)'                                                                   # Box shadow for cards in light mode.
+      paper-dialog-background-color: var(--card-background-color)                                                               # Background color for dialogs in light mode.
+      paper-card-background-color: var(--card-background-color)                                                                 # Background color for paper-like cards in light mode.
+      ha-card-header-color: var(--wa-text-2)                                                                                    # Text color for card titles in light mode.
+
+      # Switches
+      switch-checked-button-color: var(--wa-green)                                                                              # Button color when the switch is active/checked in light mode.
+      switch-checked-track-color: var(--wa-primary-2)                                                                           # Track color when the switch is active/checked in light mode.
+      switch-unchecked-button-color: rgb(172, 176, 185)                                                                         # Button color when the switch is inactive/unchecked in light mode.
+      switch-unchecked-track-color: rgb(154, 160, 166)                                                                          # Track color when the switch is inactive/unchecked in light mode.
+
+      # Toggles
+      paper-toggle-button-checked-button-color: var(--switch-checked-button-color)                                               # Button color for checked toggle in light mode.
+      paper-toggle-button-checked-bar-color: var(--switch-checked-track-color)                                                   # Bar color for checked toggle in light mode.
+      paper-toggle-button-unchecked-button-color: var(--switch-unchecked-button-color)                                           # Button color for unchecked toggle in light mode.
+      paper-toggle-button-unchecked-bar-color: var(--switch-unchecked-track-color)                                               # Bar color for unchecked toggle in light mode.
+
+      # Dropdowns
+      material-background-color: var(--wa-modal-bg)                                                                             # Background color for dropdowns in light mode.
+      material-secondary-background-color: var(--primary-background-color)                                                      # Secondary background color for dropdowns in light mode.
+      mdc-theme-surface: var(--wa-modal-bg)                                                                                     # Surface color for material components in dropdowns in light mode.
+      paper-listbox-background-color: var(--wa-modal-bg)                                                                        # Background color for listbox in dropdowns in light mode.
+
+      # Code editor
+      markdown-code-background-color: var(--wa-bg)                                                                              # Background color for code blocks in markdown in light mode.
+
+      # Checkboxes
+      mdc-select-ink-color: var(--primary-text-color)                                                                           # Text color for selected item in dropdown in light mode.
+      mdc-select-label-ink-color: var(--secondary-text-color)                                                                   # Label text color in dropdowns in light mode.
+      mdc-select-idle-line-color: var(--primary-text-color)                                                                     # Line color when dropdown is not focused in light mode.
+      mdc-select-dropdown-icon-color: var(--secondary-text-color)                                                               # Dropdown icon color in light mode.
+      mdc-select-hover-line-color: var(--accent-color)                                                                          # Line color when dropdown is hovered in light mode.
+
+      # Inputs
+      input-dropdown-icon-color: var(--secondary-text-color)                                                                    # Dropdown icon color in input fields in light mode.
+      input-ink-color: var(--primary-text-color)                                                                                # Text color for input fields in light mode.
+      input-label-ink-color: var(--secondary-text-color)                                                                        # Label color for input fields in light mode.
+      input-idle-line-color: var(--primary-text-color)                                                                          # Line color of inputs when not focused in light mode.
+      input-hover-line-color: var(--accent-color)                                                                               # Line color of inputs on hover in light mode.
+
+      # Modals
+      mdc-dialog-scrim-color: 'rgba(0, 0, 0, 0.5)'                                                                              # Background scrim color for modals in light mode.
+
+      # Ripple
+      mdc-ripple-color: '#80d4c2'                                                                                               # Color for ripple effects in light mode.
+      paper-tab-ink: var(--wa-primary-2)                                                                                        # Ink color for paper tabs in light mode.
+
+      # Chips
+      ha-chip-background-color: var(--wa-badge-bg)                                                                              # Background color for chips in light mode.
+      ha-chip-text-color: var(--primary-text-color)                                                                             # Text color for chips in light mode.
+
+      # States
+      state-icon-color: var(--wa-text)                                                                                          # Default color for state icons in light mode.
+      state-icon-active-color: var(--wa-header)                                                                                 # Color for active state icons in light mode.
+      state-icon-unavailable-color: var(--disabled-text-color)                                                                  # Color for unavailable state icons in light mode.
+      state-on-color: var(--wa-teal)                                                                                            # Color indicating "on" state in light mode.
+      state-off-color: var(--wa-red)                                                                                            # Color indicating "off" state in light mode.
+      state-home-color: var(--wa-teal)                                                                                          # Color for "home" state in light mode.
+      state-not_home-color: var(--wa-red)                                                                                       # Color for "not home" state in light mode.
+      state-unknown-color: var(--wa-gray)                                                                                       # Color for "unknown" state in light mode.
+      state-idle-color: var(--wa-gray)                                                                                          # Color for "idle" state in light mode.
+      state-climate-cool-color: var(--primary-color)                                                                            # Color for "cool" state in climate controls in light mode.
+      state-climate-heat-color: var(--primary-color)                                                                            # Color for "heat" state in climate controls in light mode.
+
+      # Graphs
+      graph-color-1: var(--wa-teal)                                                                                             # Primary graph color in light mode.
+      graph-color-2: var(--wa-blue)                                                                                             # Second graph color in light mode.
+      graph-color-3: var(--wa-yellow)                                                                                           # Third graph color in light mode.
+      graph-color-4: var(--wa-red)                                                                                              # Fourth graph color in light mode.
+      graph-color-5: var(--wa-purple)                                                                                           # Fifth graph color in light mode.
+      graph-color-6: var(--wa-pink)                                                                                             # Sixth graph color in light mode.
+      graph-color-7: var(--wa-orange)                                                                                           # Seventh graph color in light mode.
+      graph-color-8: var(--wa-cyan)                                                                                             # Eighth graph color in light mode.
+      graph-color-9: var(--wa-green)                                                                                            # Ninth graph color in light mode.
+
+      # Toasts
+      paper-toast-background-color: var(--wa-modal-bg)                                                                          # Background color for toast notifications in light mode.
+      paper-toast-color: var(--primary-text-color)                                                                              # Text color for toast notifications in light mode.
+
+      # Progressbar
+      mdc-linear-progress-buffer-color: 'rgba(0,0,0,0.2)'                                                                       # Buffer color for linear progress bars in light mode.
+
+      # Tables
+      data-table-background-color: var(--wa-bg-2)                                                                               # Background color for data tables in light mode.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#  card-mod-theme: cams_theme
+#
+#  card-mod-more-info-yaml: &card-mod-more-info-yaml |
+#    $: |
+#      @supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
+#        .mdc-dialog__surface {
+#          backdrop-filter: blur(5px);
+#          -webkit-backdrop-filter: blur(20px);
+#           background-color: rgba(45, 48, 73, 0.1) !important;
+#        }
+#      }
+#      .mdc-dialog__surface {
+#        box-shadow: 0 0px 16px 4px rgba(var(--dialog-box-shadow), .15), 0 16px 64px 32px rgba(var(--dialog-box-shadow), .5) !important;
+#      }      
+#      div.mdc-dialog div.mdc-dialog__scrim {
+#         background: rgba(50, 50, 50, 0.2);
+#         backdrop-filter: blur(5px); pointer-events: auto;
+#      }       
+#    .: |
+#      ha-dialog {
+#        --vertical-align-dialog: center !important;
+#      }   
+
+#backup copy of modified lines in card mod      
+#           background-color: rgba(45, 48, 73, 0.75) !important;
+      
+

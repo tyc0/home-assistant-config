@@ -1,0 +1,467 @@
+
+# | START: generate_images.yaml
+# | PATH: /config/packages/ai/generate_images.yaml
+
+
+# ╭────────────────────╮
+# │ INPUT ENTITIES     │
+# ╰────────────────────╯
+input_text:
+
+  # ➔ AI Image Prompt
+  #   Input text for the AI image prompt
+  ai_image_prompt:
+    name: AI Image Prompt
+    max: 200
+    initial: ""
+    icon: mdi:image-text
+
+  # ➔ AI Current Image
+  #   Input text for the AI current image
+  ai_current_image:
+    name: Current AI Image
+    max: 255
+    icon: mdi:image
+
+  # ➔ AI Gallery JSON
+  #   Input text for the AI gallery JSON
+  ai_gallery_json:
+    name: AI Gallery JSON
+    max: 16384
+    initial: "[]"
+    icon: mdi:database
+
+
+
+# ╭────────────────────╮
+# │ INPUT NUMBER       │
+# ╰────────────────────╯
+input_number:
+
+  # ➔ AI Gallery Index
+  #   Input number for the AI gallery index
+  ai_gallery_index:
+    name: Gallery Index
+    min: 0
+    max: 999
+    step: 1
+    initial: 0
+    icon: mdi:counter
+
+  # ➔ AI Gallery Count
+  #   Input number for the AI gallery count
+  ai_gallery_count:
+    name: Gallery Count
+    min: 0
+    max: 1000
+    step: 1
+    initial: 0
+    icon: mdi:numeric
+
+
+
+# ╭────────────────────╮
+# │ INPUT SELECT       │
+# ╰────────────────────╯
+input_select:
+
+  # ➔ AI Image Style
+  #   Input select for the AI image style
+  ai_image_style:
+    name: Image Style
+    options:
+      - vivid
+      - natural
+    icon: mdi:palette
+    initial: vivid
+
+  # ➔ AI Image Quality
+  #   Input select for the AI image quality
+  ai_image_quality:
+    name: Image Quality
+    options:
+      - standard
+      - hd
+    icon: mdi:quality-high
+    initial: hd
+
+  # ➔ AI Image Size
+  #   Input select for the AI image size
+  ai_image_size:
+    name: Image Size
+    options:
+      - "1024x1024"
+      - "1792x1024"
+      - "1024x1792"
+    icon: mdi:resize
+    initial: "1792x1024"
+
+
+
+# ╭────────────────────╮
+# │ INPUT BOOLEAN      │
+# ╰────────────────────╯
+input_boolean:
+
+  # ➔ AI Image Loading
+  #   Input boolean for the AI image loading
+  ai_image_loading:
+    name: AI Image Loading
+    icon: mdi:loading
+    initial: false
+
+  # ➔ AI Gallery Mode
+  #   Input boolean for the AI gallery mode
+  ai_gallery_mode:
+    name: Gallery Mode
+    icon: mdi:view-gallery
+    initial: false
+
+  # ➔ AI Confirm Delete
+  #   Input boolean for the AI confirm delete
+  ai_confirm_delete:
+    name: Confirm Delete
+    icon: mdi:delete-alert
+    initial: false
+
+
+
+# ╭────────────────────╮
+# │ SHELL COMMANDS     │
+# ╰────────────────────╯
+shell_command:
+
+  # ➔ Download AI Image
+  #   Shell command to download an image from the AI
+  download_ai_image: 'curl -s -o "{{ path }}" "{{ url }}"'
+  delete_ai_image: 'rm -f "{{ path }}"'
+  ensure_ai_dir: 'mkdir -p /config/www/media/image/ai_generated'
+  cleanup_orphaned_images: >
+    find /config/www/media/image/ai_generated -name "*.jpg" -mtime +30 -delete
+
+
+
+# ╭────────────────────╮
+# │ SCRIPTS            │
+# ╰────────────────────╯
+script:
+
+# ➔ AI Generate Image
+#   Script to generate an image using the AI
+  ai_generate_image:
+    alias: "AI Generate Image"
+    mode: single
+    sequence:
+      - condition: template
+        value_template: "{{ states('input_text.ai_image_prompt')|trim != '' }}"
+
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.ai_image_loading
+
+      - service: system_log.write
+        data:
+          message: "AI Image Gen: Starting - {{ states('input_text.ai_image_prompt')|truncate(50) }}"
+          level: info
+
+      # Add current to gallery if exists
+      - condition: template
+        value_template: "{{ states('input_text.ai_current_image')|length > 10 }}"
+      - service: script.ai_add_to_gallery
+        data:
+          image_url: "{{ states('input_text.ai_current_image') }}"
+          prompt: "{{ states('input_text.ai_image_prompt') }}"
+
+      # Generate new image
+      - service: openai_conversation.generate_image
+        response_variable: result
+        data:
+          config_entry: 01JTDM85RB86K4SB5FKQDVYCHN
+          size: "{{ states('input_select.ai_image_size') }}"
+          quality: "{{ states('input_select.ai_image_quality') }}"
+          style: "{{ states('input_select.ai_image_style') }}"
+          prompt: "{{ states('input_text.ai_image_prompt') }}"
+
+      # Process result
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ result.url is defined }}"
+            sequence:
+              - variables:
+                  timestamp: "{{ now().strftime('%Y%m%d_%H%M%S') }}"
+                  filename: "ai_{{ timestamp }}.jpg"
+                  local_path: "/config/www/media/image/ai_generated/{{ filename }}"
+                  local_url: "/local/media/image/ai_generated/{{ filename }}"
+
+              - service: shell_command.download_ai_image
+                data:
+                  url: "{{ result.url }}"
+                  path: "{{ local_path }}"
+
+              - delay: 1
+
+              - service: input_text.set_value
+                entity_id: input_text.ai_current_image
+                data:
+                  value: "{{ local_url }}"
+
+              - service: system_log.write
+                data:
+                  message: "AI Image Gen: Success - {{ local_url }}"
+                  level: info
+
+        default:
+          - service: system_log.write
+            data:
+              message: "AI Image Gen: Failed - No URL in response"
+              level: error
+
+          - service: persistent_notification.create
+            data:
+              title: "AI Image Generation Failed"
+              message: "Unable to generate image. Check logs."
+
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.ai_image_loading
+
+
+# ➔ AI Add to Gallery
+#   Script to add an image to the gallery
+  ai_add_to_gallery:
+    alias: "Add to Gallery"
+    mode: queued
+    fields:
+      image_url:
+        description: "Image URL to add"
+        required: true
+      prompt:
+        description: "Prompt used"
+        required: true
+    sequence:
+      - variables:
+          gallery_state: "{{ states('input_text.ai_gallery_json')|trim }}"
+          gallery: >
+            {% set state = states('input_text.ai_gallery_json')|trim %}
+            {% if state == '' or state == 'unknown' or state == 'unavailable' %}
+              []
+            {% else %}
+              {% set parsed = state|from_json if state.startswith('[') else [] %}
+              {{ parsed if parsed is iterable else [] }}
+            {% endif %}
+          new_entry:
+            url: "{{ image_url }}"
+            prompt: "{{ prompt }}"
+            created: "{{ now().isoformat() }}"
+            id: "{{ now().timestamp()|int }}"
+
+      - variables:
+          updated_gallery: "{{ [new_entry] + gallery[:49] }}"
+
+      - service: input_text.set_value
+        entity_id: input_text.ai_gallery_json
+        data:
+          value: "{{ updated_gallery|to_json }}"
+
+      - service: input_number.set_value
+        entity_id: input_number.ai_gallery_count
+        data:
+          value: "{{ updated_gallery|length }}"
+
+
+# ➔ AI Gallery Navigate
+#   Script to navigate the gallery
+  ai_gallery_navigate:
+    alias: "Gallery Navigate"
+    mode: single
+    fields:
+      direction:
+        description: "next or prev"
+        required: true
+    sequence:
+      - variables:
+          gallery_state: "{{ states('input_text.ai_gallery_json')|trim }}"
+          gallery: >
+            {% set state = states('input_text.ai_gallery_json')|trim %}
+            {% if state == '' or state == 'unknown' or state == 'unavailable' %}
+              []
+            {% else %}
+              {% set parsed = state|from_json if state.startswith('[') else [] %}
+              {{ parsed if parsed is iterable else [] }}
+            {% endif %}
+          current: "{{ states('input_number.ai_gallery_index')|int }}"
+          count: "{{ gallery|length }}"
+
+      - choose:
+          - conditions: "{{ count > 0 }}"
+            sequence:
+              - variables:
+                  new_index: >
+                    {% if direction == 'next' %}
+                      {{ (current + 1) % count }}
+                    {% else %}
+                      {{ (current - 1) % count }}
+                    {% endif %}
+
+              - service: input_number.set_value
+                entity_id: input_number.ai_gallery_index
+                data:
+                  value: "{{ new_index }}"
+
+              - service: script.ai_load_from_gallery
+                data:
+                  index: "{{ new_index }}"
+
+
+# ➔ AI Load from Gallery
+#   Script to load an image from the gallery
+  ai_load_from_gallery:
+    alias: "Load from Gallery"
+    mode: single
+    fields:
+      index:
+        description: "Gallery index"
+        required: true
+    sequence:
+      - variables:
+          gallery_state: "{{ states('input_text.ai_gallery_json')|trim }}"
+          gallery: >
+            {% set state = states('input_text.ai_gallery_json')|trim %}
+            {% if state == '' or state == 'unknown' or state == 'unavailable' %}
+              []
+            {% else %}
+              {% set parsed = state|from_json if state.startswith('[') else [] %}
+              {{ parsed if parsed is iterable else [] }}
+            {% endif %}
+          item: "{{ gallery[index|int] if gallery|length > index|int else none }}"
+
+      - condition: template
+        value_template: "{{ item is not none }}"
+
+      - service: input_text.set_value
+        entity_id: input_text.ai_current_image
+        data:
+          value: "{{ item.url }}"
+
+      - service: input_text.set_value
+        entity_id: input_text.ai_image_prompt
+        data:
+          value: "{{ item.prompt }}"
+
+      - service: input_number.set_value
+        entity_id: input_number.ai_gallery_index
+        data:
+          value: "{{ index }}"
+
+
+# ➔ AI Delete Current
+#   Script to delete the current image
+  ai_delete_current:
+    alias: "Delete Current Image"
+    mode: single
+    sequence:
+      - variables:
+          gallery_state: "{{ states('input_text.ai_gallery_json')|trim }}"
+          gallery: >
+            {% set state = states('input_text.ai_gallery_json')|trim %}
+            {% if state == '' or state == 'unknown' or state == 'unavailable' %}
+              []
+            {% else %}
+              {% set parsed = state|from_json if state.startswith('[') else [] %}
+              {{ parsed if parsed is iterable else [] }}
+            {% endif %}
+          current: "{{ states('input_number.ai_gallery_index')|int }}"
+
+      - condition: template
+        value_template: "{{ gallery|length > current }}"
+
+      - variables:
+          item: "{{ gallery[current] }}"
+          filename: "{{ item.url.split('/')[-1] }}"
+          filepath: "/config/www/media/image/ai_generated/{{ filename }}"
+
+      # Remove from gallery
+      - variables:
+          updated_gallery: >
+            {{ gallery[:current] + gallery[current+1:] }}
+
+      - service: input_text.set_value
+        entity_id: input_text.ai_gallery_json
+        data:
+          value: "{{ updated_gallery|to_json }}"
+
+      - service: input_number.set_value
+        entity_id: input_number.ai_gallery_count
+        data:
+          value: "{{ updated_gallery|length }}"
+
+      # Delete file
+      - service: shell_command.delete_ai_image
+        data:
+          path: "{{ filepath }}"
+
+      # Load next or clear
+      - choose:
+          - conditions: "{{ updated_gallery|length > 0 }}"
+            sequence:
+              - variables:
+                  new_index: "{{ [current, updated_gallery|length - 1]|min }}"
+              - service: script.ai_load_from_gallery
+                data:
+                  index: "{{ new_index }}"
+        default:
+          - service: input_text.set_value
+            entity_id: input_text.ai_current_image
+            data:
+              value: ""
+
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.ai_confirm_delete
+
+
+# ╭────────────────────╮
+# │ AUTOMATIONS        │
+# ╰────────────────────╯
+automation:
+
+# ➔ AI Image: Loading Timeout
+#   Automation to handle image loading timeout
+  - alias: "AI Image: Loading Timeout"
+    id: ai_image_loading_timeout
+    trigger:
+      - platform: state
+        entity_id: input_boolean.ai_image_loading
+        to: "on"
+        for: "00:01:00"
+    action:
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.ai_image_loading
+      - service: persistent_notification.create
+        data:
+          title: "AI Image Generation Timeout"
+          message: "Generation took too long and was cancelled"
+
+# ➔ AI Image: Setup Directory
+#   Automation to setup the directory for the images
+  - alias: "AI Image: Setup Directory"
+    id: ai_image_setup_directory
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - service: shell_command.ensure_ai_dir
+
+# ➔ AI Image: Weekly Cleanup
+#   Automation to cleanup the images
+  - alias: "AI Image: Weekly Cleanup"
+    id: ai_image_weekly_cleanup
+    trigger:
+      - platform: time
+        at: "03:00:00"
+    condition:
+      - condition: time
+        weekday: sun
+    action:
+      - service: shell_command.cleanup_orphaned_images
+
+
+# | END: generate_images.yaml

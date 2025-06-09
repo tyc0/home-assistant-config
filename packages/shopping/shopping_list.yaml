@@ -1,0 +1,151 @@
+
+# | START: shopping_list.yaml
+# |  PATH: /config/packages/shopping/shopping_list.yaml
+
+
+#  ╭────────────────────╮
+#  │   INPUT SELECT
+#  ╰────────────────────╯
+input_select:
+
+# ➔ Shopping Store
+#   Dropdown for selecting the shopping list
+  shopping_store:
+    options:
+      - Amazon 
+      - Tesco
+
+
+
+#  ╭────────────────────╮
+#  │   INPUT BOOLEAN
+#  ╰────────────────────╯
+input_boolean:
+
+# ➔ Shopping List Type Toggle
+#   Toggle for selecting the shopping list type
+  shopping_list_type_toggle:
+    name: "Shopping list type"
+
+
+
+#  ╭────────────────────╮
+#  │   INPUT TEXT
+#  ╰────────────────────╯
+input_text:
+
+# ➔ Shopping List
+#   Text box for adding items to shopping list on dashboard
+  shopping_list:
+    name: Add item
+    max: 50
+    initial: ""
+
+
+
+#  ╭────────────────────╮
+#  │   AUTOMATIONS
+#  ╰────────────────────╯
+automation:
+
+# ➔ Dynamic List Add
+#   Adds an item to the shopping list based on the selected store.
+#   Also sanitises text before adding to shopping list.
+  - alias: Dynamic List Add
+    id: dynamic_list_add
+    trigger:
+      - platform: state
+        entity_id: input_text.shopping_list
+    condition:
+      - condition: template
+        value_template: "{{ states('input_text.shopping_list') | trim | length > 2 }}"
+    action:
+      - variables:
+          raw: "{{ states('input_text.shopping_list') | trim }}"
+      - variables:
+          cleaned: >
+            {% set filtered = raw | regex_replace('[^A-Za-z0-9\\s\'",.\\-!?;()/&]', '') %}
+            {{ filtered | regex_replace('\s+', ' ') | trim }}
+      - variables:
+          normalized: >
+            {% if cleaned == '' %}
+              {{ '' }}
+            {% elif cleaned == cleaned.upper() and cleaned.lower() != cleaned.upper() %}
+              {% set words = cleaned.split(' ') %}
+              {% set processed = [] %}
+              {% for word in words if word != '' %}
+                {% if '-' in word or word | regex_match('.*[0-9].*') %}
+                  {% set processed = processed + [word] %}
+                {% else %}
+                  {% set processed = processed + [word.lower()] %}
+                {% endif %}
+              {% endfor %}
+              {% if processed | length > 0 %}
+                {% set processed = [processed[0] | capitalize] + processed[1:] %}
+              {% endif %}
+              {{ processed | join(' ') }}
+            {% else %}
+              {{ cleaned[:1] | upper + cleaned[1:] }}
+            {% endif %}
+      - service: todo.add_item
+        data:
+          entity_id: >
+            {{ 'todo.amazon_list' if is_state('input_boolean.shopping_list_type_toggle', 'on') else 'todo.shop_list' }}
+          item: "{{ normalized }}"
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.shopping_list
+          value: ""
+
+
+# ➔ Clear Completed Todo List Items
+#   Clears completed items from both shopping and Amazon lists at 5 AM and creates notifications
+#   dismissed after 1 hour.
+  - alias: Clear Completed Todo List Items
+    id: clear_completed_todo_list_items
+    mode: single
+    trigger:
+      - platform: time
+        at: "05:00:00"
+    action:
+      - service: todo.remove_completed_items
+        target:
+          entity_id: todo.shop_list
+      - service: todo.remove_completed_items
+        target:
+          entity_id: todo.amazon_list
+      - service: persistent_notification.create
+        data:
+          title: Shopping list
+          message: Completed items in both Shopping and Amazon lists have been automatically cleared.
+          notification_id: lists_cleared
+      - delay: "01:00:00"
+      - service: persistent_notification.dismiss
+        data:
+          notification_id: lists_cleared
+
+
+# ➔ Dropdown list selection
+#   Selects the shopping list type based on the selected store
+  - alias: Dropdown List Selection
+    id: dropdown_list_selection
+    trigger:
+      - platform: state
+        entity_id: input_select.shopping_store
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.shopping_store
+                state: "Amazon"
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.shopping_list_type_toggle
+        default:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.shopping_list_type_toggle
+
+
+# |   END: shopping_list.yaml

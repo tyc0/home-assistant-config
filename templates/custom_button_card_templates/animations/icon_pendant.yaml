@@ -1,0 +1,60 @@
+icon_pendant:
+    styles:
+      custom_fields:
+        icon:
+          - width: 100%
+          - margin-left: -9%
+          - margin-top: -9%
+    custom_fields:
+      icon: >
+        [[[
+          let state = variables.state_on && variables.timeout < 2000 ? 'on' : null;
+          return `
+            <svg stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:vectornator="http://vectornator.io" xmlns:xlink="http://www.w3.org/1999/xlink">
+              <defs><filter color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" height="178.015" id="Filter" width="15.7685" x="244.46" y="22.1442"><feDropShadow dx="0" dy="0" flood-color="#000" flood-opacity=".797297" in="SourceGraphic" result="Shadow" stdDeviation=".680957"/></filter><filter color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" height="74.3896" id="Filter_2" width="49.2588" x="228.474" y="164.53"><feDropShadow dx="0" dy="0" flood-color="#000" flood-opacity=".333" in="SourceGraphic" result="Shadow" stdDeviation=".775166"/></filter><filter color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" height="185.846" id="Filter_3" width="342.386" x="79.1407" y="201.683"><feDropShadow dx="0" dy="0" flood-color="#000" flood-opacity=".333" in="SourceGraphic" result="Shadow" stdDeviation=".387597"/></filter></defs><g  id="Layer-1" vectornator:layerName="Layer 1">
+              <path class="${state}" d="M252.33 30.0149 252.357 192.288" fill="blue" fill-rule="evenodd" filter="url(#Filter)" stroke="#a0a0a0" stroke-linecap="butt" stroke-linejoin="miter" stroke-width="13.0176" vectornator:shadowAngle="-.656674" vectornator:shadowColor="#000000" vectornator:shadowOffset="0" vectornator:shadowOpacity=".797297" vectornator:shadowRadius="1.36191"/>
+              <path class="${state}" d="M238.28 166.081H267.926C272.486 166.081 276.182 169.886 276.182 174.581V228.869C276.182 233.564 272.486 237.369 267.926 237.369H238.28C233.72 237.369 230.024 233.564 230.024 228.869V174.581C230.024 169.886 233.72 166.081 238.28 166.081z" fill="var(--light-outside)" fill-rule="evenodd" filter="url(#Filter_2)" stroke="none" vectornator:shadowAngle="1.5708" vectornator:shadowColor="#000000" vectornator:shadowOffset="0" vectornator:shadowOpacity=".333" vectornator:shadowRadius="1.55033"/>
+              <path class="${state}" d="M79.9394 336.998C78.8314 299.922 117.197 257.306 137.523 241.656 168.633 217.703 202.906 202.458 249.98 202.458 297.053 202.458 338.512 219.467 369.361 243.775 400.209 268.084 420.752 302.038 420.752 336.83 420.752 382.245 405.423 385.678 366.584 386.494 341.306 387.025 298.558 386.577 251.484 386.577 204.411 386.577 171.104 386.31 135.623 385.764 96.7806 385.167 81.331 383.565 79.9394 336.998z" fill="var(--light-outside)" fill-rule="evenodd" filter="url(#Filter_3)" stroke="none" vectornator:shadowAngle="1.5708" vectornator:shadowColor="#000000" vectornator:shadowOffset="0" vectornator:shadowOpacity=".333" vectornator:shadowRadius=".775194"/>
+              <path class="${state}" fill="var(--light-color)" d="M210.899 409.227C212.783 397.014 216.042 397.813 226.03 397.757 235.634 397.704 245.046 397.781 256.452 397.685 267.382 397.594 270.76 397.868 281.548 398.215 290.703 398.51 295.585 397.897 297.041 408.195 298.497 418.493 295.761 440.415 282.097 449.059 268.434 457.704 234.111 456.602 222.094 445.669 210.076 434.737 209.367 419.164 210.899 409.227z" fill="#ffdc00" fill-rule="evenodd" opacity="1" stroke="none"/>
+              </g>
+              
+              <style>
+                @keyframes on {
+                  0% {
+                    color: #26abff
+                    background-color: '#26abff';
+                  }
+                  23% {
+                    transform: rotateZ(-10deg);
+                    animation-timing-function: ease-in-out;
+                  }
+                 
+                  56% {
+                    transform: rotateZ(10deg);
+                    animation-timing-function: ease-in-out;
+                  }
+                  70% {
+                    transform: rotateZ(-2deg);
+                    animation-timing-function: ease-in-out;
+                  }
+                  85% {
+                    transform: rotateZ(2deg);
+                    animation-timing-function: ease-in-out;
+                  }
+                  100% {
+                    transform: rotateZ(0deg);
+                  }
+                }
+                .on {
+                  animation: on 1.7s;
+                  transform-origin: top;
+                  background-color: '#26abff';
+                  animation-fill-mode: forwards;
+                  animation-delay: -0.1s;
+                }
+                
+              </style>
+            </svg>
+            
+          `; 
+        ]]]

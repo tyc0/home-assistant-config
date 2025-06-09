@@ -1,0 +1,93 @@
+
+# | START: alarm_time.yaml
+# |  PATH: /config/packages/time/alarm_time.yaml
+
+
+#  ╭────────────────────╮
+#  │   BINARY SENSOR
+#  ╰────────────────────╯
+binary_sensor:
+
+# ➔ Echo Show 5 Alarm Exists
+#   Checks if there is an Echo Show 5 alarm
+  - platform: template
+    sensors:
+      echo_show_5_alarm_exists:
+        friendly_name: "Next Echo Show 5 Alarm"
+        value_template: >-
+          {{ (state_attr('sensor.cam_s_echo_show_8_next_alarm','Status') == 'ON') }}
+
+
+
+#  ╭────────────────────╮
+#  │   INPUT DATETIME
+#  ╰────────────────────╯
+input_datetime:
+
+# ➔ Echo Alarm Time
+#   Displays the time of the Echo Show 5 alarm
+  echo_alarm_time:
+    name: Echo Alarm Time
+    has_date: false
+    has_time: true
+    initial: "09:00:00"
+
+
+
+# ╭────────────────────╮
+# │   TEMPLATE
+# ╰────────────────────╯
+template:
+  - binary_sensor:
+
+# ➔ Alarm or Timer Active
+#   Checks if there is an alarm or timer active
+      - name: "alarm_or_timer_active"
+        unique_id: "alarm_or_timer_active"
+        state: >
+          {% set ns = namespace(active=false) %}
+          {% set sensors = [
+            'sensor.cam_s_3g_white_dot_next_alarm',
+            'sensor.cam_s_echo_show_5_next_alarm',
+            'sensor.echo_show_15_next_alarm',
+            'sensor.cam_s_echo_show_8_next_alarm',
+            'sensor.echo_flex_01_next_alarm',
+            'sensor.echo_4g_matter_hub_next_alarm',
+            'sensor.this_device_next_alarm',
+            'sensor.cam_s_4g_white_dot_next_alarm',
+            'sensor.cam_s_alexa_app_for_pc_next_alarm',
+            'sensor.echo_flex_02_next_alarm',
+            'sensor.cam_s_3g_white_dot_next_timer',
+            'sensor.cam_s_echo_show_5_next_timer',
+            'sensor.echo_show_15_next_timer',
+            'sensor.cam_s_echo_show_8_next_timer',
+            'sensor.echo_flex_01_next_timer',
+            'sensor.echo_4g_matter_hub_next_timer',
+            'sensor.this_device_next_timer',
+            'sensor.cam_s_4g_white_dot_next_timer',
+            'sensor.cam_s_alexa_app_for_pc_next_timer',
+            'sensor.echo_flex_02_next_timer'
+          ] %}
+          {% for sensor in sensors %}
+            {% set sensor_state = states(sensor)|lower %}
+            {% if sensor_state not in ['unavailable', 'unknown', 'none', ''] %}
+              {% set ns.active = true %}
+            {% endif %}
+            {% set attr = state_attr(sensor, 'sorted_active') %}
+            {% if attr %}
+              {% if attr is string %}
+                {% set alerts = attr | from_json %}
+              {% else %}
+                {% set alerts = attr %}
+              {% endif %}
+              {% for alert in alerts %}
+                {% if 'date_time' in alert[1] or 'triggerTime' in alert[1] %}
+                  {% set ns.active = true %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.active }}
+
+
+# |   END: alarm_time.yaml

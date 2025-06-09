@@ -1,0 +1,279 @@
+# | START: weather_alerts.yaml
+# | PATH: /config/packages/weather/weather_alerts.yaml
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Weather Alert - Heavy Rain/Wind
+#   Notifies of extreme weather conditions
+  - id: '1712257481211'
+    alias: Weather Alert - Heavy Rain/Wind
+    description: Sends notifications for heavy rain or wind alerts
+    triggers:
+    - entity_id: sensor.openweathermap_daily_precipitation_0d
+      above: 8
+      id: heavy_rain
+      trigger: numeric_state
+    - entity_id: sensor.openweathermap_wind_speed
+      above: 10.5
+      id: heavy_wind
+      trigger: numeric_state
+    - entity_id: weather.openweathermap
+      attribute: forecast
+      id: forecast_change
+      trigger: state
+    - minutes: /30
+      id: refresh
+      trigger: time_pattern
+    conditions:
+    - condition: or
+      conditions:
+      - condition: numeric_state
+        entity_id: sensor.openweathermap_daily_precipitation_0d
+        above: 8
+      - condition: numeric_state
+        entity_id: sensor.openweathermap_wind_speed
+        above: 10.5
+    actions:
+    - choose:
+      - conditions:
+        - condition: template
+          value_template: "{% set last_notif = states('input_datetime.last_heavy_rain_notification')
+            %}\n{% if last_notif != 'unavailable' and last_notif != 'unknown' %}\n
+            \ {% set hours_since = (now() - strptime(last_notif, '%Y-%m-%d %H:%M:%S')).total_seconds()
+            / 3600 %}\n  {{ hours_since > 5 }}  {# Only notify every 5 hours #}\n{%
+            else %}\n  true\n{% endif %}"
+        - condition: template
+          value_template: "{{ is_state('binary_sensor.night_mode', 'off') or \n   states('input_datetime.last_heavy_rain_notification')
+            == 'unavailable' or \n   states('input_datetime.last_heavy_rain_notification')
+            == 'unknown' }}"
+        sequence:
+        - service: input_datetime.set_datetime
+          data:
+            datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+          target:
+            entity_id: input_datetime.last_heavy_rain_notification
+        - choose:
+          - conditions:
+            - condition: trigger
+              id:
+              - heavy_rain
+            - condition: numeric_state
+              entity_id: sensor.openweathermap_daily_precipitation_0d
+              above: 8
+            sequence:
+            - service: event.fire
+              data:
+                title: Heavy Rain Alert
+                message: Strong rainfall expected today - {{ states('sensor.openweathermap_daily_precipitation_0d')
+                  }}mm
+                priority: high
+                tag: weather_alert
+              target:
+                event_type: notify_e_or_c
+          - conditions:
+            - condition: trigger
+              id:
+              - heavy_wind
+            - condition: numeric_state
+              entity_id: sensor.openweathermap_wind_speed
+              above: 10.5
+            sequence:
+            - service: event.fire
+              data:
+                title: High Wind Alert
+                message: Strong winds detected - {{ states('sensor.openweathermap_wind_speed')
+                  }} m/s ({{ (states('sensor.openweathermap_wind_speed') | float * 3.6)
+                  | round(1) }} km/h)
+                priority: high
+                tag: weather_alert
+              target:
+                event_type: notify_e_or_c
+    mode: single
+
+# ➔ Weather Alert - Prepare Umbrella
+#   Prepares for rain events
+  - id: '1712257491211'
+    alias: Weather Alert - Prepare Umbrella
+    description: Warns of impending rain to prepare umbrella
+    triggers:
+    - platform: time
+      at: 06:00:00
+      id: morning
+    - platform: time
+      at: '17:00:00'
+      id: evening
+    - entity_id: input_boolean.anyone_home
+      to: 'on'
+      id: arrival
+      for: 00:01:00
+      trigger: state
+    - entity_id: sensor.openweathermap_hourly_precipitation_kind
+      id: forecast_change
+      trigger: state
+    conditions:
+    - condition: and
+      conditions:
+      - condition: template
+        value_template: "{% set precip_kinds = ['rain', 'snow', 'sleet'] %}\n{%
+          set current_hour = now().hour %}\n{% if current_hour < 12 %}\n  {% set forecast_hours
+          = range(current_hour, current_hour + 3) %}\n{% else %}\n  {% set forecast_hours
+          = range(current_hour, current_hour + 2) %}\n{% endif %}\n{% for hour in forecast_hours
+          %}\n  {% set entity = 'sensor.openweathermap_forecast_' ~ hour ~ 'h_precipitation_kind'
+          %}\n  {% if states(entity) in precip_kinds and states('sensor.openweathermap_forecast_'
+          ~ hour ~ 'h_precipitation') | float > 0.3 %}\n    true\n    {% break %}\n
+          \ {% endif %}\n{% else %}\n  false\n{% endfor %}"
+      - condition: template
+        value_template: "{% set last_notif = states('input_datetime.last_umbrella_notification')
+          %}\n{% if last_notif != 'unavailable' and last_notif != 'unknown' %}\n  {%
+          set hours_since = (now() - strptime(last_notif, '%Y-%m-%d %H:%M:%S')).total_seconds()
+          / 3600 %}\n  {{ hours_since > 3 }}  {# Only notify every 3 hours #}\n{% else
+          %}\n  true\n{% endif %}"
+      - condition: template
+        value_template: '{{ is_state(''input_boolean.anyone_home'', ''on'') }}'
+      - condition: template
+        value_template: '{{ now().hour >= 6 and now().hour <= 22 }}'
+    actions:
+    - service: input_datetime.set_datetime
+      data:
+        datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+      target:
+        entity_id: input_datetime.last_umbrella_notification
+    - service: event.fire
+      data:
+        title: Rain Coming Soon
+        message: "{% set precip_kinds = ['rain', 'snow', 'sleet'] %}\n{% set current_hour
+          = now().hour %}\n{% set precipitation_time = '' %}\n{% set precipitation_amount
+          = 0 %}\n{% if current_hour < 12 %}\n  {% set forecast_hours = range(current_hour,
+          current_hour + 3) %}\n{% else %}\n  {% set forecast_hours = range(current_hour,
+          current_hour + 2) %}\n{% endif %}\n{% for hour in forecast_hours %}\n  {%
+          set entity = 'sensor.openweathermap_forecast_' ~ hour ~ 'h_precipitation_kind'
+          %}\n  {% if states(entity) in precip_kinds and states('sensor.openweathermap_forecast_'
+          ~ hour ~ 'h_precipitation') | float > 0.3 %}\n    {% set precipitation_time
+          = hour %}    \n    {% set precipitation_amount = states('sensor.openweathermap_forecast_'
+          ~ hour ~ 'h_precipitation') | float %}\n    {% break %}\n  {% endif %}\n{%
+          endfor %}\n{% if precipitation_time != '' %}\n  {{ states('sensor.openweathermap_forecast_'
+          ~ precipitation_time ~ 'h_precipitation_kind').title() }} expected around
+          {{ precipitation_time }}:00 ({{ precipitation_amount }}mm). Take an umbrella!\n{%
+          else %}\n  Rain expected soon. Take an umbrella!\n{% endif %}"
+        priority: normal
+        tag: weather_alert
+      target:
+        event_type: notify_e_or_c
+    mode: single
+
+# ➔ Weather Alert - Daily Summary
+#   Daily morning weather report
+  - id: '1712257501211'
+    alias: Weather Alert - Daily Summary
+    description: Sends a morning weather report
+    triggers:
+    - platform: time
+      at: 07:30:00
+      id: morning
+    conditions:
+    - condition: time
+      weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: person.cam
+        state: home
+      - condition: state
+        entity_id: person.enhy
+        state: home
+    actions:
+    - service: event.fire
+      data:
+        title: Today's Weather
+        message: "{{ states('sensor.openweathermap_forecast_temperature') }}°C with
+          {{ states('sensor.openweathermap_condition') | lower }}.\n{% if states('sensor.openweathermap_daily_precipitation_0d')
+          | float > 1 %}\nRainfall: {{ states('sensor.openweathermap_daily_precipitation_0d')
+          }}mm expected.\n{% endif %}\nWind: {{ states('sensor.openweathermap_wind_speed')
+          }} m/s"
+        priority: normal
+        tag: weather_report
+      target:
+        event_type: notify_e_or_c
+    mode: single
+
+# ➔ Weather Alert - Temperature Warning
+#   Warns of extreme temperature
+  - id: '1712257511211'
+    alias: Weather Alert - Temperature Warning
+    description: Warns of extreme hot or cold temperatures
+    triggers:
+    - platform: time
+      at: 07:00:00
+      id: morning
+    - entity_id: sensor.openweathermap_temperature
+      above: 30
+      id: high_temp
+      trigger: numeric_state
+      for: 00:30:00
+    - entity_id: sensor.openweathermap_temperature
+      below: 0
+      id: low_temp
+      trigger: numeric_state
+      for: 00:30:00
+    conditions:
+    - condition: or
+      conditions:
+      - condition: numeric_state
+        entity_id: sensor.openweathermap_temperature
+        above: 30
+      - condition: numeric_state
+        entity_id: sensor.openweathermap_temperature
+        below: 0
+    - condition: template
+      value_template: "{% set last_notif = states('input_datetime.last_temperature_notification')
+        %}\n{% if last_notif != 'unavailable' and last_notif != 'unknown' %}\n  {%
+        set hours_since = (now() - strptime(last_notif, '%Y-%m-%d %H:%M:%S')).total_seconds()
+        / 3600 %}\n  {{ hours_since > 8 }}  {# Only notify every 8 hours #}\n{% else
+        %}\n  true\n{% endif %}"
+    actions:
+    - service: input_datetime.set_datetime
+      data:
+        datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+      target:
+        entity_id: input_datetime.last_temperature_notification
+    - choose:
+      - conditions:
+        - condition: numeric_state
+          entity_id: sensor.openweathermap_temperature
+          above: 30
+        sequence:
+        - service: event.fire
+          data:
+            title: Extreme Heat Warning
+            message: "Current temperature is {{ states('sensor.openweathermap_temperature')
+              }}°C.\nStay hydrated and avoid direct sun exposure."
+            priority: high
+            tag: weather_alert
+          target:
+            event_type: notify_e_or_c
+      - conditions:
+        - condition: numeric_state
+          entity_id: sensor.openweathermap_temperature
+          below: 0
+        sequence:
+        - service: event.fire
+          data:
+            title: Freezing Temperature Warning
+            message: "Current temperature is {{ states('sensor.openweathermap_temperature')
+              }}°C.\nDress warmly and be cautious of icy conditions."
+            priority: high
+            tag: weather_alert
+          target:
+            event_type: notify_e_or_c
+    mode: single
+
+# | END: weather_alerts.yaml

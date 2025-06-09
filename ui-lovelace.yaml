@@ -1,0 +1,42 @@
+
+# | START: ui-lovelace.yaml
+# |  PATH: /config/ui-lovelace.yaml
+
+
+#  ╭────────────────────╮
+#  │   PAGES
+#  ╰────────────────────╯ 
+views:
+
+  - !include ui/views/home.yaml
+  - !include ui/views/lights.yaml
+  - !include ui/views/power.yaml
+  - !include ui/views/window.yaml
+  - !include ui/views/tester.yaml
+  - !include ui/views/pets.yaml
+  - !include ui/views/weather.yaml
+
+
+
+#  ╭────────────────────╮
+#  │   INCLUDES
+#  ╰────────────────────╯ 
+decluttering_templates:               !include ui/decluttering_templates.yaml
+button_card_templates:                !include_dir_merge_named templates/custom_button_card_templates
+custom_more_info:                     !include ui/custom_more_info.yaml
+
+
+
+#  ╭────────────────────╮
+#  │   KIOSK MODE
+#  ╰────────────────────╯ 
+kiosk_mode:
+  hide_search:                        true                                      # Hides the search icon in the top right menu.
+  hide_unused_entities:               true                                      # Hides the "Unused entities" button in the top right menu.
+  hide_refresh:                       true                                      # Hides the "Refresh" button in the top right menu.
+  hide_dialog_header_history:         true                                      # Hides the "History" icon in the header of more-info dialogs.
+  hide_dialog_light_settings_actions: true                                      # Hides the settings actions in the more-info dialogs of light entities.
+  hide_dialog_attributes:             true                                      # Hides the "Attributes" section in the more-info dialogs.
+
+
+# |   END: ui-lovelace.yaml

@@ -1,0 +1,179 @@
+
+# | START: lights_bedroom.yaml
+# |  PATH: /config/packages/light/lights_bedroom.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT DATETIME
+# ╰────────────────────╯
+input_datetime:
+
+# ➔ Last Bedroom Entry
+  last_bedroom_entry:
+    name: Last Bedroom Entry
+    has_date: true
+    has_time: true
+
+# ➔ Last Manual Override
+  last_manual_override:
+    name: Last Manual Override
+    has_date: true
+    has_time: true
+
+
+
+# ╭────────────────────╮
+# │   INPUT NUMBER
+# ╰────────────────────╯
+input_number:
+
+# ➔ Length of time to consider the room empty
+  absence_duration:
+    name: Room Absence Duration
+    min: 1
+    max: 30
+    step: 1
+    unit_of_measurement: minutes
+    icon: mdi:timer-outline
+    initial: 5
+
+# ➔ Duration to wait after a manual override before resuming automatic lighting
+  manual_override_duration:
+    name: Manual Override Duration
+    min: 1
+    max: 60
+    step: 1
+    unit_of_measurement: minutes
+    icon: mdi:lock-clock
+    initial: 5
+
+
+
+# ╭────────────────────╮
+# │   AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Record Manual Override for Bedroom Lights
+  - alias: Record Manual Override for Bedroom Lights
+    id: record_manual_override_for_bedroom_lights
+    trigger:
+      - platform: event
+        event_type: hue_event
+        event_data:
+          id: hue_wall_switch_module_3_button_1
+          type: short_release
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.last_manual_override
+        data:
+          datetime: "{{ now().isoformat() }}"
+    mode: single
+
+
+# ➔ Automate Bedroom Lights on Room Entry
+  - alias: Automate Bedroom Lights on Room Entry
+    id: automate_bedroom_lights_on_room_entry
+    mode: restart
+    variables:
+      absence_duration: "{{ states('input_number.absence_duration') | int(5) }}"
+      manual_override_duration: "{{ states('input_number.manual_override_duration') | int(5) }}"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.presence_sensor_fp2_9c35_presence_sensor_2
+        to: 'on'
+    condition:
+#    Confirm entry direction by checking that the secondary sensor changed within the last 10 seconds.
+      - condition: template
+        value_template: >
+          {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10.last_changed)) < 10 }}
+
+#    Restrict to times between 30 minutes before sunset and sunrise.
+      - condition: or
+        conditions:
+          - condition: sun
+            after: sunset
+            after_offset: '-00:30:00'
+          - condition: sun
+            before: sunrise
+
+#    Bypass if a manual override has occurred within the override duration.
+      - condition: template
+        value_template: >
+          {% set last_override = states('input_datetime.last_manual_override') %}
+          {% if last_override in ['unknown', 'unavailable', 'none'] %}
+            true
+          {% else %}
+            {{ (as_timestamp(now()) - as_timestamp(last_override)) > (manual_override_duration * 60) }}
+          {% endif %}
+    action:
+#    Pre-calculate common variables to avoid redundant calculations and enhance error handling.
+      - variables:
+          current_time: "{{ as_timestamp(now()) }}"
+#    Sunset offset defined in seconds (30 minutes = 1800 seconds).
+          sunset_offset: 1800
+#    Dynamically calculate sunset time with offset; fallback to current_time if attribute is missing.
+          sunset: "{{ (as_timestamp(state_attr('sun.sun', 'next_setting')) | default(current_time)) - sunset_offset }}"
+          midnight: "{{ as_timestamp(today_at('00:00')) }}"
+          one_am: "{{ as_timestamp(today_at('01:00')) }}"
+          seven_am: "{{ as_timestamp(today_at('07:00')) }}"
+          last_entry: "{{ as_timestamp(states('input_datetime.last_bedroom_entry')) }}"
+          room_was_empty: >
+            {% if last_entry in [none, 'unknown', 'unavailable'] %}
+              true
+            {% else %}
+              {{ (current_time - last_entry) > (absence_duration * 60) }}
+            {% endif %}
+      - choose:
+#    If the room has been empty for at least the specified duration, turn on the main light.
+          - conditions:
+              - condition: template
+                value_template: "{{ room_was_empty }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.room_02
+                data:
+                  brightness_pct: >
+                    {% if current_time >= sunset and current_time < midnight %}
+                      100
+                    {% elif current_time >= midnight and current_time < one_am %}
+                      50
+                    {% elif current_time >= one_am and current_time < seven_am %}
+                      15
+                    {% else %}
+                      50
+                    {% endif %}
+                  transition: 2
+#    Otherwise, if the room was occupied recently, turn on the bedside lights.
+          - conditions:
+              - condition: template
+                value_template: "{{ not room_was_empty }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id:
+                    - light.hue_lightstrip_bed_c_side
+                    - light.hue_lightstrip_bed_e_side
+                    - light.hue_color_lamp_2
+                data:
+                  brightness_pct: >
+                    {% if current_time >= sunset and current_time < midnight %}
+                      100
+                    {% elif current_time >= midnight and current_time < seven_am %}
+                      10
+                    {% else %}
+                      100
+                    {% endif %}
+                  transition: 2
+#    Update the last bedroom entry timestamp.
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.last_bedroom_entry
+        data:
+          datetime: "{{ now().isoformat() }}"
+
+
+# | END: lights_bedroom.yaml
+

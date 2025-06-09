@@ -1,0 +1,440 @@
+# # | START: whatsapp_chat.yaml
+# # |  PATH: /config/packages/communication/whatsapp_chat.yaml
+
+# ############
+# # Input Entities
+# ############
+# input_select:
+#   contact_selector:
+#     name: "Select Contact"
+#     options:
+#       - "No Contacts"
+#     initial: "No Contacts"
+
+# input_text:
+#   # Active chat tracking for C
+#   whatsapp_c_active_chat_number:
+#     max: 255
+#     initial: ""
+#     name: "C's Active Chat Number"
+
+#   whatsapp_c_active_chat_name:
+#     max: 255
+#     initial: ""
+#     name: "C's Active Chat Name"
+
+#   whatsapp_c_message_to_send:
+#     max: 255
+#     initial: ""
+#     name: "Message to Send"
+
+#   # Chat histories for C
+#   whatsapp_c_chat_1_history:
+#     max: 255
+#     initial: ""
+#     name: "C Chat History 1"
+
+#   whatsapp_c_chat_2_history:
+#     max: 255
+#     initial: ""
+#     name: "C Chat History 2"
+
+#   whatsapp_c_chat_3_history:
+#     max: 255
+#     initial: ""
+#     name: "C Chat History 3"
+
+#   # Active chat tracking for E
+#   whatsapp_e_active_chat_number:
+#     max: 255
+#     initial: ""
+#     name: "E's Active Chat Number"
+
+#   whatsapp_e_active_chat_name:
+#     max: 255
+#     initial: ""
+#     name: "E's Active Chat Name"
+
+#   whatsapp_e_message_to_send:
+#     max: 255
+#     initial: ""
+#     name: "Message to Send"
+
+#   # Chat histories for E
+#   whatsapp_e_chat_1_history:
+#     max: 255
+#     initial: ""
+#     name: "E Chat History 1"
+
+#   whatsapp_e_chat_2_history:
+#     max: 255
+#     initial: ""
+#     name: "E Chat History 2"
+
+#   whatsapp_e_chat_3_history:
+#     max: 255
+#     initial: ""
+#     name: "E Chat History 3"
+
+# ############
+# # Scripts
+# ############
+# script:
+#   whatsapp_send_message:
+#     alias: "Send WhatsApp Message"
+#     description: "Sends a WhatsApp message and updates chat history"
+#     fields:
+#       user_id:
+#         description: "User ID (c or e)"
+#         example: "c"
+#       chat_number:
+#         description: "Target chat number"
+#         example: "447123456789"
+#       message:
+#         description: "Message to send"
+#         example: "Hello world"
+#     sequence:
+#       # Send the message
+#       - service: whatsapp.send_message
+#         data:
+#           clientId: "{{ user_id }}"
+#           to: "{{ chat_number }}@s.whatsapp.net"
+#           body:
+#             text: "{{ message }}"
+
+#       # Update chat history
+#       - variables:
+#           timestamp: "{{ now().strftime('%-I:%M %p') }}"
+#           history_entity: >
+#             {% set chat_number = chat_number %}
+#             {% set user = user_id %}
+#             {% if chat_number == states('input_text.whatsapp_' ~ user ~ '_recent_contact_1') %}
+#               input_text.whatsapp_{{ user }}_chat_1_history
+#             {% elif chat_number == states('input_text.whatsapp_' ~ user ~ '_recent_contact_2') %}
+#               input_text.whatsapp_{{ user }}_chat_2_history
+#             {% elif chat_number == states('input_text.whatsapp_' ~ user ~ '_recent_contact_3') %}
+#               input_text.whatsapp_{{ user }}_chat_3_history
+#             {% endif %}
+
+#       - service: input_text.set_value
+#         data:
+#           entity_id: "{{ history_entity }}"
+#           value: "Me ({{ timestamp }}): {{ message }}"
+
+# ############
+# # Automations
+# ############
+# automation:
+#   ############
+#   # Contact Selection
+#   ############
+#   - alias: "Update WhatsApp Contact Selector"
+#     trigger:
+#       - platform: state
+#         entity_id:
+#           - input_text.whatsapp_c_recent_contact_1_name
+#           - input_text.whatsapp_c_recent_contact_2_name
+#           - input_text.whatsapp_c_recent_contact_3_name
+#     action:
+#       - service: input_select.set_options
+#         target:
+#           entity_id: input_select.contact_selector
+#         data:
+#           options: >
+#             {% set contacts = [
+#               states('input_text.whatsapp_c_recent_contact_1_name'),
+#               states('input_text.whatsapp_c_recent_contact_2_name'),
+#               states('input_text.whatsapp_c_recent_contact_3_name')
+#             ] %}
+#             {{ contacts | select('string') | select('ne', '') | list }}
+
+#   - alias: "Handle Contact Selection"
+#     description: "Updates active chat when a contact is selected from the dropdown"
+#     trigger:
+#       - platform: state
+#         entity_id: input_select.contact_selector
+#     condition:
+#       - condition: template
+#         value_template: "{{ trigger.to_state.state | length > 0 and trigger.to_state.state != 'No Contacts' }}"
+#     action:
+#       - variables:
+#           selected_name: "{{ trigger.to_state.state }}"
+#       - choose:
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ selected_name == states('input_text.whatsapp_c_recent_contact_1_name') }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 target:
+#                   entity_id: input_text.whatsapp_c_active_chat_number
+#                 data:
+#                   value: "{{ states('input_text.whatsapp_c_recent_contact_1') }}"
+#               - service: input_text.set_value
+#                 target:
+#                   entity_id: input_text.whatsapp_c_active_chat_name
+#                 data:
+#                   value: "{{ states('input_text.whatsapp_c_recent_contact_1_name') }}"
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ selected_name == states('input_text.whatsapp_c_recent_contact_2_name') }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 target:
+#                   entity_id: input_text.whatsapp_c_active_chat_number
+#                 data:
+#                   value: "{{ states('input_text.whatsapp_c_recent_contact_2') }}"
+#               - service: input_text.set_value
+#                 target:
+#                   entity_id: input_text.whatsapp_c_active_chat_name
+#                 data:
+#                   value: "{{ states('input_text.whatsapp_c_recent_contact_2_name') }}"
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ selected_name == states('input_text.whatsapp_c_recent_contact_3_name') }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 target:
+#                   entity_id: input_text.whatsapp_c_active_chat_number
+#                 data:
+#                   value: "{{ states('input_text.whatsapp_c_recent_contact_3') }}"
+#               - service: input_text.set_value
+#                 target:
+#                   entity_id: input_text.whatsapp_c_active_chat_name
+#                 data:
+#                   value: "{{ states('input_text.whatsapp_c_recent_contact_3_name') }}"
+
+#   ############
+#   # Active Chat Selection
+#   ############
+#   - alias: "Set C's Active Chat"
+#     description: "Updates active chat when C selects a contact"
+#     trigger:
+#       - platform: state
+#         entity_id: 
+#           - input_text.whatsapp_c_recent_contact_1
+#           - input_text.whatsapp_c_recent_contact_2
+#           - input_text.whatsapp_c_recent_contact_3
+#     condition:
+#       - condition: template
+#         value_template: "{{ trigger.to_state.state | length > 0 }}"
+#     action:
+#       - service: input_text.set_value
+#         data:
+#           entity_id: input_text.whatsapp_c_active_chat_number
+#           value: "{{ trigger.to_state.state }}"
+#       - service: input_text.set_value
+#         data:
+#           entity_id: input_text.whatsapp_c_active_chat_name
+#           value: >
+#             {% if trigger.entity_id == 'input_text.whatsapp_c_recent_contact_1' %}
+#               {{ states('input_text.whatsapp_c_recent_contact_1_name') }}
+#             {% elif trigger.entity_id == 'input_text.whatsapp_c_recent_contact_2' %}
+#               {{ states('input_text.whatsapp_c_recent_contact_2_name') }}
+#             {% else %}
+#               {{ states('input_text.whatsapp_c_recent_contact_3_name') }}
+#             {% endif %}
+
+#   - alias: "Set E's Active Chat"
+#     description: "Updates active chat when E selects a contact"
+#     trigger:
+#       - platform: state
+#         entity_id: 
+#           - input_text.whatsapp_e_recent_contact_1
+#           - input_text.whatsapp_e_recent_contact_2
+#           - input_text.whatsapp_e_recent_contact_3
+#     condition:
+#       - condition: template
+#         value_template: "{{ trigger.to_state.state | length > 0 }}"
+#     action:
+#       - service: input_text.set_value
+#         data:
+#           entity_id: input_text.whatsapp_e_active_chat_number
+#           value: "{{ trigger.to_state.state }}"
+#       - service: input_text.set_value
+#         data:
+#           entity_id: input_text.whatsapp_e_active_chat_name
+#           value: >
+#             {% if trigger.entity_id == 'input_text.whatsapp_e_recent_contact_1' %}
+#               {{ states('input_text.whatsapp_e_recent_contact_1_name') }}
+#             {% elif trigger.entity_id == 'input_text.whatsapp_e_recent_contact_2' %}
+#               {{ states('input_text.whatsapp_e_recent_contact_2_name') }}
+#             {% else %}
+#               {{ states('input_text.whatsapp_e_recent_contact_3_name') }}
+#             {% endif %}
+
+#   ############
+#   # Message Handling
+#   ############
+#   - alias: "Update C's Chat Histories - Incoming"
+#     description: "Updates chat history when C receives a message"
+#     trigger:
+#       - platform: state
+#         entity_id: input_text.whatsapp_c_inbound_single_bodytext
+#     condition:
+#       - condition: template
+#         value_template: "{{ trigger.to_state.state | length > 0 }}"
+#     action:
+#       - variables:
+#           sender_number: "{{ states('input_text.whatsapp_c_inbound_single_sendernumber') }}"
+#           sender_name: "{{ states('input_text.whatsapp_c_inbound_single_sendername') }}"
+#           message: "{{ trigger.to_state.state }}"
+#           timestamp: "{{ now().strftime('%-I:%M %p') }}"
+#       - choose:
+#           # Match with first recent contact
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ sender_number == states('input_text.whatsapp_c_recent_contact_1') }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 data:
+#                   entity_id: input_text.whatsapp_c_chat_1_history
+#                   value: "{{ sender_name }} ({{ timestamp }}): {{ message }}"
+#           # Match with second recent contact
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ sender_number == states('input_text.whatsapp_c_recent_contact_2') }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 data:
+#                   entity_id: input_text.whatsapp_c_chat_2_history
+#                   value: "{{ sender_name }} ({{ timestamp }}): {{ message }}"
+#           # Match with third recent contact
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ sender_number == states('input_text.whatsapp_c_recent_contact_3') }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 data:
+#                   entity_id: input_text.whatsapp_c_chat_3_history
+#                   value: "{{ sender_name }} ({{ timestamp }}): {{ message }}"
+
+#   - alias: "Update E's Chat Histories - Incoming"
+#     description: "Updates chat history when E receives a message"
+#     trigger:
+#       - platform: state
+#         entity_id: input_text.whatsapp_e_inbound_single_bodytext
+#     condition:
+#       - condition: template
+#         value_template: "{{ trigger.to_state.state | length > 0 }}"
+#     action:
+#       - variables:
+#           sender_number: "{{ states('input_text.whatsapp_e_inbound_single_sendernumber') }}"
+#           sender_name: "{{ states('input_text.whatsapp_e_inbound_single_sendername') }}"
+#           message: "{{ trigger.to_state.state }}"
+#           timestamp: "{{ now().strftime('%-I:%M %p') }}"
+#       - choose:
+#           # Match with first recent contact
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ sender_number == states('input_text.whatsapp_e_recent_contact_1') }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 data:
+#                   entity_id: input_text.whatsapp_e_chat_1_history
+#                   value: "{{ sender_name }} ({{ timestamp }}): {{ message }}"
+#           # Match with second recent contact
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ sender_number == states('input_text.whatsapp_e_recent_contact_2') }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 data:
+#                   entity_id: input_text.whatsapp_e_chat_2_history
+#                   value: "{{ sender_name }} ({{ timestamp }}): {{ message }}"
+#           # Match with third recent contact
+#           - conditions:
+#               - condition: template
+#                 value_template: "{{ sender_number == states('input_text.whatsapp_e_recent_contact_3') }}"
+#             sequence:
+#               - service: input_text.set_value
+#                 data:
+#                   entity_id: input_text.whatsapp_e_chat_3_history
+#                   value: "{{ sender_name }} ({{ timestamp }}): {{ message }}"
+
+#   - alias: "Send C's Message"
+#     description: "Handles sending messages for C with translation support"
+#     trigger:
+#       - platform: state
+#         entity_id: input_text.whatsapp_c_message_to_send
+#     condition:
+#       - condition: template
+#         value_template: "{{ trigger.to_state.state | length > 0 }}"
+#       - condition: template
+#         value_template: "{{ states('input_text.whatsapp_c_active_chat_number') | length > 0 }}"
+#     action:
+#       - choose:
+#           # Translation path
+#           - conditions:
+#               - condition: state
+#                 entity_id: input_boolean.translator_c_enabled
+#                 state: "on"
+#             sequence:
+#               - service: script.whatsapp_translate_message
+#                 data:
+#                   user_id: "c"
+#                   target_language: "{{ states('input_text.translator_c_output_language') }}"
+#                   message: "{{ trigger.to_state.state }}"
+          
+#           # Direct send path
+#           - conditions:
+#               - condition: state
+#                 entity_id: input_boolean.translator_c_enabled
+#                 state: "off"
+#             sequence:
+#               - service: script.whatsapp_send_message
+#                 data:
+#                   user_id: "c"
+#                   chat_number: "{{ states('input_text.whatsapp_c_active_chat_number') }}"
+#                   message: "{{ trigger.to_state.state }}"
+      
+#       # Clear the input field
+#       - service: input_text.set_value
+#         data:
+#           entity_id: input_text.whatsapp_c_message_to_send
+#           value: ""
+
+#   - alias: "Send E's Message"
+#     description: "Handles sending messages for E with translation support"
+#     trigger:
+#       - platform: state
+#         entity_id: input_text.whatsapp_e_message_to_send
+#     condition:
+#       - condition: template
+#         value_template: "{{ trigger.to_state.state | length > 0 }}"
+#       - condition: template
+#         value_template: "{{ states('input_text.whatsapp_e_active_chat_number') | length > 0 }}"
+#     action:
+#       - choose:
+#           # Translation path
+#           - conditions:
+#               - condition: state
+#                 entity_id: input_boolean.translator_e_enabled
+#                 state: "on"
+#             sequence:
+#               - service: script.whatsapp_translate_message
+#                 data:
+#                   user_id: "e"
+#                   target_language: "{{ states('input_text.translator_e_output_language') }}"
+#                   message: "{{ trigger.to_state.state }}"
+          
+#           # Direct send path
+#           - conditions:
+#               - condition: state
+#                 entity_id: input_boolean.translator_e_enabled
+#                 state: "off"
+#             sequence:
+#               - service: script.whatsapp_send_message
+#                 data:
+#                   user_id: "e"
+#                   chat_number: "{{ states('input_text.whatsapp_e_active_chat_number') }}"
+#                   message: "{{ trigger.to_state.state }}"
+      
+#       # Clear the input field
+#       - service: input_text.set_value
+#         data:
+#           entity_id: input_text.whatsapp_e_message_to_send
+#           value: ""
+
+# # | END: whatsapp_chat.yaml
+
+

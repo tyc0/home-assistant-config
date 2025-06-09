@@ -1,0 +1,130 @@
+
+# | START: lights2.yaml
+# |  PATH: /config/packages/light/lights2.yaml
+
+
+# ╭────────────────────╮
+# │   INPUT NUMBER
+# ╰────────────────────╯
+input_number:
+
+# ➔ Brightness
+  brightness:
+    name: Brightness
+    initial: 0
+    min: 0
+    max: 255
+    step: 1
+    icon: mdi:brightness-5
+
+
+
+# ╭────────────────────╮
+# │   INPUT SELECT
+# ╰────────────────────╯
+input_select:
+
+# ➔ Light Dropdown Areas
+  light_dropdown_areas:
+    name: "Rooms"
+    options:
+      - "Enhy's room"
+      - "Cam's room"
+      - "Top floor"
+      - "Bathroom"
+    icon: fapro:duotone_layer_group
+
+# ➔ Light Dropdown Room 01 (Cam's bedroom)
+  light_dropdown_room_01:
+    name: "Cam's bedroom"
+    options:
+      - "Ceiling"
+      - "Desk"
+      - "Bed"
+      - "Mirror"
+      - "Fans"
+    icon: fas:c
+
+# ➔ Light Dropdown Room 02 (Enhy's bedroom)
+  light_dropdown_room_02:
+    name: "Enhy's bedroom"
+    options:
+      - "Bed lamp"
+      - "Bedframe"
+      - "Sofas"
+      - "Ceiling"
+      - "Desk Pole"
+      - "Desk panels"
+    icon: fas:e
+
+# ➔ Light Dropdown Room 03 (House areas)
+  light_dropdown_room_03:
+    name: "House areas"
+    options:
+      - "Bathroom"
+      - "Stairs"
+    icon: fas:person-walking
+
+
+
+# ╭────────────────────╮
+# │   SENSOR
+# ╰────────────────────╯
+sensor:
+  - platform: template
+
+# ➔ Dynamic Light Entity
+    sensors:
+      dynamic_light_entity:
+        value_template: >
+          {% if is_state('input_select.light_dropdown_areas', "Cam's room") %}
+            light.bedroom
+          {% elif is_state('input_select.light_dropdown_areas', "Enhy's room") %}
+            light.room_02
+          {% elif is_state('input_select.light_dropdown_areas', "Top floor") %}
+            light.2nd_floor
+          {% elif is_state('input_select.light_dropdown_areas', "Bathroom") %}
+            light.bathroom_light
+          {% else %}
+            light.bedroom
+          {% endif %}
+
+
+
+# ╭────────────────────╮
+# │   GROUP
+# ╰────────────────────╯
+group:
+
+# ➔ Elgato Panels
+  elgato_panels:
+    name: Elgato Panels
+    entities:
+      - light.elgato_panel_01
+      - light.elgato_panel_02
+    all: true
+
+
+
+# ╭────────────────────╮
+# │   INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+# ➔ Cam's Bedroom Auto Mode
+  lights_room01_automode:
+    name: Lights - C room - Auto mode
+    icon: mdi:lightbulb-auto
+
+# ➔ Enhy's Bedroom Auto Mode
+  lights_room02_automode:
+    name: Lights - E room - Auto mode
+    icon: mdi:lightbulb-auto
+
+# ➔ Top Floor Auto Mode  
+  lights_room03_automode:
+    name: Lights - Floor 02 - Auto mode
+    icon: mdi:lightbulb-auto
+
+
+# |   END: lights2.yaml

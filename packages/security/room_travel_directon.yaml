@@ -1,0 +1,100 @@
+
+# | START: room_travel_direction.yaml
+# |  PATH: /config/packages/security/room_travel_direction.yaml
+
+
+#  ╭────────────────────╮
+#  │   AUTOMATIONS
+#  ╰────────────────────╯
+automation:
+
+# ➔ Track Direction of Travel Between Rooms (Office, Floor 02, Bedroom)
+#   Tracks the direction of travel between rooms (Office, Floor 02, Bedroom)
+#   and logs the last room transition in input_text.last_zone_transition.
+  - alias: Track Direction of Travel Between Rooms (Office, Floor 02, Bedroom)
+    id: track_direction_of_travel_between_rooms
+    triggers:
+      - entity_id:
+          - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_2
+          - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10
+          - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_3
+        to: "on"
+        trigger: state
+    actions:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ trigger.entity_id ==
+                  'binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10' 
+                    and (as_timestamp(now()) - as_timestamp(states.binary_sensor.presence_sensor_fp2_9c35_presence_sensor_2.last_changed)) < 10 }}
+            sequence:
+              - data:
+                  entity_id: input_text.last_zone_transition
+                  value: Bedroom to Floor 02
+                action: input_text.set_value
+              - data:
+                  entity_id: input_datetime.last_zone_transition_time
+                  datetime: "{{ now().isoformat() }}"
+                action: input_datetime.set_datetime
+              - data:
+                  message: Movement from Bedroom to Floor 02
+                action: notify.mobile_app_phone_c
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ trigger.entity_id ==
+                  'binary_sensor.presence_sensor_fp2_9c35_presence_sensor_2' 
+                    and (as_timestamp(now()) - as_timestamp(states.binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10.last_changed)) < 10 }}
+            sequence:
+              - data:
+                  entity_id: input_text.last_zone_transition
+                  value: Floor 02 to Bedroom
+                action: input_text.set_value
+              - data:
+                  entity_id: input_datetime.last_zone_transition_time
+                  datetime: "{{ now().isoformat() }}"
+                action: input_datetime.set_datetime
+              - data:
+                  message: Movement from Floor 02 to Bedroom
+                action: notify.mobile_app_phone_c
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ trigger.entity_id ==
+                  'binary_sensor.presence_sensor_fp2_9c35_presence_sensor_3' 
+                    and (as_timestamp(now()) - as_timestamp(states.binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10.last_changed)) < 10 }}
+            sequence:
+              - data:
+                  entity_id: input_text.last_zone_transition
+                  value: Floor 02 to Office
+                action: input_text.set_value
+              - data:
+                  entity_id: input_datetime.last_zone_transition_time
+                  datetime: "{{ now().isoformat() }}"
+                action: input_datetime.set_datetime
+              - data:
+                  message: Movement from Floor 02 to Office
+                action: notify.mobile_app_phone_c
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ trigger.entity_id ==
+                  'binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10' 
+                    and (as_timestamp(now()) - as_timestamp(states.binary_sensor.presence_sensor_fp2_9c35_presence_sensor_3.last_changed)) < 10 }}
+            sequence:
+              - data:
+                  entity_id: input_text.last_zone_transition
+                  value: Office to Floor 02
+                action: input_text.set_value
+              - data:
+                  entity_id: input_datetime.last_zone_transition_time
+                  datetime: "{{ now().isoformat() }}"
+                action: input_datetime.set_datetime
+              - data:
+                  message: Movement from Office to Floor 02
+                action: notify.mobile_app_phone_c
+    mode: single
+
+
+# | END: room_travel_direction.yaml

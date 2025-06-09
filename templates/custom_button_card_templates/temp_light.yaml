@@ -1,0 +1,749 @@
+settings:
+  variables:
+    entity_tablet: switch.galaxy_tab_a7_screensaver
+    entity_browser_mod: media_player.browser_galaxy_tab
+    translate_unknown: Unknown
+    translate_idle: Idle
+    translate_home: 'Yes'
+    translate_not_home: 'No'
+    translate_available: Available
+    translate_no_updates: No Updates
+    translate_update_available: Available
+    translate_updates_available: Available
+base:
+  template:
+    - settings
+    - tilt
+    - extra_styles
+  variables:
+    state_on: >
+      [[[ return ['on', 'home', 'cool', 'fan_only', 'heat', 'heat_cool',
+      'InUse', 'Locked', 'playing', 'cleaning', 'open', 'opening', 'closing',
+      'unlocked', 'healthy', '0 Issues', 'yes'].indexOf(entity === undefined
+      || entity.state) !== -1; ]]]
+    state_error: >
+      [[[ return ['error', 'unavailable'].indexOf(entity === undefined ||
+      entity.state) !== -1; ]]]
+    state: |
+      [[[ return entity === undefined || entity.state; ]]]
+    entity_id: |
+      [[[ return entity === undefined || entity.entity_id; ]]]
+    media_on: >
+      [[[ return entity === undefined || ['playing',
+      'paused'].indexOf(entity.state) !== -1; ]]]
+    media_off: >
+      [[[ return entity === undefined || ['off', 'idle', 'standby', 'unknown',
+      'unavailable'].indexOf(entity.state) !== -1; ]]]
+    entity_picture: |
+      [[[ return entity === undefined || entity.attributes.entity_picture; ]]]
+    timeout: >
+      [[[ return entity === undefined || Date.now() -
+      Date.parse(entity.last_changed); ]]]
+  aspect_ratio: 1/1
+  show_state: true
+  show_icon: false
+  state_display: >
+    [[[ if (variables.state_error === true) return
+    variables.translate_unknown; ]]]
+  tap_action:
+    action: toggle
+    haptic: medium
+  double_tap_action:
+    haptic: success
+  hold_action:
+    action: block
+  styles:
+    grid:
+      - grid-template-areas: |
+          "icon  circle"
+          "n     n"
+          "s     s"
+      - grid-template-columns: repeat(2, 1fr)
+      - grid-template-rows: auto repeat(2, min-content)
+      - gap: 1.3%
+      - align-items: start
+    name:
+      - justify-self: start
+      - line-height: 121%
+    state:
+      - justify-self: start
+      - line-height: 115%
+    card:
+      - border-radius: var(--custom-button-card-border-radius)
+      - border-width: 0
+      - '-webkit-tap-highlight-color': rgba(0,0,0,0)
+      - transition: none
+      - padding: 11.5% 10.5% 10.5% 11.5%
+      - '--mdc-ripple-color': |
+          [[[
+            return variables.state_on
+              ? 'rgb(0, 0, 0)'
+              : 'rgba(255, 255, 255, 0.3)';
+          ]]]
+      - color: |
+          [[[
+            return variables.state_on
+              ? 'rgba(0, 0, 0, 0.6)'
+              : 'rgba(255, 255, 255, 0.3)';
+          ]]]
+      - background-color: |
+          [[[
+            if (variables.state_error) {
+              return variables.state_error
+                ? 'rgba(139, 51, 51, 0.9)'
+                : 'rgba(115, 115, 115, 0.2)';
+            }
+            else {
+              return variables.state_on
+                ? 'rgba(255, 255, 255, 0.8)'
+                : 'rgba(115, 115, 115, 0.2)';
+            }
+          ]]]
+extra_styles:
+  extra_styles: |
+    [[[
+      if (entity && entity.attributes.hs_color) {
+        let hs = entity.attributes.hs_color === undefined,
+          h = hs || entity.attributes.hs_color[0],
+          s = hs || entity.attributes.hs_color[1],
+          l_min = 28,
+          l_max = 48,
+          l_calc = entity.attributes.brightness / 2.54 * (l_max - l_min) / 100 + l_min;
+        var light_color =
+            entity.attributes.color_mode === 'color_temp' ||
+            entity.attributes.color_mode === 'brightness' ||
+            entity.attributes.color_mode === 'unknown'
+                ? `hsl(204, 58%, ${l_calc}%);`
+                : `hsl(${h}, ${s}%, ${l_calc}%);`;
+      } else {
+        var light_color = 'var(--state-icon-color)';
+      }
+
+      return `
+        svg {
+          --light-color:
+          ${ variables.state_on && entity && entity.attributes.brightness !== undefined
+              ? light_color
+              : variables.state_on && entity && entity.attributes.brightness === undefined
+                ? 'var(--state-icon-active-color);'
+                : 'var(--state-icon-color);'
+          }
+        }
+        #container {
+          text-align: left !important;
+        }
+        #name, #state {
+          font-size: 1.1vw;
+          letter-spacing: -0.02vw;
+        }
+        #state::first-letter {
+          text-transform: uppercase;
+        }
+        /* portrait */
+        @media screen and (max-width: 1200px) {
+          #name, #state {
+            font-size: 1.5vw;
+          }
+        }
+        /* phone */
+        @media screen and (max-width: 800px) {
+          #name, #state {
+            font-size: 3.3vw;
+          }
+        }
+
+        ${this._config.template.includes('light') ? `
+
+        /* * * * * * * * * * * * * * * * * *
+          *                                 *
+          *          CIRCLE SLIDER          *
+          *                                 *
+          * * * * * * * * * * * * * * * * * */
+
+          #circle_slider {
+            opacity: 0;
+            appearance: none;
+            transform: rotate(270deg);
+            width: 90%;
+            position: absolute;
+            pointer-events: none;
+            cursor: grab;
+            left: 35%;
+            margin-top: 13%;
+          }
+
+          #circle_slider::-webkit-slider-thumb {
+            pointer-events: initial;
+            appearance: none;
+            width: 3vw;
+            height: 3vw;
+            border-radius: 50%;
+            background: green;
+          }
+
+          #circle_slider::-webkit-slider-runnable-track {
+            background: cornflowerblue;
+          }
+
+          #circle_slider::-moz-range-thumb {
+            pointer-events: initial;
+            appearance: none;
+            width: 3vw;
+            height: 3vw;
+            border-radius: 50%;
+            background: green;
+          }
+
+          #circle_slider::-moz-range-track {
+            background: cornflowerblue;
+            height: 3vw;
+          }
+
+          /* portrait */
+          @media screen and (max-width: 1200px) {
+            #circle_slider::-webkit-slider-thumb {
+              width: 4vw;
+              height: 4vw;
+            }
+
+            #circle_slider::-moz-range-thumb {
+              width: 4vw;
+              height: 4vw;
+            }
+          }
+
+          /* phone */
+          @media screen and (max-width: 800px) {
+            #circle_slider::-webkit-slider-thumb {
+              width: 7vw;
+              height: 7vw;
+            }
+
+            #circle_slider::-moz-range-thumb {
+              width: 7vw;
+              height: 7vw;
+            }
+          }
+
+        `:''}
+
+
+        /* tilt */
+        #ripple, .js-tilt-glare {
+          clip-path: inset(0 round var(--custom-button-card-border-radius));
+          overflow: hidden;
+        }
+        .js-tilt-glare {
+          z-index: 1;
+        }
+        .js-tilt-glare-inner {
+          background-color: rgba(0,0,0,0.9);
+        }
+        #container {
+          transform: translateZ(${variables.tilt_options.parallax});
+        }
+        #card {
+          transform-style: preserve-3d;
+          overflow: hidden;
+        }
+
+        ${this._config.template.includes('conditional_media') ? `
+          :host {
+            --blur-intensity: blur(4.5px) brightness(0.8);
+          }
+          /* phone */
+          @media screen and (max-width: 800px) {
+            :host {
+              --blur-intensity: blur(2.5px) brightness(0.8);
+            }
+          }
+          #ripple, .js-tilt-glare {
+            clip-path: inset(0 round calc(var(--custom-button-card-border-radius) / 2));
+          }
+          #container {
+            overflow: hidden;
+          }
+          .marquee {
+            animation: marquee 20s linear infinite;
+          }
+          @keyframes marquee {
+            from {
+              transform: translateX(0%);
+            }
+            to {
+              transform: translateX(-50%);
+            }
+          }
+        `:''}
+
+        ${this._config.template.includes('scene') ? `
+          :host {
+            --name-font-size: 1vw;
+            --name-icon-size: 1.2vw;
+            --name-padding-v: 0.4vw;
+            --name-padding-h: 0.8vw;
+            --card-border-radius: 0.6vw;
+          }
+          #ripple, .js-tilt-glare {
+            border-radius: calc(var(--card-border-radius) - 0.1vw);
+            clip-path: inset(0 round calc( var(--custom-button-card-border-radius) - 0.1vw ));
+          }
+          #name {
+            font-size: var(--name-font-size);
+            padding: var(--name-padding-v) var(--name-padding-h);
+            letter-spacing: 0.012vw;
+          }
+          ha-icon {
+            width: var(--name-icon-size);
+            vertical-align: 7%;
+            opacity: 0.4;
+          }
+          #card {
+            border-radius: var(--card-border-radius);
+            background: rgba(115, 115, 115, 0.04);
+          }
+          /* portrait */
+          @media screen and (max-width: 1200px) {
+            #name {
+              font-size: calc(var(--name-font-size) * 1.4);
+              padding: calc(var(--name-padding-v) * 1.4) calc(var(--name-padding-h) * 1.4);
+            }
+            ha-icon {
+              width: calc(var(--name-icon-size) * 1.4);
+            }
+            #card {
+              border-radius: calc(var(--card-border-radius) * 1.4);
+              margin: 0 0.5vw;
+            }
+          }
+          /* phone */
+          @media screen and (max-width: 800px) {
+            #name {
+              font-size: calc(var(--name-font-size) * 2.7);
+              padding: calc(var(--name-padding-v) * 2.7) calc(var(--name-padding-h) * 2.7);
+              letter-spacing: 0.12vw;
+            }
+            ha-icon {
+              width: calc(var(--name-icon-size) * 2.7);
+            }
+            #card {
+              border-radius: calc(var(--card-border-radius) * 2.7);
+              background: rgba(115, 115, 115, 0.08);
+              margin: 0 0.5vw;
+            }
+          }
+        `:''}
+
+        ${this._config.template.includes('footer') ? `
+          :host {
+            --name-font-size: 1vw;
+            --name-icon-size: 1.2vw;
+            --notify-font-size: 0.9vw;
+            --notify-box-size: 1.8vw;
+            --name-padding-v: 0.4vw;
+            --name-padding-h: 0.8vw;
+            --card-border-radius: 0.6vw;
+          }
+          #ripple, .js-tilt-glare {
+            border-radius: calc(var(--card-border-radius) - 0.1vw);
+            clip-path: inset(0 round calc( var(--custom-button-card-border-radius) - 0.1vw ));
+          }
+          #name {
+            font-size: var(--name-font-size);
+            padding: var(--name-padding-v) var(--name-padding-h);
+            letter-spacing: 0.012vw;
+          }
+          ha-icon {
+            width: var(--name-icon-size);
+            vertical-align: 7%;
+            padding-right: 0.1vw;
+            opacity: 0.4;
+          }
+          #card {
+            border-radius: var(--card-border-radius);
+            background: rgba(115, 115, 115, 0.04);
+          }
+          #notify {
+            font-size: var(--notify-font-size);
+            width: var(--notify-box-size);
+            height: var(--notify-box-size);
+            line-height: var(--notify-box-size);
+            padding-right: 0.5px;
+            padding-top: 0.5px;
+          }
+          /* portrait */
+          @media screen and (max-width: 1200px) {
+            #name {
+              font-size: calc(var(--name-font-size) * 1.4);
+              padding: calc(var(--name-padding-v) * 1.4) calc(var(--name-padding-h) * 1.4);
+            }
+            ha-icon {
+              width: calc(var(--name-icon-size) * 1.4);
+            }
+            #card {
+              border-radius: calc(var(--card-border-radius) * 1.4);
+              margin: 0 0.5vw;
+            }
+            #notify {
+              font-size: calc(var(--notify-font-size) * 1.4);
+              width: calc(var(--notify-box-size) * 1.4);
+              height: calc(var(--notify-box-size) * 1.4);
+              line-height: calc(var(--notify-box-size) * 1.4);
+            }
+          }
+          /* phone */
+          @media screen and (max-width: 800px) {
+            #name {
+              font-size: calc(var(--name-font-size) * 2.7);
+              padding: calc(var(--name-padding-v) * 2.7) calc(var(--name-padding-h) * 2.7);
+              letter-spacing: 0.12vw;
+            }
+            ha-icon {
+              width: calc(var(--name-icon-size) * 2.7);
+            }
+            #card {
+              border-radius: calc(var(--card-border-radius) * 2.7);
+              background: rgba(115, 115, 115, 0.08);
+              margin: 0 0.5vw;
+            }
+            #notify {
+              font-size: calc(var(--notify-font-size) * 2.7);
+              width: calc(var(--notify-box-size) * 2);
+              height: calc(var(--notify-box-size) * 2);
+              line-height: calc(var(--notify-box-size) * 2);
+              padding: 0;
+            }
+          }
+        `:''}
+      `
+    ]]]
+circle:
+  styles:
+    card:
+      - '--c-stroke-color-on': '#7d7e80'
+      - '--c-stroke-color-off': none
+      - '--c-fill-color-on': none
+      - '--c-fill-color-off': rgba(255,255,255,0.04)
+      - '--c-stroke-width': 3
+      - '--c-stroke-width-dragging': 4
+      - '--c-font-color': '#97989c'
+      - '--c-font-size': 14px
+      - '--c-unit-font-size': 10px
+      - '--c-font-weight': 500
+      - '--c-letter-spacing': 0.03rem
+    custom_fields:
+      circle:
+        - display: initial
+        - width: 90%
+        - margin: '-6% -6% 0 0'
+        - justify-self: end
+        - opacity: 1
+  custom_fields:
+    circle: |
+      [[[
+        if (entity) {
+            let r = 20.5,
+                c = r * 2 * Math.PI,
+                tspan = '<tspan dx=".2" dy="-.4">',
+                domain = entity.entity_id.split('.')[0],
+                state = variables.state_on,
+                input = variables.circle_input || ' ',
+                unit = variables.circle_input_unit || ' ';
+
+          /* * * * * * * * * * * * * * * * * *
+            *                                 *
+            *             CIRCLE              *
+            *                                 *
+            * * * * * * * * * * * * * * * * * */
+
+            let circle = (state, input, unit) => {
+                return `
+                  <svg viewBox="0 0 50 50">
+                    <style>
+                      circle {
+                        transform: rotate(-90deg);
+                        transform-origin: 50% 50%;
+                        stroke-dasharray: ${c};
+                        stroke-linecap: round;
+                        fill: ${state ? 'var(--c-fill-color-on)' : 'var(--c-fill-color-off)'};
+                      }
+                      text {
+                        font-size: var(--c-font-size);
+                        font-weight: var(--c-font-weight);
+                        letter-spacing: var(--c-letter-spacing);
+                        fill: var(--c-font-color);
+                      }
+                      tspan {
+                        font-size: var(--c-unit-font-size);
+                      }
+                      #circle_value, tspan {
+                        text-anchor: middle;
+                        dominant-baseline: central;
+                      }
+                    </style>
+                    <circle id="circle_stroke_bg" cx="25" cy="25" r="${r}" opacity="0.7" stroke-width="var(--c-stroke-width)" stroke="#9da0a2"/>
+                    <circle id="circle_stroke_prev" cx="25" cy="25" r="${r}" opacity="1" stroke-width="2.5" stroke="#ffd945"  stroke-dashoffset="${typeof input === 'number' && c - input / 100 * c}" stroke-dasharray="${c}"/>
+                    <circle id="circle_stroke" cx="25" cy="25" r="${r}" opacity="1.0" stroke-width="var(--c-stroke-width)" stroke="${state ? 'var(--c-stroke-color-on)' : 'var(--c-stroke-color-off)'}" stroke-dashoffset="${typeof input === 'number' && c - input / 100 * c}" stroke-dasharray="${c}"/>
+                    <text id="circle_value" x="50%" y="52%" text-anchor="middle" alignment-baseline="middle" dominant-baseline="middle">${input}${tspan}${unit}</tspan></text>
+                  </svg>
+
+                  ${domain === 'light' && `
+                      <input id="circle_slider" type="range" min="0" max="100" value="${input}">
+                  `}
+                `;
+            }
+
+          /* * * * * * * * * * * * * * * * * *
+            *                                 *
+            *              LIGHT              *
+            *                                 *
+            * * * * * * * * * * * * * * * * * */
+
+            if (domain === 'light' && state) {
+
+                // wait 0ms for shadow dom
+                setTimeout(() => {
+
+                    // then get elements
+                    let elt = this.shadowRoot,
+                        circle_slider = elt.getElementById('circle_slider'),
+                        circle_value = elt.getElementById('circle_value'),
+                        circle_stroke_prev = elt.getElementById('circle_stroke_prev'),
+                        circle_stroke = elt.getElementById('circle_stroke');
+
+                    // approximate position of thumb relative to circle
+                    circle_slider.style.top = `${(circle_slider.value - 70) / 1.66 - 1}%`;
+
+                    // debug position
+                    let debug = false;
+                    if (debug) circle_slider.style.opacity = 0.3;
+
+                    // pass each event to handler
+                    ['click', 'input', 'mousedown', 'mouseup', 'touchstart', 'touchend'].forEach((event) => {
+                        circle_slider.addEventListener(event, handler, { passive: true })
+                    });
+
+                    function handler(event) {
+
+                        // "this" refers to slider
+                        if (event.target === this) {
+
+                            // bypass button-card tap_action
+                            event.stopPropagation();
+
+                            // update circle_value
+                            circle_value.innerHTML = `${this.value}${tspan}${unit}</tspan>`;
+
+                            // update stroke
+                            circle_stroke.style.strokeDashoffset = c - this.value / 100 * c;
+                            circle_stroke.style.strokeWidth = 'var(--c-stroke-width-dragging)';
+                            
+                            // set cursor while dragging
+                            if (event.type === 'mousedown' || event.type === 'input') {
+                                this.style.cursor = 'grabbing';
+                            } else {
+                                this.style.cursor = 'grab';
+                            }
+
+                            // reset stroke width if value doesn't change
+                            if (input == this.value && (event.type === 'click' || event.type === 'touchend'))
+                                circle_stroke.style.strokeWidth = 'var(--c-stroke-width)';
+
+                            // on release
+                            if (event.type === 'mouseup' || event.type === 'touchend') {
+
+                                // display loader if brightness is 0
+                                if (circle_slider.value == 0 && elt.getElementById('loader')) {
+                                    elt.getElementById('loader').style.display = 'initial';
+                                    elt.getElementById('circle').style.display = 'none';
+                                }
+
+                                // set brightness
+                                hass.callService('light', 'turn_on', {
+                                    entity_id: entity.entity_id,
+                                    brightness_pct: this.value
+                                });
+                            }
+                        }
+                    }
+                }, 0);
+
+                return circle(state, input, unit);
+            }
+
+          /* * * * * * * * * * * * * * * * * *
+            *                                 *
+            *              OTHER              *
+            *                                 *
+            * * * * * * * * * * * * * * * * * */
+
+            else if (variables.state_on) {
+              return circle(state, input, unit);
+            }
+        }
+      ]]]
+loader:
+  custom_fields:
+    loader: |
+      <img src="/local/svg/loader.svg" width="100%">
+  tap_action:
+    loader: |
+      [[[
+        if (entity) {
+          var domain = entity.entity_id.split('.')[0];
+          if (domain === 'light' || domain === 'lock') {
+            let elt = this.shadowRoot,
+              loader = (id, style, timeout) => {
+                elt.getElementById(id) && (elt.getElementById(id).style.display = style,
+                  window.setTimeout(() => {
+                    elt.getElementById('loader').style.display = 'none'
+                  }, 20000))
+              };
+            loader('circle', 'none', 'initial'),
+            loader('loader', 'initial', 'none');
+          }
+        }
+      ]]]
+  double_tap_action:
+    loader: |
+      [[[
+        if (entity) {
+          var domain = entity.entity_id.split('.')[0];
+          if (domain === 'cover') {
+            let elt = this.shadowRoot,
+              loader = (id, style, timeout) => {
+                elt.getElementById(id) && (elt.getElementById(id).style.display = style,
+                  window.setTimeout(() => {
+                    elt.getElementById('loader').style.display = 'none'
+                  }, 20000))
+              };
+            loader('circle', 'none', 'initial'),
+            loader('loader', 'initial', 'none');
+          }
+        }
+      ]]]
+  styles:
+    custom_fields:
+      loader:
+        - display: none
+        - top: '-5.8%'
+        - right: '-5.3%'
+        - width: 50%
+        - position: absolute
+        - opacity: 0.5
+        - filter: |
+            [[[
+              return variables.state_on
+                  ? 'none'
+                  : 'invert(1)';
+            ]]]
+tilt:
+  variables:
+    tilt_enable: |
+      [[[
+        // enable only on this
+        if (window.navigator.userAgent.includes("Windows")) {
+            return true;
+        }
+        return false;
+      ]]]
+    tilt_options: |
+      [[[
+        let options = {
+            max: 5,
+            scale: 1.06,
+            glare: true,
+            'max-glare': 0.15,
+            perspective: 800,
+            speed: 800,
+            parallax: '25px'
+        }
+        if (this._config.template.includes('conditional_media')) {
+            options.scale = options.scale % parseInt(options.scale) / 2 + parseInt(options.scale);
+            options.perspective = options.perspective * 2;
+            return options;
+        }
+        return options;
+      ]]]
+  custom_fields:
+    tilt: |
+      [[[
+        setTimeout(() => {
+            let elt = this.shadowRoot,
+                card = elt.getElementById('card'),
+                tilt = typeof VanillaTilt === 'function';
+            if (elt && card && tilt && variables.tilt_enable) {
+                VanillaTilt.init(card, variables.tilt_options);
+            } else {
+                setTimeout(() => {
+                    if (elt && card && tilt && variables.tilt_enable) {
+                        VanillaTilt.init(card, variables.tilt_options);
+                    }
+                }, 1000);
+            }
+        }, 0);
+      ]]]
+
+
+
+light:
+  template:
+    - base
+    - circle
+    - loader
+  variables:
+    circle_input: |
+      [[[
+        if (entity) {
+            // if light group get brightness from child to remove bounce
+            let child = entity.attributes.entity_id,
+                brightness = child && states[child[0]].attributes.brightness
+                    ? Math.round(states[child[0]].attributes.brightness / 2.54)
+                    : Math.round(entity.attributes.brightness / 2.54);
+            return brightness === 0 && entity.state !== 'off'
+                ? 1
+                : brightness
+        }
+      ]]]
+    circle_input_unit: '%'
+    light_entity: '[[[ return entity.entity_id ]]]'
+  double_tap_action:
+    action: fire-dom-event
+    browser_mod:
+      service: browser_mod.sequence
+      data:
+        sequence:
+          - service: browser_mod.popup
+            data:
+              sequence: null
+              style: |
+                --popup-background-color: transparent;
+              content:
+                type: custom:more-info-card
+                entity: '[[[ return variables.light_entity; ]]]'
+              card_mod:
+                style:
+                  more-info-card:
+                    $ha-card:
+                      .: |
+                        state-card-content {
+                          display: none !important;
+                        }
+                      $: |
+                        .card-header {
+                          display: none !important;
+                        }
+                      more-info-light:
+                        $: |
+                          ha-attributes {
+                            display: none !important;
+                          }
+                          .buttons {
+                            margin-bottom: 0 !important;
+                          }
+                          .buttons md-outlined-icon-button:nth-child(2) {
+                            display: none !important;
+                          }
+                          .controls {
+                            margin-bottom: 0 !important;
+                          }

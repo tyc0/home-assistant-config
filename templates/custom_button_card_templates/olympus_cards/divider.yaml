@@ -1,0 +1,187 @@
+
+# | START: divider.yaml
+# |  PATH: /config/templates/custom_button_card_templates/olympus_cards/divider.yaml
+
+
+# ➔ Animated Divider
+#   Custom button card template that animates divider text and a line animation using CSS animations
+#   and JavaScript DOM manipulation. Core functionality:
+#
+#     • Animated text rendering with per-character delay
+#     • Configurable text and line colors
+#     • Line animation with a dynamic shine effect
+#     • Reusable template for divider display
+
+
+# ➔ Example Usage
+# type: custom:button-card
+# template: divider_text_template
+# variables:
+#   text_content: "Custom Divider Text"
+#   text_start_delay: 1.5
+#   text_character_delay: 0.05
+#   animation_duration: 0.5
+#   line_color: "var(--divider-color, #333)"
+#   text_color: "var(--primary-text-color, #fff)"
+#   shine_color: "rgba(255, 255, 255, 0.8)"
+
+
+
+divider_text_template:
+  type: custom:button-card
+
+# ╭────────────────────╮
+# │ VARIABLES
+# ╰────────────────────╯
+  variables:
+
+    text_content: "Example divider V1"  # The text to animate
+    text_start_delay: 2                 # Delay before text animation begins
+    text_character_delay: 0.04          # Delay between each character animation
+    animation_duration: 0.4             # Duration for each text animation cycle
+    line_color: "var(--contrast6, var(--divider-color, rgba(50,50,50,1)))"  # Color of the divider line
+    text_color: "var(--contrast20, var(--primary-text-color, rgba(255, 255, 255, 0.9)))"  # Text color
+    shine_color: "rgba(255, 255, 255, 0.6)"  # Color for the shine effect on the line
+
+# ╭────────────────────╮
+# │ NAME
+# ╰────────────────────╯
+  name: |
+    [[[
+      const s = variables.text_start_delay || 1;
+      const c = variables.text_character_delay || 0.07;
+      const d = variables.animation_duration || 1.2;
+      const t = variables.text_content || 'Example name';
+      const textColor = variables.text_color || "var(--contrast20, var(--primary-text-color, rgba(255, 255, 255, 0.9)))";
+      
+      // Split text into characters and wrap each in a span with an animation delay
+      return `<span>${t.split('').map((l, i) => `<span style="display:inline-block;animation:textfadeintro ${d}s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;animation-delay:${s + i * c}s;color:${textColor};">${l === ' ' ? '&nbsp;' : l}</span>`).join('')}</span>`;
+    ]]]
+
+
+# ╭────────────────────╮
+# │ EXTRA STYLES
+# ╰────────────────────╯
+  extra_styles: |
+    @keyframes textfadeintro {
+      from { 
+        transform: translateY(8px) translateX(20px) scale(0.9); 
+        filter: blur(4px); 
+        opacity: 0; 
+      }
+      to { 
+        transform: translateY(0) translateX(0) scale(1); 
+        filter: blur(0); 
+        opacity: 1; 
+      }
+    }
+
+    @keyframes linefadein {
+      0% { 
+        opacity: 0; 
+        width: 0%; 
+        transform: scaleX(0);
+        transform-origin: left;
+      }
+      100% { 
+        opacity: 1; 
+        width: 100%; 
+        transform: scaleX(1);
+        transform-origin: left;
+      }
+    }
+
+    @keyframes animatedLine {
+      0% {
+        left: -100px;
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        left: calc(100% + 100px);
+        opacity: 0;
+      }
+    }
+
+
+# ╭────────────────────╮
+# │ STYLES
+# ╰────────────────────╯
+  styles:
+
+    card:
+      - background: none
+      - padding: 0
+      - box-shadow: none
+      - border: none
+      - height: auto
+      - overflow: visible
+
+    name:
+      - width: 100%
+      - font-size: 0.92rem
+      - font-weight: 400
+      - letter-spacing: 1.4px
+      - padding-left: 4px
+      - margin-right: 40px
+      - font-family: "Segoe UI"
+      - justify-self: start
+      - padding-bottom: 2px
+      - overflow: visible
+      - user-select: none
+      - "-webkit-font-smoothing": antialiased
+      - "-moz-osx-font-smoothing": grayscale
+      - text-rendering: optimizeLegibility
+      - font-variant-ligatures: none
+      - backface-visibility: hidden
+      - transform: translateZ(0)
+
+    grid:
+      - grid-template-areas: "\"n line\""
+      - grid-template-columns: auto 1fr
+      - align-items: center
+
+
+# ╭────────────────────╮
+# │ CUSTOM FIELDS
+# ╰────────────────────╯
+  custom_fields:
+
+    line: |
+      [[[ 
+        const t = variables.text_content || 'Example name';
+        const lineColor = variables.line_color || "var(--contrast6, var(--divider-color, rgba(50,50,50,1)))";
+        const shineColor = variables.shine_color || "rgba(255, 255, 255, 0.6)";
+        const d = variables.animation_duration || 1.2;
+        
+        // Compute total delay for the line animation
+        const delay = (variables.text_start_delay || 1) + ((t.length - 1) * (variables.text_character_delay || 0.07)) + (d * 0.5);
+        
+        return `<div style="
+                  position: relative;
+                  height: 1px;
+                  margin-right: 14px;
+                  margin-left: 8px;
+                  background-color: ${lineColor};
+                  animation: linefadein 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+                  animation-delay: ${delay}s;
+                  opacity: 0;
+                  overflow: hidden;
+                  box-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+                "><div style="
+                  position: absolute;
+                  top: 0;
+                  left: -100px;
+                  height: 100%;
+                  width: 100px;
+                  background: linear-gradient(to right, 
+                    rgba(255, 255, 255, 0) 0%, 
+                    ${shineColor} 50%, 
+                    rgba(255, 255, 255, 0) 100%);
+                  animation: animatedLine 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+                  animation-delay: ${delay + 0.8}s;
+                  opacity: 0;
+                "></div></div>`;
+      ]]]
