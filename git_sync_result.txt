@@ -1,1 +1,25 @@
-No changes to sync.
+Staged files:
+git_sync.sh
+git_sync_result.txt
+[main ba5a09f] Sync: 2025-06-09 09:20:43
+ Committer: root <root@homeassistant.local.hass.io>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 2 files changed, 16 insertions(+), 8 deletions(-)
+Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+
+❌ Git sync failed!
