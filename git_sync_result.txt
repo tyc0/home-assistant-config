@@ -1,7 +1,8 @@
 Staged files:
 git_sync_result.txt
-[main 1f14d3d] Sync: 2025-06-09 09:24:33
- Committer: root <root@core-ssh.local.hass.io>
+packages/server/github_sync.yaml
+[main 3db4a47] Sync: 2025-06-09 09:27:10
+ Committer: root <root@homeassistant.local.hass.io>
 Your name and email address were configured automatically based
 on your username and hostname. Please check that they are accurate.
 You can suppress this message by setting them explicitly. Run the
@@ -14,8 +15,7 @@ After doing this, you may fix the identity used for this commit with:
 
     git commit --amend --reset-author
 
- 1 file changed, 25 insertions(+), 1 deletion(-)
-To https://github.com/unmasked213/home-assistant-config.git
-   8e89f89..1f14d3d  main -> main
+ 2 files changed, 7 insertions(+), 11 deletions(-)
+fatal: could not read Username for 'https://github.com': No such device or address
 
-✅ Git sync successful.
+❌ Git sync failed!
