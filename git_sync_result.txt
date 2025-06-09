@@ -1,20 +1,23 @@
 Staged files:
+git_sync.sh
 git_sync_result.txt
-[main a7f0ca8] Sync: 2025-06-09 09:32:51
- Committer: root <root@core-ssh.local.hass.io>
+packages/server/github_sync.yaml
+[main dff9b8a] Manual sync via dashboard button
+ Committer: root <root@homeassistant.local.hass.io>
 Your name and email address were configured automatically based
 on your username and hostname. Please check that they are accurate.
-You can suppress this message by setting them explicitly:
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
 
-    git config --global user.name "Your Name"
-    git config --global user.email you@example.com
+    git config --global --edit
 
 After doing this, you may fix the identity used for this commit with:
 
     git commit --amend --reset-author
 
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ 3 files changed, 11 insertions(+), 12 deletions(-)
 To https://github.com/unmasked213/home-assistant-config.git
-   1f14d3d..a7f0ca8  main -> main
+   a7f0ca8..dff9b8a  main -> main
 
 ✅ Git sync successful.

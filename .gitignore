@@ -41,3 +41,5 @@ ui_setup_v2.md
 zigbee.db
 zigbee.db-shm
 zigbee.db-wal
+git_sync.sh
+git_sync_result.txt
