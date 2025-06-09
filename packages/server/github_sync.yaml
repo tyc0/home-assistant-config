@@ -6,13 +6,46 @@
 #  ╭────────────────────╮
 #  │   SHELL COMMAND
 #  ╰────────────────────╯
-
-  # ➔ Git Sync
-  #   Triggers script to automate git add, commit, and push to GitHub
+# ➔ Git Sync
+#   Triggers script to automate git add, commit, and push to GitHub
 shell_command:
   git_sync_config: bash /config/git_sync.sh
 
 
+
+#  ╭────────────────────╮
+#  │   SENSOR
+#  ╰────────────────────╯
+# ➔ Git Sync Result
+#   Displays the result of the git sync
+sensor:
+  - platform: command_line
+    name: Git Sync Result
+    command: cat /config/git_sync_result.txt || echo "No sync run yet."
+    scan_interval: 5
+
+
+
+#  ╭────────────────────╮
+#  │   AUTOMATION
+#  ╰────────────────────╯
+# ➔ Git Sync Feedback
+#   Displays the result of the git sync
+automation:
+  - alias: Git Sync Feedback
+    id: git_sync_feedback
+    trigger:
+      - platform: state
+        entity_id: sensor.git_sync_result
+    condition:
+      - condition: template
+        value_template: >
+          {{ trigger.from_state.state != trigger.to_state.state }}
+    action:
+      - service: persistent_notification.create
+        data:
+          title: Git Sync Result
+          message: "{{ states('sensor.git_sync_result') }}"
+
+
 # | END: github_sync.yaml
-
-
