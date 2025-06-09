@@ -8,7 +8,7 @@ if git diff --cached --quiet; then
   exit 0
 fi
 
-if git commit -m "Sync: $(date '+%Y-%m-%d %H:%M:%S')" && git push origin master; then
+if git commit -m "Sync: $(date '+%Y-%m-%d %H:%M:%S')" && git push origin main; then
   echo "Git sync successful." > /config/git_sync_result.txt
 else
   echo "Git sync failed!" > /config/git_sync_result.txt
