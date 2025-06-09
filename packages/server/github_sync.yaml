@@ -17,7 +17,7 @@ shell_command:
 #  │   SENSOR
 #  ╰────────────────────╯
 # ➔ Git Sync Result
-#   Displays the result of the git sync
+#   Displays the result of the github sync
 sensor:
   - platform: command_line
     name: Git Sync Result
