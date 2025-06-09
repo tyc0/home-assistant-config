@@ -1,0 +1,18 @@
+
+# | START: github_sync.yaml
+# |  PATH: /config/packages/server/github_sync.yaml
+
+
+#  ╭────────────────────╮
+#  │   SHELL COMMAND
+#  ╰────────────────────╯
+
+  # ➔ Git Sync
+  #   Triggers script to automate git add, commit, and push to GitHub
+shell_command:
+  git_sync_config: bash /config/git_sync.sh
+
+
+# | END: github_sync.yaml
+
+
