@@ -12,7 +12,7 @@ input_select:
 #   Dropdown for selecting the shopping list
   shopping_store:
     options:
-      - Amazon 
+      - Amazon
       - Tesco
 
 
@@ -48,7 +48,7 @@ input_text:
 #  ╰────────────────────╯
 automation:
 
-# ➔ Dynamic List Add
+# ➔ Dynamic List add stuff
 #   Adds an item to the shopping list based on the selected store.
 #   Also sanitises text before adding to shopping list.
   - alias: Dynamic List Add
