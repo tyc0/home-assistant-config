@@ -2686,89 +2686,91 @@
     - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_11
     - binary_sensor.withings_c_in_bed
     - binary_sensor.withings_e_in_bed
+    - light.bedroom
+    - light.room_02
+    - light.2nd_floor
+    - light.bathroom_light
+    - switch.sonoff_zbminil2_switch
+    - binary_sensor.ds06_motion
+    - binary_sensor.motion_sensor_1503
+    - binary_sensor.ms05_motion
+    - binary_sensor.ms04_motion
+    - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_4
+    - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_6
+    - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_7
+    - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_9
+    - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10
+    - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_11
+    - binary_sensor.presence_sensor_fp2_07a0_presence_sensor_5
+    - binary_sensor.vs00_vibration
+    - binary_sensor.vs00_vibrationp
+    - binary_sensor.vs05_vibration
+    - binary_sensor.ds06_position
+    - binary_sensor.withings_c_in_bed
+    - binary_sensor.withings_e_in_bed
     to: 'on'
     trigger: state
-  conditions: []
   actions:
   - variables:
-      title_text: '{{ trigger.to_state.attributes.device_class if trigger is defined
-        else ''Test'' }}
-
-        '
-      message_text: "{% if trigger is defined and trigger.to_state.entity_id.startswith('light.')
-        %}\n  {{ trigger.to_state.attributes.friendly_name }} light turned on\n{%
-        else %}\n  {{ trigger.to_state.attributes.friendly_name if trigger is defined
-        else 'Manual trigger success' }}\n{% endif %}\n"
+      is_light: '{{ trigger.to_state.entity_id.startswith(''light.'') }}'
+      name: '{{ trigger.to_state.attributes.friendly_name }}'
+      tag_base: motion-{{ now().timestamp() | int }}
+      title: '{{ trigger.to_state.attributes.device_class | default(''Motion'') }}'
+      message: '{{ name }}{{ '' turned on'' if is_light else '''' }}'
   - parallel:
-    - alias: Sound Alert
-      if:
-      - condition: state
-        entity_id: input_boolean.sonos_play_notifications
-        state: 'on'
+    - if: '{{ is_state(''input_boolean.sonos_play_notifications'', ''on'') }}'
       then:
-      - continue_on_error: true
+      - action: media_player.play_media
+        continue_on_error: true
         target:
           entity_id: media_player.sonos_speaker
         data:
           media_content_id: media-source://media_source/local/sound/tech_click_2s_ver12.wav
           media_content_type: audio/x-wav
-        action: media_player.play_media
-    - alias: 'Notify: C PC'
-      if:
-      - condition: state
-        entity_id: input_boolean.c_pc_display_notifications
-        state: 'on'
+    - if: '{{ is_state(''input_boolean.c_pc_display_notifications'', ''on'') }}'
       then:
-      - continue_on_error: true
+      - action: rest_command.send_hass_agent_notification
+        continue_on_error: true
         data:
-          title: '{{ title_text }}'
-          message: '{{ message_text }}'
-        action: rest_command.send_hass_agent_notification
-    - alias: 'Notify: C phone'
-      sequence:
-      - variables:
-          tag_id: c-phone-{{ now().timestamp() | int }}
-      - continue_on_error: true
-        data:
-          title: '{{ title_text }}'
-          message: '{{ message_text }}'
+          title: '{{ title }}'
+          message: '{{ message }}'
+    - sequence:
+      - if: '{{ not is_state(''person.cam'', ''home'') }}'
+        then:
+        - action: notify.mobile_app_phone_c
+          continue_on_error: true
           data:
-            priority: high
-            channel: alarm_stream
-            color: '#FF918A'
-            sticky: false
-            persistent: false
-            notification_icon: mdi:run
-            tag: '{{ tag_id }}'
-            timeout: 60
-        action: notify.mobile_app_phone_c
-      - delay:
-          seconds: 20
-      - continue_on_error: true
+            title: '{{ title }}'
+            message: '{{ message }}'
+            data:
+              priority: high
+              color: '#FF918A'
+              notification_icon: mdi:run
+              tag: '{{ tag_base }}-phone'
+              timeout: 60
+      - action: notify.mobile_app_ipad_2
+        continue_on_error: true
         data:
-          message: clear_notification
+          title: '{{ title }}'
+          message: '{{ message }}'
           data:
-            tag: '{{ tag_id }}'
-        action: notify.mobile_app_phone_c
-    - alias: 'Notify: C iPad'
-      sequence:
-      - variables:
-          tag_id: c-tablet-{{ now().timestamp() | int }}
-      - continue_on_error: true
-        data:
-          title: '{{ title_text }}'
-          message: '{{ message_text }}'
+            tag: '{{ tag_base }}-tablet'
+      - delay: 15
+      - parallel:
+        - if: '{{ not is_state(''person.cam'', ''home'') }}'
+          then:
+          - action: notify.mobile_app_phone_c
+            continue_on_error: true
+            data:
+              message: clear_notification
+              data:
+                tag: '{{ tag_base }}-phone'
+        - action: notify.mobile_app_ipad_2
+          continue_on_error: true
           data:
-            tag: '{{ tag_id }}'
-        action: notify.mobile_app_ipad
-      - delay:
-          seconds: 20
-      - continue_on_error: true
-        data:
-          message: clear_notification
-          data:
-            tag: '{{ tag_id }}'
-        action: notify.mobile_app_ipad
+            message: clear_notification
+            data:
+              tag: '{{ tag_base }}-tablet'
   mode: parallel
 - id: '1733660728192'
   alias: Lights - Bedroom

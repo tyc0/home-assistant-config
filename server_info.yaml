@@ -1,0 +1,648 @@
+type: custom:button-card
+show_state: true
+tap_action: none
+custom_fields:
+  title: |
+    [[[
+      return `
+        <div style="
+          position: absolute;
+          top: 25px;
+          left: 54px;
+          display: flex;
+          align-items: center;
+        ">
+          <div style="
+            width: 3px;
+            height: 36px;
+            background-color: var(--sidebar-color);
+            margin-right: -2.5px;
+            border-radius: 1.5px;
+          "></div>
+          <div style="
+            font-size: 1.7em;
+            font-weight: 400;
+            color: var(--primary-text-color);
+            letter-spacing: 0.2px;
+            line-height: 1.2;
+          ">
+            DET Minutes
+          </div>
+        </div>
+      `;
+    ]]]
+state_display: |
+  [[[
+    // Colour definitions
+    const colors = {
+      // Base colors
+      sidebar: 'rgba(51, 55, 68, 0.6)',
+      borderLight: 'rgba(51, 55, 68, 0.15)',
+      borderDark: 'rgba(51, 55, 68, 1)',
+
+      // Button states
+      buttonBg: 'rgba(var(--rgb-primary-color, 0, 0, 0), 0.05)',
+      buttonHover: 'rgba(var(--rgb-primary-color, 0, 0, 0), 0.1)',
+
+      // Success state colors
+      successBg: 'rgba(68, 248, 202, 0.5)',
+      successBorder: 'rgba(68, 248, 202, 0.8)',
+      successText: 'rgba(68, 248, 202, 1)',
+      successShadow: 'rgba(68, 248, 202, 0.3)',
+
+      // Error state colors
+      errorBg: 'rgba(255, 0, 0, 0.15)',
+      errorBorder: 'rgba(255, 0, 0, 0.3)',
+      errorText: 'rgba(255, 0, 0, 0.9)',
+
+      // Scrollbar
+      scrollbarThumb: 'rgba(var(--rgb-primary-color), 0.12)'
+    };
+
+    // Content sections
+    const mainPrompt = `# Digital Executive Team Meeting Minutes Guidelines
+
+## Purpose and Authority
+Generate definitive minutes for the Digital Executive Team (DET) meeting, intended as the authoritative record for the Digital Group within the Department for Work and Pensions. Using the provided transcript and accompanying documents as your primary sources, craft a polished narrative that serves both as an immediate record and an enduring reference for strategic decisions.
+
+## Structure and Narrative Flow
+  · Follow the agenda items sequentially as provided in the meeting documentation.
+  · For each agenda item, maintain its exact title as a heading.
+  · Develop a seamless narrative within each agenda item that connects immediate outcomes to strategic implications and departmental objectives.
+  · Never mix discussions from different agenda items or create new items not present in the original agenda.
+
+## Style and Linguistic Standards
+  · Write in formal, neutral, and precise language characteristic of seasoned government minute writers.
+  · Use British English spelling and grammatical conventions throughout (e.g., "organisation," "programme," "centre").
+  · Employ third person and past tense consistently.
+  · Avoid introductory phrases like "during the meeting" or "the Directors discussed."
+  · Refer to participants collectively as "Directors" to maintain appropriate confidentiality in the main discussion text.
+  · **Maintain strict neutrality throughout. Avoid all emotive, speculative, or evaluative language, including any assumptions about tone, sentiment, motivation, or interpersonal dynamics.**
+  · **However, ensure the spirit of the discussion is preserved — reflect how debate, rationale, or competing views shaped outcomes without editorialising.**
+
+## Content Requirements
+  · Transform discussions into clear, precise prose that captures both technical details and their long-term organisational impact.
+  · Merge similar ideas into a coherent narrative that reflects strategic insights.
+  · Distill complex technical concepts into accessible language without sacrificing necessary detail.
+  · Document any dissenting views with diplomatic precision, demonstrating how debate informed final decisions.
+  · Include only information appropriate for permanent records, observing all security protocols.
+
+## Decision and Action Documentation
+At the conclusion of each agenda item:
+  · Document any decisions made specific to this item.
+  · List actions arising from the discussion with:
+    a. Clear description of the deliverable
+    b. Named person responsible for delivery
+    c. Specific completion date or timeline
+    d. Format: "ACTION: Develop security protocol document. [Jane Smith, 30 April 2025]"
+  · If no actions arose from a particular item, proceed to the next agenda item.
+
+## Confidentiality Balance
+  · In discussion summaries, maintain confidentiality by referring to all participants as "Directors."
+  · For action items only, specify named individuals responsible to ensure accountability while maintaining appropriate governance standards.
+
+## Final Quality Assurance
+Review the completed minutes thoroughly for:
+  · Accuracy and completeness of record
+  · Strategic coherence and narrative flow
+  · Sequential adherence to the original agenda
+  · Proper British English spelling and grammar
+  · Professional polish appropriate for high-level government documentation
+  · Utility for both immediate implementation and future reference
+
+*Attached are the relevant meeting agenda and transcript. For reference, I've also included two examples of meeting minutes that I consider to be strong models.*`;
+
+    const customStyle = \`I need you to write in the style of an experienced British civil service minute writer for Digital Executive Team meetings.
+
+MANDATORY CONFIDENTIALITY REQUIREMENT - READ CAREFULLY
+* NEVER mention specific names of any participants in the discussion text
+* ALL participants must be referred to ONLY as "Directors" throughout ALL narrative sections
+* Names of individuals may ONLY appear in ACTION items, nowhere else
+* This is a non-negotiable compliance requirement that takes precedence over ALL other stylistic considerations
+* Failure to follow this rule renders the entire document unusable as a governance record
+
+Create a formal document with the header "DIGITAL EXECUTIVE TEAM MEETING MINUTES" followed by the date in DD Month YYYY format.
+
+Follow each agenda item sequentially, maintaining exact agenda titles as H2 headings. For each agenda item:
+
+1. Develop a STRATEGIC NARRATIVE that:
+   * Connects immediate discussions to departmental objectives and strategic implications
+   * Interprets the significance of technical details rather than merely reporting them
+   * Highlights governance implications, risks, and dependencies
+   * Captures the pathway from discussion to decision, including key considerations
+
+2. Use formal, precise civil service language:
+   * British English spelling/conventions (organisation, programme, etc.)
+   * Third person and past tense consistently
+   * Avoid passive phrases like "an update was provided" or "Directors discussed"
+   * Explain technical acronyms on first use (e.g., "Strategic Reference Architecture (SRA)")
+   * Use varied sentence structures and confident phrasing that reflects expertise
+
+3. For each agenda item, clearly document:
+   * **DECISION**: [Precise description of agreed outcome] (in bold at end of relevant sections)
+   * **ACTION**: [Clear description of deliverable]. [Name, Deadline in DD Month YYYY or Quarter format]
+
+Include a "Key Messages" section before concluding that distills strategic implications for broader departmental context.
+
+The final document must serve as both an immediate record of decisions and a governance document that would withstand future audit scrutiny, providing context that would be valuable to future readers who were not present at the meeting.\`;
+
+    const exampleMinutes = \`Example minutes
+
+The two examples provided below serve as exemplars of effective meeting minutes. They follow the required structure, tone, and level of detail expected for final outputs. Both have been positively received by attendees and should be used as models to guide formatting, phrasing, and content emphasis in all future minutes.
+
+> Example A:
+
+# DIGITAL EXECUTIVE TEAM MEETING MINUTES
+
+**Date: 22 May 2025**
+
+## Item 1: Introductions
+
+The Chair opened the strategic meeting, establishing the agenda framework and inviting Directors to preview their contributions. Directors confirmed the agenda items and indicated no additional business requiring discussion beyond the scheduled items.
+
+**No decisions or actions arose from this agenda item.**
+
+## Item 2: Service Offer – Digital Governance and Delivery Assurance
+
+Directors examined proposals to fundamentally reimagine the digital governance and assurance framework, responding to discovery work conducted between January and March 2025. The discovery identified over 200 lines of assurance criteria currently applied across the organisation, revealing significant duplication of effort and creating barriers to effective delivery.
+
+The discussion centred on maintaining earned autonomy with Cabinet Office whilst addressing persistent challenges that burden delivery teams. Directors acknowledged that previous attempts to streamline governance through the digital operating model implementation had achieved incremental improvements but had not addressed fundamental structural issues. The proposed approach would adopt a zero-based design methodology, potentially reducing red lines and reconsidering the timing and structure of governance activities to enable earlier intervention and prevent late-stage project failures.
+
+Directors emphasised the critical balance between maintaining sufficient governance to retain organisational autonomy and removing barriers that impede delivery. The discussion highlighted gaps in current assurance practices, including alignment to business strategy, sustainability considerations, and ways of working assessments. These gaps require incorporation into any reimagined framework to ensure comprehensive coverage whilst reducing duplication.
+
+The cultural transformation required to implement reimagined governance generated substantial discussion. Directors recognised that reducing governance gates necessitates increased trust in technical practitioners and delivery teams, requiring a shift from verification-based to trust-based approaches. This transformation aligns with broader objectives to empower teams whilst maintaining appropriate accountability structures.
+
+**DECISION: Directors approved proceeding with the reimagination of governance and assurance, adopting a zero-based design approach with appropriate risk appetite to balance autonomy with delivery efficiency.**
+
+**ACTIONS:**
+- **ACTION:** Develop detailed proposals for reimagined governance framework, including specific recommendations for reducing assurance criteria and restructuring governance gates. [Ange Young, 15 June 2025]
+- **ACTION:** Identify critical friends from each directorate to provide feedback on governance barriers and test proposed solutions. [Directors, 31 May 2025]
+- **ACTION:** Establish early assurance mechanisms for key risk areas including accessibility and architectural compliance. [Jenny Mulligan, 30 June 2025]
+
+## Item 3: Risks – What's on Your Mind?
+
+Directors engaged in comprehensive risk identification and assessment, surfacing several critical cross-cutting risks requiring collective oversight and mitigation strategies.
+
+### Identity Platform Migration Risk
+Directors addressed the urgent requirement to migrate services from ForgeRock to alternative identity management solutions by December 2025. The platform, originally procured before One Login for Government became available, no longer aligns with strategic direction. Whilst commercial negotiations secured support extension until December, the compressed timeline creates delivery risks across multiple service areas requiring identity and verification capabilities. Directors noted positive engagement from affected teams but recognised the need for sustained oversight given the broad organisational impact.
+
+### Data Pipeline Integrity
+A significant risk emerged regarding downstream impacts of technical debt remediation and service modernisation on data pipelines. Recent incidents requiring parliamentary correction statements and delays to national statistics publication demonstrated the criticality of this issue. Directors acknowledged that historically siloed development approaches created invisible dependencies, now manifesting as operational failures when upstream changes occur. The establishment of hub and spoke accountability models and integration of data architects into delivery teams represents essential mitigation strategies.
+
+### Organisational Wellbeing and Capacity
+Directors expressed profound concern regarding wellbeing pressures across the organisation, particularly affecting senior leaders managing unprecedented change volumes. The combination of political volatility, exemplified by rapid policy shifts such as winter fuel payment changes, alongside ambitious transformation programmes creates unsustainable pressure. Directors recognised that traditional wellbeing support mechanisms prove insufficient for the current operating context.
+
+The discussion evolved to encompass broader capacity challenges, with Directors acknowledging departmental attempts to deliver excessive concurrent changes. The disconnect between ministerial ambitions and likely Spending Review outcomes, potentially creating a funding gap exceeding £1 billion, compounds delivery pressures. Directors noted the risk of underspending in the current financial year due to commercial mobilisation delays, which would damage credibility during critical funding negotiations.
+
+**DECISIONS:**
+- ForgeRock migration risk to be maintained as a DET-level risk with monthly progress reviews
+- Data pipeline integrity to be incorporated into governance principles for technical debt programmes
+- Wellbeing support package to be developed incorporating data-driven interventions
+
+**ACTIONS:**
+- **ACTION:** Compile comprehensive migration plan for all ForgeRock-dependent services with clear milestones and risk indicators. [Jacqui Leggetter, 5 June 2025]
+- **ACTION:** Embed data architects within all major technical debt and transformation programmes to assess downstream impacts. [Jackie Wynn, 15 June 2025]
+- **ACTION:** Develop wellbeing support package including annual leave analysis, line manager capability building, and community engagement initiatives. [Jill Moore, 30 June 2025]
+- **ACTION:** Conduct rapid assessment of current year delivery plans and spending profiles to identify acceleration opportunities. [Paul Pendlebury-Green, 31 May 2025]
+- **ACTION:** Engage with GDS and DSIT to leverage ministerial relationships for managing delivery expectations. [Will Garner, 7 June 2025]
+
+## Item 4: AOB and Key Messages
+
+Directors concluded the meeting by crystallising key strategic messages and reflecting on organisational positioning. The imperative to maintain focus on core transformation activities whilst managing political turbulence emerged as the central theme. Directors emphasised the importance of transparency in acknowledging delivery challenges whilst demonstrating progress on critical initiatives.
+
+**Key Messages:**
+- Digital governance transformation will balance earned autonomy with delivery efficiency through reimagined frameworks
+- Cross-cutting risks require collective ownership and proactive mitigation strategies
+- Organisational wellbeing demands immediate attention through practical interventions and cultural change
+- Strategic focus on core transformation activities must be maintained despite external pressures
+
+The meeting concluded ahead of schedule, with Directors agreeing that the discussions had surfaced critical issues requiring sustained attention across the digital leadership team.
+
+**ACTIONS:**
+- **ACTION:** Communicate agreed key messages through appropriate channels to ensure organisational alignment. [Will Garner, 23 May 2025]
+- **ACTION:** Schedule follow-up session to review progress on wellbeing initiatives and risk mitigation strategies. [Ben Kinley, 15 June 2025]
+
+**End of meeting.**
+
+---
+
+> Example B:
+
+# DIGITAL EXECUTIVE TEAM MEETING MINUTES
+
+**Date: 22 May 2025**
+
+## Item 1: Introductions
+
+The Chair opened the meeting, providing an overview of the agenda. Directors offered concise summaries of their agenda items and confirmed any additional business not explicitly listed. The Chair welcomed new members joining the Digital Team, clarifying their roles and anticipated contributions.
+
+No decisions or actions arose from this agenda item.
+
+
+## Item 2: Organisational Capabilities
+Directors examined methodologies to integrate digital capabilities more closely with operational and service delivery. Discussions highlighted the ambitious government agenda for digitisation, ministerial pressures, cross-government interest from DCET, Treasury, and Number 10, and internal financial efficiency mandates. Concerns about the department's Spending Review bid and an unsustainable workforce trajectory were noted.
+
+A significant part of the discussion revolved around continuous improvement, distinct yet complementary to transformational change programmes, focusing primarily on enhancing services. Directors observed that various departmental areas were independently developing continuous improvement initiatives, creating an imperative for digital to clearly articulate its role in these processes. Directors agreed on the necessity for digital to proactively engage across all departmental areas, especially where digital presence or support is currently limited.
+
+### Key themes included:
+Prioritising strategic design thinking over mere automation of existing processes
+Ensuring digital's active involvement in broader business strategy discussions
+Promoting end-to-end service improvement, avoiding isolated technology solutions
+Balancing immediate continuous improvements with longer-term transformation
+The group discussed the £30 million continuous improvement fund, suggesting it be used to establish digital presence in underserved areas, recognising this would require flexible resource allocation. Directors considered scaling existing capabilities such as the IAG and the garage model, highlighting the garage's established funding mechanism demonstrating return on investment.
+
+**DECISIONS:**
+  · Directors agreed to commit digital resources and expertise to support cross-departmental continuous improvement initiatives, emphasising service improvement over process automation.
+
+**ACTIONS:**
+ - **ACTION:** Develop a proposal outlining digital group's integrated approach to organisational capabilities, addressing areas with insufficient digital engagement. [Ben Kinley, 15 April 2025]
+ - **ACTION:** Conduct initial assessment of priority areas for immediate digital engagement, identifying short-term improvement opportunities and necessary resources. [Helen Wylie, 22 April 2025]
+ - **ACTION:** Represent digital's position at cross-departmental continuous improvement meetings, emphasising strategic design thinking and service focus. [Ben Kinley, 28 March 2025]
+ - **ACTION:** Identify potential resources for allocation to support continuous improvement in underserved departmental areas. [Directors, 10 April 2025]
+
+
+## Item 3: AOB and Key Messages
+Directors discussed strategic departmental challenges, including expectations from Number 10 regarding visible technological enhancements and the pressures of rapidly changing ministerial priorities. Directors acknowledged difficulty in clearly communicating digital impacts and successes to stakeholders, agreeing on the need for improved communication.
+
+Capability gaps within digital teams were identified, with recognition that strategic capability development is essential to meet future challenges. Directors emphasised maintaining focus on controllable factors while managing external pressures.
+
+**DECISIONS:**
+  · Affirmed key departmental message: "Continuous improvement of services through integrated digital capabilities."
+  · Agreed on the need to enhance communication of digital achievements to stakeholders.
+
+**ACTIONS:**
+ - **ACTION:** Communicate agreed key messages across departmental channels for clarity and consistency. [Chris, 1 April 2025]
+ - **ACTION:** Facilitate discussions refining digital group roles, aligning with strategic departmental objectives. [Ben Kinley, 8 April 2025]
+ - **ACTION:** Directors to document notable digital deliveries since January 2025. [Directors, 5 April 2025]
+ - **ACTION:** Discuss departmental strategic direction with senior leadership. [Ben Kinley, 28 March 2025]
+
+
+## Item 4: SCS Moderation
+This session was closed and reserved exclusively for Senior Civil Service members. Due to the sensitive nature of discussions, no minutes were recorded.
+
+No decisions or actions recorded.
+
+
+**End of meeting.**\`;
+
+    const comparisonPrompt = \`Compare the following draft versions of DWP Digital Executive Team (DET) meeting minutes, both covering the same meeting.
+Only one version can be adopted as the official record, so your assessment must be conclusive—not balanced or neutral.
+
+For each version:
+
+Provide a rating out of 10
+
+Clearly state which version should be selected as the final set of minutes
+
+Base your decision on alignment with the Civil Service and DWP standards for official minutes, including:
+
+Fidelity to the meeting agenda and logical narrative flow
+
+Formal, neutral, and precise language throughout
+
+Consistent use of third person and past tense
+
+No naming of individuals unless explicitly required for clarity or accountability
+
+Strict avoidance of emotive language or implied bias
+
+Accurate capture of key decisions, actions, and strategic implications relevant to the Digital Group and departmental objectives
+
+Once you have selected a winner, identify any material content or strategic points that were only captured in the other version, so these can be retained or redrafted as necessary.\`;
+
+    // --- Start of new simplified code ---
+
+    // Data store for our prompts
+    const promptData = {
+      main: mainPrompt,
+      style: customStyle,
+      examples: exampleMinutes,
+      comparison: comparisonPrompt
+    };
+
+    // Generic copy function
+    window.copyPromptToClipboard = (button, promptKey, successText) => {
+      const text = promptData[promptKey];
+      if (!text) {
+        console.error("Prompt key not found:", promptKey);
+        return;
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = successText;
+        button.style.backgroundColor = colors.successBg;
+        button.style.color = colors.successText;
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.backgroundColor = colors.buttonBg;
+          button.style.color = 'var(--primary-color)';
+        }, 1500);
+      }).catch(() => {
+        const originalText = button.textContent;
+        button.textContent = 'Failed!';
+        button.style.backgroundColor = colors.errorBg;
+        button.style.color = colors.errorText;
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.style.backgroundColor = colors.buttonBg;
+          button.style.color = 'var(--primary-color)';
+        }, 1500);
+      });
+    };
+
+    const createCopyButton = (promptKey, buttonText, successText) => {
+      return \`
+        <div style="margin-bottom: 12px;">
+          <button
+            onclick="window.copyPromptToClipboard(this, '\${promptKey}', '\${successText}')"
+            style="
+              padding: 8px 16px;
+              background-color: \${colors.buttonBg};
+              border: none;
+              border-radius: 4px;
+              color: var(--primary-color);
+              cursor: pointer;
+              transition: all 0.2s ease;
+            "
+            onmouseover="this.style.backgroundColor='\${colors.buttonHover}'"
+            onmouseout="this.style.backgroundColor='\${colors.buttonBg}'"
+          >
+            \${buttonText}
+          </button>
+        </div>
+      \`;
+    };
+
+    const textContent = (content) => `
+      <div style="
+        background-color: rgba(var(--rgb-primary-color), 0.03);
+        border: 1px solid ${colors.borderLight};
+        border-radius: 6px;
+        padding: 16px;
+        margin: 12px 0;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 0.8em;
+        line-height: 1.4;
+        color: var(--primary-text-color);
+        white-space: pre-wrap;
+        overflow-x: auto;
+        text-align: left;
+      ">${content}</div>
+    `;
+
+    const section = (title, content, sectionId) => {
+      const expanded = localStorage.getItem(\`fold_state_\${sectionId}\`) !== 'collapsed';
+      const height = expanded ? 'auto' : '0';
+
+      return \`
+        <div class="section" style="margin-bottom: 28px;">
+          <div class="section-header" data-id="\${sectionId}" onclick="(function(){
+            const content = this.nextElementSibling;
+            const arrow = this.querySelector('.arrow');
+            const expanded = content.style.height !== '0px';
+            content.style.height = expanded ? '0px' : content.scrollHeight + 'px';
+            arrow.style.transform = expanded ? 'rotate(0deg)' : 'rotate(90deg)';
+            localStorage.setItem(\`fold_state_\${sectionId}\`, expanded ? 'collapsed' : 'expanded');
+          }).call(this)"
+          onmouseover="this.style.backgroundColor='\${colors.buttonHover}'"
+          onmouseout="this.style.backgroundColor='transparent'"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 6px 0 8px 0;
+            border-bottom: 1px solid \${colors.borderLight};
+            cursor: pointer !important;
+            pointer-events: auto;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
+            z-index: 10;
+            user-select: none;
+            transition: background-color 0.2s ease;
+            border-radius: 4px 4px 0 0;
+            min-height: 36px;
+          ">
+            <span style="padding-left: 24px;">\${title}</span>
+            <span class="arrow" style="
+              width: 7px;
+              height: 7px;
+              margin-right: 18px;
+              transform: \${expanded ? 'rotate(90deg)' : 'rotate(0deg)'};
+              transform-origin: center;
+              transition: transform 0.3s ease;
+              border-right: 1px solid \${colors.borderDark};
+              border-bottom: 1px solid \${colors.borderDark};
+              display: inline-block;
+              opacity: 0.9;
+              cursor: pointer !important;
+            "></span>
+          </div>
+          <div class="section-content" style="
+            height: \${height};
+            overflow: hidden;
+            transition: height 0.4s ease;
+            padding-left: 0px;
+            padding-top: 4px;
+          ">
+            \${content}
+          </div>
+        </div>
+      \`;
+    };
+
+    const mainPromptSection = section('Main Prompt',
+      createCopyButton('main', 'Copy Main Prompt', 'Copied!') + textContent(mainPrompt),
+      'main-prompt'
+    );
+
+    const customStyleSection = section('Custom Style Wording',
+      createCopyButton('style', 'Copy Custom Style', 'Copied!') + textContent(customStyle),
+      'custom-style'
+    );
+
+    const examplesSection = section('Example Minutes',
+      createCopyButton('examples', 'Copy Examples', 'Copied!') + textContent(exampleMinutes),
+      'examples'
+    );
+
+    const comparisonSection = section('Version Comparison Prompt',
+      createCopyButton('comparison', 'Copy Comparison', 'Copied!') + textContent(comparisonPrompt),
+      'comparison'
+    );
+
+    const buttonStyle = \`
+      height: 36px;
+      color: var(--primary-color);
+      background-color: var(--secondary-background-color);
+      border: none;
+      border-radius: 18px;
+      cursor: pointer !important;
+      transition: all 0.3s ease;
+      opacity: 0.8;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 25px;
+    \`;
+
+    window.copyAllToClipboard = (button) => {
+      const allContent = [
+        'DET Minutes Generation - Complete Prompt Collection',
+        '==================================================', '',
+        'MAIN PROMPT:', '============', mainPrompt, '',
+        'CUSTOM STYLE WORDING:', '====================', customStyle, '',
+        'EXAMPLE MINUTES:', '===============', exampleMinutes, '',
+        'VERSION COMPARISON PROMPT:', '=========================', comparisonPrompt, '',
+        'Generated: ' + new Date().toLocaleString()
+      ].join('\\n');
+
+      navigator.clipboard.writeText(allContent).then(() => {
+        button.textContent = 'All Copied!';
+        button.style.backgroundColor = colors.successBg;
+        button.style.color = colors.successText;
+        setTimeout(() => {
+          button.textContent = 'Copy All';
+          button.style.backgroundColor = colors.buttonBg;
+          button.style.color = 'var(--primary-color)';
+        }, 2000);
+      }).catch(() => {
+        button.textContent = 'Failed!';
+        button.style.backgroundColor = colors.errorBg;
+        button.style.color = colors.errorText;
+        setTimeout(() => {
+          button.textContent = 'Copy All';
+          button.style.backgroundColor = colors.buttonBg;
+          button.style.color = 'var(--primary-color)';
+        }, 2000);
+      });
+    };
+
+    const copyAllButton = \`
+      <div class="copy-button"
+        role="button"
+        tabindex="0"
+        onclick="window.copyAllToClipboard(this)"
+        style="
+          \${buttonStyle}
+          right: 82px;
+          padding: 0 16px;
+          font-size: 16px;
+          width: auto;
+          transition: all 0.6s ease;
+          min-height: 36px;
+          -webkit-tap-highlight-color: transparent;
+        "
+        onmouseover="this.style.opacity='1';this.style.backgroundColor='\${colors.buttonHover}'"
+        onmouseout="this.style.opacity='0.8';this.style.backgroundColor='\${colors.buttonBg}'">
+        Copy All
+      </div>
+    \`;
+
+    const toggleAllButton = \`
+      <div
+        role="button"
+        tabindex="0"
+        onclick="(function(){
+          const headers = Array.from(this.closest('.card-content').querySelectorAll('.section-header'));
+          const expanding = headers.some(h => h.nextElementSibling.style.height === '0px' || h.nextElementSibling.style.height === '');
+          headers.forEach((h, i) => {
+            setTimeout(() => {
+              const content = h.nextElementSibling;
+              const arrow = h.querySelector('.arrow');
+              const sectionId = h.dataset.id;
+              content.style.transition = 'height 0.4s ease';
+              content.style.overflow = 'hidden';
+              if (expanding) {
+                content.style.height = content.scrollHeight + 'px';
+                arrow.style.transform = 'rotate(90deg)';
+                if (sectionId) localStorage.setItem('fold_state_' + sectionId, 'expanded');
+              } else {
+                content.style.height = content.scrollHeight + 'px';
+                requestAnimationFrame(() => {
+                  content.style.height = '0px';
+                  arrow.style.transform = 'rotate(0deg)';
+                  if (sectionId) localStorage.setItem('fold_state_' + sectionId, 'collapsed');
+                });
+              }
+            }, i * 50);
+          });
+          this.textContent = expanding ? '−' : '+';
+        }).call(this)"
+        style="
+          \${buttonStyle}
+          right: 38px;
+          width: 36px;
+          font-size: 22px;
+          line-height: 24px;
+          padding: 0;
+          overflow: visible;
+          position: absolute;
+          min-height: 36px;
+          -webkit-tap-highlight-color: transparent;
+        ">
+        +
+      </div>
+    \`;
+
+    return \`
+      <style>
+        .scroll-container::-webkit-scrollbar { width: 8px; }
+        .scroll-container::-webkit-scrollbar-thumb {
+          background: \${colors.scrollbarThumb};
+          border-radius: 10px;
+          border: 2px solid transparent;
+          background-clip: content-box;
+        }
+        .scroll-container::-webkit-scrollbar-track { background: transparent; border-radius: 10px; margin: 8px 0; }
+        .scroll-container::-webkit-scrollbar-button { display: none; }
+        [role="button"] { cursor: pointer !important; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        .section-header { cursor: pointer !important; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+      </style>
+      <div style="position: relative; padding-top: 90px; height: 500px; overflow: hidden;">
+        \${copyAllButton}
+        \${toggleAllButton}
+        <div class="scroll-container" style="
+          font-family: var(--paper-font-body1_-_font-family, inherit);
+          max-width: 100%;
+          user-select: text;
+          cursor: text;
+          height: calc(100% - 90px);
+          overflow-y: auto;
+          padding-right: 30px;
+          margin-right: -2.5px;
+          margin-bottom: 8px;
+          scrollbar-width: thin;
+          scrollbar-color: \${colors.scrollbarThumb} transparent;
+        ">
+          \${mainPromptSection}
+          \${customStyleSection}
+          \${examplesSection}
+          \${comparisonSection}
+        </div>
+      </div>
+    \`;
+  ]]]
+styles:
+  card:
+    - position: relative
+    - padding: 0
+    - font-size: 0.9em
+    - line-height: 1.3
+    - text-align: left
+    - white-space: normal
+    - overflow: hidden
+    - "--mdc-ripple-color": transparent
+    - "--mdc-ripple-fg-opacity": 0
+    - "--mdc-ripple-press-opacity": 0
+    - "--mdc-ripple-hover-opacity": 0
+    - cursor: default
+    - border: none
+    - box-shadow: none

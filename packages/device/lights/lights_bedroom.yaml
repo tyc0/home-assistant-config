@@ -4,6 +4,29 @@
 
 
 # ╭────────────────────╮
+# │   GROUP
+# ╰────────────────────╯
+group:
+
+# ➔ Both Elgato light panels
+  elgato_panels:
+    name: Elgato Panels
+    entities:
+      - light.elgato_panel_01
+      - light.elgato_panel_02
+    all: true
+
+# ➔ Both lightstrips under each side of bed
+  bedframe_lightstrips:
+    name: Bedframe Lightstrips
+    entities:
+      - light.hue_lightstrip_bed_c_side
+      - light.hue_lightstrip_bed_e_side 
+    all: true
+
+
+
+# ╭────────────────────╮
 # │   INPUT DATETIME
 # ╰────────────────────╯
 input_datetime:
@@ -72,107 +95,58 @@ automation:
     mode: single
 
 
-# ➔ Automate Bedroom Lights on Room Entry
-  - alias: Automate Bedroom Lights on Room Entry
-    id: automate_bedroom_lights_on_room_entry
-    mode: restart
-    variables:
-      absence_duration: "{{ states('input_number.absence_duration') | int(5) }}"
-      manual_override_duration: "{{ states('input_number.manual_override_duration') | int(5) }}"
+# ➔ Automatically illuminates under-bed lighting when entering bedroom from Floor 02 during night hours
+  - alias: "Bedroom night lights"
+    description: "Soft amber under-bed lighting for safe nighttime navigation from Floor 02 to Bedroom"
+    id: bedroom_night_lights
     trigger:
       - platform: state
         entity_id: binary_sensor.presence_sensor_fp2_9c35_presence_sensor_2
-        to: 'on'
+        to: "on"
+    
     condition:
-#    Confirm entry direction by checking that the secondary sensor changed within the last 10 seconds.
+      # Fast checks first - time window and light state
+      - condition: time
+        after: "00:00:00"
+        before: "08:00:00"
+      
+      - condition: state
+        entity_id: light.room_02
+        state: "off"
+      
+      # Combined direction and cooldown validation
       - condition: template
-        value_template: >
-          {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10.last_changed)) < 10 }}
-
-#    Restrict to times between 30 minutes before sunset and sunrise.
-      - condition: or
-        conditions:
-          - condition: sun
-            after: sunset
-            after_offset: '-00:30:00'
-          - condition: sun
-            before: sunrise
-
-#    Bypass if a manual override has occurred within the override duration.
-      - condition: template
-        value_template: >
-          {% set last_override = states('input_datetime.last_manual_override') %}
-          {% if last_override in ['unknown', 'unavailable', 'none'] %}
-            true
-          {% else %}
-            {{ (as_timestamp(now()) - as_timestamp(last_override)) > (manual_override_duration * 60) }}
-          {% endif %}
+        value_template: >-
+          {% set now_ts = as_timestamp(now()) %}
+          {% set floor02_last = as_timestamp(states.binary_sensor.presence_sensor_fp2_9c35_presence_sensor_10.last_changed or 0) %}
+          {% set automation_last = as_timestamp(this.last_triggered or 0) %}
+          {{ (now_ts - floor02_last) < 5 and (now_ts - automation_last) > 60 }}
+    
     action:
-#    Pre-calculate common variables to avoid redundant calculations and enhance error handling.
-      - variables:
-          current_time: "{{ as_timestamp(now()) }}"
-#    Sunset offset defined in seconds (30 minutes = 1800 seconds).
-          sunset_offset: 1800
-#    Dynamically calculate sunset time with offset; fallback to current_time if attribute is missing.
-          sunset: "{{ (as_timestamp(state_attr('sun.sun', 'next_setting')) | default(current_time)) - sunset_offset }}"
-          midnight: "{{ as_timestamp(today_at('00:00')) }}"
-          one_am: "{{ as_timestamp(today_at('01:00')) }}"
-          seven_am: "{{ as_timestamp(today_at('07:00')) }}"
-          last_entry: "{{ as_timestamp(states('input_datetime.last_bedroom_entry')) }}"
-          room_was_empty: >
-            {% if last_entry in [none, 'unknown', 'unavailable'] %}
-              true
-            {% else %}
-              {{ (current_time - last_entry) > (absence_duration * 60) }}
-            {% endif %}
-      - choose:
-#    If the room has been empty for at least the specified duration, turn on the main light.
-          - conditions:
-              - condition: template
-                value_template: "{{ room_was_empty }}"
-            sequence:
-              - service: light.turn_on
-                target:
-                  entity_id: light.room_02
-                data:
-                  brightness_pct: >
-                    {% if current_time >= sunset and current_time < midnight %}
-                      100
-                    {% elif current_time >= midnight and current_time < one_am %}
-                      50
-                    {% elif current_time >= one_am and current_time < seven_am %}
-                      15
-                    {% else %}
-                      50
-                    {% endif %}
-                  transition: 2
-#    Otherwise, if the room was occupied recently, turn on the bedside lights.
-          - conditions:
-              - condition: template
-                value_template: "{{ not room_was_empty }}"
-            sequence:
-              - service: light.turn_on
-                target:
-                  entity_id:
-                    - light.hue_lightstrip_bed_c_side
-                    - light.hue_lightstrip_bed_e_side
-                    - light.hue_color_lamp_2
-                data:
-                  brightness_pct: >
-                    {% if current_time >= sunset and current_time < midnight %}
-                      100
-                    {% elif current_time >= midnight and current_time < seven_am %}
-                      10
-                    {% else %}
-                      100
-                    {% endif %}
-                  transition: 2
-#    Update the last bedroom entry timestamp.
-      - service: input_datetime.set_datetime
+      - service: light.turn_on
         target:
-          entity_id: input_datetime.last_bedroom_entry
+          entity_id: group.bedframe_lightstrips
         data:
-          datetime: "{{ now().isoformat() }}"
+          rgb_color: [255, 147, 41]
+          brightness_pct: 10
+          transition: 1
+      
+      - delay:
+          seconds: 10
+      
+      - service: light.turn_off
+        target:
+          entity_id: group.bedframe_lightstrips
+        data:
+          transition: 2
+    
+    mode: single
+
+
+
+
+
+
 
 
 # | END: lights_bedroom.yaml

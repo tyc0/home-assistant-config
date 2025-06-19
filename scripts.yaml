@@ -199,14 +199,6 @@ alexa_zone_change_enhy_leave_work:
 
         '
   mode: single
-enhys_phone_notification:
-  alias: Enhy's phone notification
-  sequence:
-  - service: notify.mobile_app_sm_a135f
-    data:
-      message: Pay your phone bill
-      title: FROM CAMERON!!
-  mode: single
 e_phone_buzzer_x1_buzz:
   alias: 'E phone - Buzzer (x1 buzz) '
   sequence:
@@ -3804,36 +3796,6 @@ persistent_notification_reminder:
           option: "{% if is_state(cameras[repeat.index - 1], 'blackwhite') %}\n  color\n{%
             else %}\n  blackwhite\n{% endif %}\n"
         action: select.select_option
-show_toast:
-  alias: Show Toast
-  mode: restart
-  sequence:
-  - variables:
-      queue: "{% set json = states('input_text.toast_messages') %} {% if json and
-        json not in ['unknown', ''] %}\n  {{ json | from_json }}\n{% else %}\n  []\n{%
-        endif %}\n"
-      first_message: '{{ queue[0] if queue | length > 0 else none }}'
-  - condition: template
-    value_template: '{{ first_message is not none }}'
-  - service: browser_mod.toast
-    data:
-      message: '{{ first_message[''message''] }}'
-      duration: '{{ first_message[''duration''] }}'
-      style:
-        background: rgba(0,0,0,0.8)
-        color: white
-        right: 16px
-        bottom: 16px
-  - delay: '{{ first_message[''duration''] | int / 1000 }}'
-  - service: input_text.set_value
-    target:
-      entity_id: input_text.toast_messages
-    data:
-      value: '{{ queue[1:] | to_json }}'
-  - condition: template
-    value_template: '{{ queue | length > 1 }}'
-  - service: script.show_toast
-    data: {}
 alerts_room_alert_backup:
   alias: Alerts - Room alert (backup)
   sequence:
@@ -4159,77 +4121,6 @@ button_action_toggle_sound:
       media_content_id: /local/media/sound/fairy_confirm_2s.wav
       media_content_type: audio/wav
     action: browser_mod.play_media
-motion_alert_enhanced:
-  alias: Motion Alert Enhanced
-  description: Handles motion and door alerts with volume management and notifications.
-  fields:
-    alert_type:
-      description: 'Type of alert: ''normal'' or ''door''.'
-      example: normal
-  sequence:
-  - alias: Notify - PC
-    data:
-      title: '{{ ''Door Alert'' if alert_type == ''door'' else ''Motion Alert'' }}
-
-        '
-      message: '{{ ''Front Door Activated'' if alert_type == ''door'' else ''Motion
-        Detected'' }}
-
-        '
-    action: rest_command.send_hass_agent_notification
-  - alias: Send Notification to C's Phone
-    data:
-      title: '{{ ''Door Alert'' if alert_type == ''door'' else ''Motion Alert'' }}
-
-        '
-      message: '{{ ''Front Door Activated'' if alert_type == ''door'' else ''Motion
-        Detected'' }}
-
-        '
-      data:
-        priority: high
-        channel: alarm_stream
-        color: '#FF918A'
-        sticky: true
-        persistent: false
-        notification_icon: mdi:run
-        tag: c_phone_notification
-        timeout: 60
-    action: notify.mobile_app_phone_c
-  - sequence:
-    - alias: Log Pre-Alert Volume State
-      data:
-        scene_id: scene.volume_backup
-        snapshot_entities: '{{ media_player_id }}'
-      action: scene.create
-    - alias: Delay (Prevents Snapshot Conflicts)
-      delay:
-        seconds: 1
-    - alias: Set Volume and Play Alert
-      sequence:
-      - target:
-          entity_id: '{{ media_player_id }}'
-        data:
-          volume_level: '{{ volume_level }}'
-        action: media_player.volume_set
-      - target:
-          entity_id: '{{ media_player_id }}'
-        data:
-          media_content_id: 'media-source://media_source/local/sound/{{ door_alert_sound
-            if alert_type == ''door'' else normal_alert_sound }}
-
-            '
-          media_content_type: audio/x-wav
-        action: media_player.play_media
-    - alias: Wait for Media to Finish
-      wait_template: '{{ is_state(media_player_id, ''idle'') }}'
-      timeout: 00:00:10
-      continue_on_timeout: true
-    - alias: Revert to Previous Volume
-      target:
-        entity_id: scene.volume_backup
-      action: scene.turn_on
-      data: {}
 pc_run_python_script_from_ha_to_pc:
   alias: PC - Run Python script from HA to PC
   sequence:

@@ -1,0 +1,1191 @@
+# Calendar Notification System Package
+# /config/packages/calendar_notifications.yaml
+
+
+# Input Helpers
+input_boolean:
+  calendar_notifications:
+    name: Calendar Notifications
+    icon: mdi:calendar-alert
+    initial: true
+
+input_text:
+  cam_last_notification:
+    name: Cam Last Notification Time
+    max: 50
+    initial: ""
+
+  enhy_last_notification:
+    name: Enhy Last Notification Time
+    max: 50
+    initial: ""
+
+# Template Entities
+template:
+  # System Health Sensor
+  - binary_sensor:
+      - name: "Calendar System Health"
+        unique_id: calendar_system_health
+        device_class: problem
+        state: >
+          {% set required_calendars = ['calendar.cam', 'calendar.enhy', 'calendar.both', 'calendar.special_day', 'calendar.united_kingdom_eng'] %}
+          {% set required_services = ['notify.mobile_app_phone_c', 'notify.mobile_app_phone_e', 'notify.mobile_app_ipad'] %}
+          {% set calendar_count = required_calendars | select('state', '!=', 'unavailable') | list | length %}
+          {% set service_count = required_services | select('state', '!=', 'unavailable') | list | length %}
+          {{ calendar_count == 5 and service_count == 3 }}
+        attributes:
+          missing_calendars: >
+            {% set required = ['calendar.cam', 'calendar.enhy', 'calendar.both', 'calendar.special_day', 'calendar.united_kingdom_eng'] %}
+            {{ required | reject('has_value') | list }}
+          missing_services: >
+            {% set required = ['notify.mobile_app_phone_c', 'notify.mobile_app_phone_e', 'notify.mobile_app_ipad'] %}
+            {{ required | reject('has_value') | list }}
+
+  # Template Sensors
+  - sensor:
+      - name: "Calendar Event Processor"
+        unique_id: calendar_event_processor
+        state: "{{ now().date() }}"
+        attributes:
+          version: "1.0"
+          last_update: "{{ now().isoformat() }}"
+
+      - name: "Calendar State Manager"
+        unique_id: calendar_state_manager
+        state: "{{ now().strftime('%Y-%m-%d') }}"
+        availability: >
+          {{ is_state('calendar.cam', ['on', 'off']) and
+             is_state('calendar.enhy', ['on', 'off']) and
+             is_state('calendar.both', ['on', 'off']) }}
+        attributes:
+          cam_daily_state: >
+            {% set last_sent = states('input_text.cam_last_notification') %}
+            {% set carryover = state_attr('sensor.cam_daily_digest', 'carryover_events') or [] %}
+            {{ {'sent': last_sent != 'unknown', 'carryover_events': carryover, 'last_cleanup': now().strftime('%H:%M')} }}
+          enhy_daily_state: >
+            {% set last_sent = states('input_text.enhy_last_notification') %}
+            {% set carryover = state_attr('sensor.enhy_daily_digest', 'carryover_events') or [] %}
+            {{ {'sent': last_sent != 'unknown', 'carryover_events': carryover, 'last_cleanup': now().strftime('%H:%M')} }}
+          system_health: >
+            {{ 'healthy' if is_state('binary_sensor.calendar_system_health', 'on') else 'degraded' }}
+          last_system_check: "{{ now().isoformat() }}"
+
+      - name: "Cam Daily Digest"
+        unique_id: cam_daily_digest
+        state: "{{ now().date() }}"
+        availability: "{{ is_state('binary_sensor.calendar_system_health', 'on') }}"
+        attributes:
+          execution_ms: "{{ (now() | as_timestamp * 1000) | int }}"
+          today_lines: >
+            {% macro dur_class(ev) -%}
+              {%- set start = ev.start | as_datetime -%}
+              {%- set end = ev.end | as_datetime(default=start + timedelta(hours=1)) -%}
+              {%- set duration_hours = ((end.astimezone() - start.astimezone()).total_seconds() / 3600) | int -%}
+              {{- 'timed' if duration_hours < 23 else 'all_day' if duration_hours <= 47 else 'multi_day' -}}
+            {%- endmacro %}
+
+            {% macro format_event(ev, target_date) -%}
+              {%- set cls = dur_class(ev) -%}
+              {%- set start = ev.start | as_datetime -%}
+              {%- set end = ev.end | as_datetime -%}
+
+              {%- if cls == 'timed' -%}
+                {%- set time_str = ' (' + start.strftime('%H:%M') + ')' -%}
+              {%- else -%}
+                {%- set time_str = '' -%}
+              {%- endif -%}
+
+              {%- set source = ev.get('source_calendar', '') -%}
+              {%- if 'calendar.cam' in source -%}
+                {%- set icon = '👤 Cam: ' -%}
+              {%- elif 'calendar.enhy' in source -%}
+                {%- set icon = '👤 Enhy: ' -%}
+              {%- elif 'calendar.both' in source -%}
+                {%- set icon = '👥 Both: ' -%}
+              {%- else -%}
+                {%- set icon = 'ℹ️ Info: ' -%}
+              {%- endif -%}
+
+              {%- if cls == 'multi_day' -%}
+                {%- set event_start_date = start.date() -%}
+                {%- set event_end_date = end.date() -%}
+                {%- set total_days = (event_end_date - event_start_date).days + 1 -%}
+                {%- if target_date == event_start_date -%}
+                  {%- set day_indicator = ' (Day 1 of ' + total_days|string + ')' -%}
+                {%- elif target_date == event_end_date -%}
+                  {%- set day_indicator = ' (Final day)' -%}
+                {%- else -%}
+                  {%- set day_indicator = '' -%}
+                {%- endif -%}
+              {%- else -%}
+                {%- set day_indicator = '' -%}
+              {%- endif -%}
+
+              {{- icon + (ev.summary | default('Untitled Event')) + time_str + day_indicator -}}
+            {%- endmacro %}
+
+            {% set today = now().date() %}
+            {% set today_start = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+            {% set today_end = today_start + timedelta(days=1) %}
+            {% set all_events = [] %}
+            {% set allowed_cals = ['calendar.cam', 'calendar.both', 'calendar.special_day', 'calendar.united_kingdom_eng'] %}
+            {% for cal_id in allowed_cals %}
+              {% if states(cal_id) not in ['unavailable', 'unknown'] %}
+                {% set cal_events = state_attr(cal_id, 'events') or [] %}
+                {% for event in cal_events %}
+                  {% set event_with_source = dict(event, source_calendar=cal_id) %}
+                  {% set all_events = all_events + [event_with_source] %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+            {% set today_events = [] %}
+
+            {% for ev in all_events %}
+              {% set ev_start = ev.start | as_datetime %}
+              {% set ev_end = ev.end | as_datetime %}
+              {% set cls = dur_class(ev) %}
+              {% if cls == 'multi_day' %}
+                {% set event_start_date = ev_start.date() %}
+                {% set event_end_date = ev_end.date() %}
+                {% if today == event_start_date or today == event_end_date %}
+                  {% set today_events = today_events + [ev] %}
+                {% endif %}
+              {% else %}
+                {% if ev_start < today_end and ev_end > today_start %}
+                  {% set today_events = today_events + [ev] %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            {% set lines = [] %}
+            {% for ev in today_events %}
+              {% set lines = lines + [format_event(ev, today)] %}
+            {% endfor %}
+            {{ lines }}
+
+          tomorrow_lines: >
+            {% macro dur_class(ev) -%}
+              {%- set start = ev.start | as_datetime -%}
+              {%- set end = ev.end | as_datetime(default=start + timedelta(hours=1)) -%}
+              {%- set duration_hours = ((end.astimezone() - start.astimezone()).total_seconds() / 3600) | int -%}
+              {{- 'timed' if duration_hours < 23 else 'all_day' if duration_hours <= 47 else 'multi_day' -}}
+            {%- endmacro %}
+
+            {% macro format_event(ev, target_date) -%}
+              {%- set cls = dur_class(ev) -%}
+              {%- set start = ev.start | as_datetime -%}
+              {%- set end = ev.end | as_datetime -%}
+
+              {%- if cls == 'timed' -%}
+                {%- set time_str = ' (' + start.strftime('%H:%M') + ')' -%}
+              {%- else -%}
+                {%- set time_str = '' -%}
+              {%- endif -%}
+
+              {%- set source = ev.get('source_calendar', '') -%}
+              {%- if 'calendar.cam' in source -%}
+                {%- set icon = '👤 Cam: ' -%}
+              {%- elif 'calendar.enhy' in source -%}
+                {%- set icon = '👤 Enhy: ' -%}
+              {%- elif 'calendar.both' in source -%}
+                {%- set icon = '👥 Both: ' -%}
+              {%- else -%}
+                {%- set icon = 'ℹ️ Info: ' -%}
+              {%- endif -%}
+
+              {%- if cls == 'multi_day' -%}
+                {%- set event_start_date = start.date() -%}
+                {%- set event_end_date = end.date() -%}
+                {%- set total_days = (event_end_date - event_start_date).days + 1 -%}
+                {%- if target_date == event_start_date -%}
+                  {%- set day_indicator = ' (Day 1 of ' + total_days|string + ')' -%}
+                {%- elif target_date == event_end_date -%}
+                  {%- set day_indicator = ' (Final day)' -%}
+                {%- else -%}
+                  {%- set day_indicator = '' -%}
+                {%- endif -%}
+              {%- else -%}
+                {%- set day_indicator = '' -%}
+              {%- endif -%}
+
+              {{- icon + (ev.summary | default('Untitled Event')) + time_str + day_indicator -}}
+            {%- endmacro %}
+
+            {% set tomorrow = (now() + timedelta(days=1)).date() %}
+            {% set tomorrow_start = (now() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0) %}
+            {% set tomorrow_end = (now() + timedelta(days=1)).replace(hour=4, minute=0, second=0, microsecond=0) %}
+            {% set all_events = [] %}
+            {% set allowed_cals = ['calendar.cam', 'calendar.both', 'calendar.special_day', 'calendar.united_kingdom_eng'] %}
+            {% for cal_id in allowed_cals %}
+              {% if states(cal_id) not in ['unavailable', 'unknown'] %}
+                {% set cal_events = state_attr(cal_id, 'events') or [] %}
+                {% for event in cal_events %}
+                  {% set event_with_source = dict(event, source_calendar=cal_id) %}
+                  {% set all_events = all_events + [event_with_source] %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+            {% set tomorrow_events = [] %}
+
+            {% for ev in all_events %}
+              {% set ev_start = ev.start | as_datetime %}
+              {% set ev_end = ev.end | as_datetime %}
+              {% set cls = dur_class(ev) %}
+              {% if cls == 'multi_day' %}
+                {% set event_start_date = ev_start.date() %}
+                {% set event_end_date = ev_end.date() %}
+                {% if tomorrow == event_start_date or tomorrow == event_end_date %}
+                  {% set tomorrow_events = tomorrow_events + [ev] %}
+                {% endif %}
+              {% else %}
+                {% if ev_start < tomorrow_end and ev_end > tomorrow_start %}
+                  {% set tomorrow_events = tomorrow_events + [ev] %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            {% set lines = [] %}
+            {% for ev in tomorrow_events %}
+              {% set lines = lines + [format_event(ev, tomorrow)] %}
+            {% endfor %}
+            {{ lines }}
+
+          carryover_events: >
+            {% set now_time = now() %}
+            {% set events = state_attr('calendar.cam', 'events') or [] %}
+            {% set active_events = [] %}
+
+            {% for ev in events %}
+              {% set ev_start = ev.start | as_datetime %}
+              {% set ev_end = ev.end | as_datetime %}
+              {% set duration_hours = ((ev_end.astimezone() - ev_start.astimezone()).total_seconds() / 3600) | int %}
+
+              {% if duration_hours < 23 and ev_start <= now_time < ev_end %}
+                {% set time_display = ev_end.strftime('%a %H:%M') if ev_end.date() != now_time.date() else ev_end.strftime('%H:%M') %}
+                {% set active_events = active_events + [(ev.summary | default('Untitled Event')) + ' (until ' + time_display + ')'] %}
+              {% endif %}
+            {% endfor %}
+            {{ active_events }}
+
+      - name: "Enhy Daily Digest"
+        unique_id: enhy_daily_digest
+        state: "{{ now().date() }}"
+        availability: "{{ is_state('binary_sensor.calendar_system_health', 'on') }}"
+        attributes:
+          execution_ms: "{{ (now() | as_timestamp * 1000) | int }}"
+          today_lines: >
+            {% macro dur_class(ev) -%}
+              {%- set start = ev.start | as_datetime -%}
+              {%- set end = ev.end | as_datetime(default=start + timedelta(hours=1)) -%}
+              {%- set duration_hours = ((end.astimezone() - start.astimezone()).total_seconds() / 3600) | int -%}
+              {{- 'timed' if duration_hours < 23 else 'all_day' if duration_hours <= 47 else 'multi_day' -}}
+            {%- endmacro %}
+
+            {% macro format_event(ev, target_date) -%}
+              {%- set cls = dur_class(ev) -%}
+              {%- set start = ev.start | as_datetime -%}
+              {%- set end = ev.end | as_datetime -%}
+
+              {%- if cls == 'timed' -%}
+                {%- set time_str = ' (' + start.strftime('%H:%M') + ')' -%}
+              {%- else -%}
+                {%- set time_str = '' -%}
+              {%- endif -%}
+
+              {%- set source = ev.get('source_calendar', '') -%}
+              {%- if 'calendar.enhy' in source -%}
+                {%- set icon = '👤 Enhy: ' -%}
+              {%- elif 'calendar.cam' in source -%}
+                {%- set icon = '👤 Cam: ' -%}
+              {%- elif 'calendar.both' in source -%}
+                {%- set icon = '👥 Both: ' -%}
+              {%- else -%}
+                {%- set icon = 'ℹ️ Info: ' -%}
+              {%- endif -%}
+
+              {%- if cls == 'multi_day' -%}
+                {%- set event_start_date = start.date() -%}
+                {%- set event_end_date = end.date() -%}
+                {%- set total_days = (event_end_date - event_start_date).days + 1 -%}
+                {%- if target_date == event_start_date -%}
+                  {%- set day_indicator = ' (Day 1 of ' + total_days|string + ')' -%}
+                {%- elif target_date == event_end_date -%}
+                  {%- set day_indicator = ' (Final day)' -%}
+                {%- else -%}
+                  {%- set day_indicator = '' -%}
+                {%- endif -%}
+              {%- else -%}
+                {%- set day_indicator = '' -%}
+              {%- endif -%}
+
+              {{- icon + (ev.summary | default('Untitled Event')) + time_str + day_indicator -}}
+            {%- endmacro %}
+
+            {% set today = now().date() %}
+            {% set today_start = now().replace(hour=0, minute=0, second=0, microsecond=0) %}
+            {% set today_end = today_start + timedelta(days=1) %}
+            {% set events = state_attr('calendar.enhy', 'events') or [] %}
+            {% set today_events = [] %}
+
+            {% for ev in events %}
+              {% set ev_start = ev.start | as_datetime %}
+              {% set ev_end = ev.end | as_datetime %}
+              {% set cls = dur_class(ev) %}
+              {% if cls == 'multi_day' %}
+                {% set event_start_date = ev_start.date() %}
+                {% set event_end_date = ev_end.date() %}
+                {% if today == event_start_date or today == event_end_date %}
+                  {% set today_events = today_events + [ev] %}
+                {% endif %}
+              {% else %}
+                {% if ev_start < today_end and ev_end > today_start %}
+                  {% set today_events = today_events + [ev] %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            {% set lines = [] %}
+            {% for ev in today_events %}
+              {% set lines = lines + [format_event(ev, today)] %}
+            {% endfor %}
+            {{ lines }}
+
+          tomorrow_lines: >
+            {% macro dur_class(ev) -%}
+              {%- set start = ev.start | as_datetime -%}
+              {%- set end = ev.end | as_datetime(default=start + timedelta(hours=1)) -%}
+              {%- set duration_hours = ((end.astimezone() - start.astimezone()).total_seconds() / 3600) | int -%}
+              {{- 'timed' if duration_hours < 23 else 'all_day' if duration_hours <= 47 else 'multi_day' -}}
+            {%- endmacro %}
+
+            {% macro format_event(ev, target_date) -%}
+              {%- set cls = dur_class(ev) -%}
+              {%- set start = ev.start | as_datetime -%}
+              {%- set end = ev.end | as_datetime -%}
+
+              {%- if cls == 'timed' -%}
+                {%- set time_str = ' (' + start.strftime('%H:%M') + ')' -%}
+              {%- else -%}
+                {%- set time_str = '' -%}
+              {%- endif -%}
+
+              {%- set source = ev.get('source_calendar', '') -%}
+              {%- if 'calendar.enhy' in source -%}
+                {%- set icon = '👤 Enhy: ' -%}
+              {%- elif 'calendar.cam' in source -%}
+                {%- set icon = '👤 Cam: ' -%}
+              {%- elif 'calendar.both' in source -%}
+                {%- set icon = '👥 Both: ' -%}
+              {%- else -%}
+                {%- set icon = 'ℹ️ Info: ' -%}
+              {%- endif -%}
+
+              {%- if cls == 'multi_day' -%}
+                {%- set event_start_date = start.date() -%}
+                {%- set event_end_date = end.date() -%}
+                {%- set total_days = (event_end_date - event_start_date).days + 1 -%}
+                {%- if target_date == event_start_date -%}
+                  {%- set day_indicator = ' (Day 1 of ' + total_days|string + ')' -%}
+                {%- elif target_date == event_end_date -%}
+                  {%- set day_indicator = ' (Final day)' -%}
+                {%- else -%}
+                  {%- set day_indicator = '' -%}
+                {%- endif -%}
+              {%- else -%}
+                {%- set day_indicator = '' -%}
+              {%- endif -%}
+
+              {{- icon + (ev.summary | default('Untitled Event')) + time_str + day_indicator -}}
+            {%- endmacro %}
+
+            {% set tomorrow = (now() + timedelta(days=1)).date() %}
+            {% set tomorrow_start = (now() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0) %}
+            {% set tomorrow_end = (now() + timedelta(days=1)).replace(hour=4, minute=0, second=0, microsecond=0) %}
+            {% set events = state_attr('calendar.enhy', 'events') or [] %}
+            {% set tomorrow_events = [] %}
+
+            {% for ev in events %}
+              {% set ev_start = ev.start | as_datetime %}
+              {% set ev_end = ev.end | as_datetime %}
+              {% set cls = dur_class(ev) %}
+              {% if cls == 'multi_day' %}
+                {% set event_start_date = ev_start.date() %}
+                {% set event_end_date = ev_end.date() %}
+                {% if tomorrow == event_start_date or tomorrow == event_end_date %}
+                  {% set tomorrow_events = tomorrow_events + [ev] %}
+                {% endif %}
+              {% else %}
+                {% if ev_start < tomorrow_end and ev_end > tomorrow_start %}
+                  {% set tomorrow_events = tomorrow_events + [ev] %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            {% set lines = [] %}
+            {% for ev in tomorrow_events %}
+              {% set lines = lines + [format_event(ev, tomorrow)] %}
+            {% endfor %}
+            {{ lines }}
+
+          carryover_events: >
+            {% set now_time = now() %}
+            {% set events = state_attr('calendar.enhy', 'events') or [] %}
+            {% set active_events = [] %}
+
+            {% for ev in events %}
+              {% set ev_start = ev.start | as_datetime %}
+              {% set ev_end = ev.end | as_datetime %}
+              {% set duration_hours = ((ev_end.astimezone() - ev_start.astimezone()).total_seconds() / 3600) | int %}
+
+              {% if duration_hours < 23 and ev_start <= now_time < ev_end %}
+                {% set time_display = ev_end.strftime('%a %H:%M') if ev_end.date() != now_time.date() else ev_end.strftime('%H:%M') %}
+                {% set active_events = active_events + [(ev.summary | default('Untitled Event')) + ' (until ' + time_display + ')'] %}
+              {% endif %}
+            {% endfor %}
+            {{ active_events }}
+
+  # Template Calendars - REMOVED: Not supported in Home Assistant core
+  # Would need custom integration or alternative approach
+  # Keeping sensor-based event processing instead
+
+# Scripts
+script:
+  send_notification_with_fallback:
+    alias: "Send Notification with Fallback"
+    mode: parallel
+    icon: mdi:message-alert
+    fields:
+      person:
+        description: "Person to notify (cam/enhy)"
+        required: true
+      title:
+        description: "Notification title"
+        required: true
+      message:
+        description: "Notification body"
+        required: true
+      tag:
+        description: "Notification tag"
+        default: "calendar"
+      notification_id:
+        description: "Unique notification ID"
+        required: true
+    sequence:
+      - variables:
+          retry_count: 0
+          retry_delays: [15, 30, 60]
+          success: false
+      - repeat:
+          while:
+            - condition: template
+              value_template: "{{ retry_count < 3 and not success }}"
+          sequence:
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template: "{{ person == 'cam' }}"
+                  sequence:
+                    - parallel:
+                        - service: notify.mobile_app_phone_c
+                          data:
+                            title: "{{ title }}"
+                            message: "{{ message }}"
+                            data:
+                              tag: "{{ tag }}"
+                              persistent: true
+                              notification_icon: "mdi:calendar"
+                          continue_on_error: true
+                        - service: notify.mobile_app_ipad
+                          data:
+                            title: "{{ title }}"
+                            message: "{{ message }}"
+                            data:
+                              tag: "{{ tag }}"
+                              persistent: true
+                              notification_icon: "mdi:calendar"
+                          continue_on_error: true
+                - conditions:
+                    - condition: template
+                      value_template: "{{ person == 'enhy' }}"
+                  sequence:
+                    - parallel:
+                        - service: notify.mobile_app_phone_e
+                          data:
+                            title: "{{ title }}"
+                            message: "{{ message }}"
+                            data:
+                              tag: "{{ tag }}"
+                              persistent: true
+                              notification_icon: "mdi:calendar"
+                          continue_on_error: true
+                        - service: notify.mobile_app_ipad
+                          data:
+                            title: "{{ title }}"
+                            message: "{{ message }}"
+                            data:
+                              tag: "{{ tag }}"
+                              persistent: true
+                              notification_icon: "mdi:calendar"
+                          continue_on_error: true
+            - variables:
+                retry_count: "{{ retry_count + 1 }}"
+                success: true  # Assume success since we can't check errors with continue_on_error
+            - if:
+                - condition: template
+                  value_template: "{{ retry_count < 3 and not success }}"
+              then:
+                - delay:
+                    seconds: "{{ retry_delays[retry_count - 1] }}"
+      - service: persistent_notification.create
+        data:
+          notification_id: "{{ notification_id }}"
+          title: "{{ title }}"
+          message: "{{ message }}"
+
+  update_current_notifications:
+    alias: "Update Current Notifications"
+    mode: restart
+    icon: mdi:update
+    sequence:
+      - condition: state
+        entity_id: input_boolean.calendar_notifications
+        state: "on"
+      - service: homeassistant.update_entity
+        target:
+          entity_id:
+            - calendar.cam
+            - calendar.enhy
+            - sensor.cam_daily_digest
+            - sensor.enhy_daily_digest
+      - delay: "00:00:02"
+      - parallel:
+          - sequence:
+              - variables:
+                  lines: "{{ state_attr('sensor.cam_daily_digest', 'today_lines') or [] }}"
+                  carryover: "{{ state_attr('sensor.cam_daily_digest', 'carryover_events') or [] }}"
+                  all_lines: "{{ (carryover + lines) if carryover else lines }}"
+              - condition: template
+                value_template: "{{ all_lines | length > 0 }}"
+              - service: script.push_cam
+                data:
+                  title: "Calendar Update"
+                  message: >
+                    📅 Today ({{ now().strftime('%d %b') }})
+                    {{ all_lines | join('\n') }}
+                  tag: "daily"
+          - sequence:
+              - variables:
+                  lines: "{{ state_attr('sensor.enhy_daily_digest', 'today_lines') or [] }}"
+                  carryover: "{{ state_attr('sensor.enhy_daily_digest', 'carryover_events') or [] }}"
+                  all_lines: "{{ (carryover + lines) if carryover else lines }}"
+              - condition: template
+                value_template: "{{ all_lines | length > 0 }}"
+              - service: script.push_enhy
+                data:
+                  title: "Calendar Update"
+                  message: >
+                    📅 Today ({{ now().strftime('%d %b') }})
+                    {{ all_lines | join('\n') }}
+                  tag: "daily"
+
+  push_cam:
+    alias: "Send Notification to Cam"
+    mode: restart
+    icon: mdi:account-arrow-right
+    fields:
+      title:
+        description: "Notification title"
+        required: true
+      message:
+        description: "Notification body"
+        required: true
+      tag:
+        description: "Notification tag"
+        default: "calendar"
+    sequence:
+      - variables:
+          notification_id: "calendar_cam_{{ now().strftime('%Y%m%d') }}_{{ tag }}"
+          actual_message: >
+            {% if is_state('binary_sensor.calendar_system_health', 'off') %}
+            ⚠️ Calendar system degraded
+
+            {% endif %}{{ message }}
+      - service: script.send_notification_with_fallback
+        data:
+          person: "cam"
+          title: "{{ title }}"
+          message: "{{ actual_message }}"
+          tag: "{{ tag }}"
+          notification_id: "{{ notification_id }}"
+
+  push_enhy:
+    alias: "Send Notification to Enhy"
+    mode: restart
+    icon: mdi:account-arrow-right
+    fields:
+      title:
+        description: "Notification title"
+        required: true
+      message:
+        description: "Notification body"
+        required: true
+      tag:
+        description: "Notification tag"
+        default: "calendar"
+    sequence:
+      - variables:
+          notification_id: "calendar_enhy_{{ now().strftime('%Y%m%d') }}_{{ tag }}"
+          actual_message: >
+            {% if is_state('binary_sensor.calendar_system_health', 'off') %}
+            ⚠️ Calendar system degraded
+
+            {% endif %}{{ message }}
+      - service: script.send_notification_with_fallback
+        data:
+          person: "enhy"
+          title: "{{ title }}"
+          message: "{{ actual_message }}"
+          tag: "{{ tag }}"
+          notification_id: "{{ notification_id }}"
+
+  clear_calendar_notifications:
+    alias: "Clear Calendar Notifications"
+    mode: parallel
+    fields:
+      person:
+        description: "Person (cam/enhy)"
+        example: "cam"
+        required: true
+      tag:
+        description: "Notification tag"
+        default: "calendar"
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ person == 'cam' }}"
+            sequence:
+              - parallel:
+                  - service: notify.mobile_app_phone_c
+                    data:
+                      message: "clear_notification"
+                      data:
+                        tag: "{{ tag }}"
+                    continue_on_error: true
+                  - service: notify.mobile_app_ipad
+                    data:
+                      message: "clear_notification"
+                      data:
+                        tag: "{{ tag }}"
+                    continue_on_error: true
+                  - service: persistent_notification.dismiss
+                    data:
+                      notification_id: "calendar_cam_{{ now().strftime('%Y%m%d') }}_{{ tag }}"
+                    continue_on_error: true
+          - conditions:
+              - condition: template
+                value_template: "{{ person == 'enhy' }}"
+            sequence:
+              - parallel:
+                  - service: notify.mobile_app_phone_e
+                    data:
+                      message: "clear_notification"
+                      data:
+                        tag: "{{ tag }}"
+                    continue_on_error: true
+                  - service: notify.mobile_app_ipad
+                    data:
+                      message: "clear_notification"
+                      data:
+                        tag: "{{ tag }}"
+                    continue_on_error: true
+                  - service: persistent_notification.dismiss
+                    data:
+                      notification_id: "calendar_enhy_{{ now().strftime('%Y%m%d') }}_{{ tag }}"
+                    continue_on_error: true
+
+  test_calendar_notifications:
+    alias: "Test Calendar Notifications"
+    icon: mdi:test-tube
+    sequence:
+      - condition: state
+        entity_id: binary_sensor.calendar_system_health
+        state: "on"
+      - service: script.push_cam
+        data:
+          title: "Calendar Test"
+          message: |
+            🧪 Test Cam - Today ({{ now().strftime('%d %b') }})
+            👤 Cam: Test meeting ({{ (now() + timedelta(minutes=30)).strftime('%H:%M') }})
+            👥 Both: Test lunch ({{ (now() + timedelta(hours=2)).strftime('%H:%M') }})
+            ℹ️ Info: Test holiday
+          tag: "test"
+      - service: script.push_enhy
+        data:
+          title: "Calendar Test"
+          message: |
+            🧪 Test Enhy - Today ({{ now().strftime('%d %b') }})
+            👤 Enhy: Test standup ({{ (now() + timedelta(minutes=45)).strftime('%H:%M') }})
+            👥 Both: Test lunch ({{ (now() + timedelta(hours=2)).strftime('%H:%M') }})
+            ℹ️ Info: Test holiday
+          tag: "test"
+      - service: persistent_notification.create
+        data:
+          notification_id: "calendar_test_complete"
+          title: "🧪 Calendar Test Complete"
+          message: >
+            Test notifications sent to all devices. Check mobile apps and persistent notifications.
+            System Health: {{ states('binary_sensor.calendar_system_health') }}
+
+  test_timezone_boundaries:
+    alias: "Test Timezone Boundary Cases"
+    icon: mdi:clock-alert
+    sequence:
+      - service: persistent_notification.create
+        data:
+          notification_id: "timezone_test"
+          title: "🕒 Timezone Test Results"
+          message: >
+            Current timezone: {{ now().strftime('%Z %z') }}
+            23-hour boundary test: {{ (23 * 3600) < (24 * 3600) }}
+            47-hour boundary test: {{ (47 * 3600) > (24 * 3600) }}
+            Multi-day detection working: {{ (48 * 3600) >= (47 * 3600) }}
+
+  clear_test_notifications:
+    alias: "Clear Test Notifications"
+    icon: mdi:notification-clear-all
+    sequence:
+      - parallel:
+          - service: script.clear_calendar_notifications
+            data:
+              person: "cam"
+              tag: "test"
+          - service: script.clear_calendar_notifications
+            data:
+              person: "enhy"
+              tag: "test"
+          - service: persistent_notification.dismiss
+            data:
+              notification_id: "calendar_test_complete"
+          - service: persistent_notification.dismiss
+            data:
+              notification_id: "timezone_test"
+
+# Automations
+automation:
+  - alias: "Calendar Morning Reminder"
+    id: calendar_morning_reminder
+    description: "Sends morning calendar reminders to both users"
+    mode: single
+    trigger:
+      - platform: time
+        at: "06:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.calendar_notifications
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.calendar_system_health
+        state: "on"
+    action:
+      - parallel:
+          - sequence:
+              - condition: template
+                value_template: >
+                  {% set last = states('input_text.cam_last_notification') %}
+                  {% if last in ['unknown', '', 'unavailable'] %}
+                    true
+                  {% else %}
+                    {% set last_time = last | as_datetime %}
+                    {% if last_time is none %}
+                      true
+                    {% else %}
+                      {{ last_time < (now() - timedelta(hours=6)) }}
+                    {% endif %}
+                  {% endif %}
+              - variables:
+                  lines: "{{ state_attr('sensor.cam_daily_digest', 'today_lines') or [] }}"
+                  carryover: "{{ state_attr('sensor.cam_daily_digest', 'carryover_events') or [] }}"
+                  all_lines: "{{ (carryover + lines) if carryover else lines }}"
+              - condition: template
+                value_template: "{{ all_lines | length > 0 }}"
+              - service: script.push_cam
+                data:
+                  title: "Calendar Reminder"
+                  message: >
+                    📅 Today ({{ now().strftime('%d %b') }})
+                    {{ all_lines | join('\n') }}
+                  tag: "daily"
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.cam_last_notification
+                data:
+                  value: "{{ now().isoformat() }}"
+          - sequence:
+              - condition: template
+                value_template: >
+                  {% set last = states('input_text.enhy_last_notification') %}
+                  {% if last in ['unknown', '', 'unavailable'] %}
+                    true
+                  {% else %}
+                    {% set last_time = last | as_datetime %}
+                    {% if last_time is none %}
+                      true
+                    {% else %}
+                      {{ last_time < (now() - timedelta(hours=6)) }}
+                    {% endif %}
+                  {% endif %}
+              - variables:
+                  lines: "{{ state_attr('sensor.enhy_daily_digest', 'today_lines') or [] }}"
+                  carryover: "{{ state_attr('sensor.enhy_daily_digest', 'carryover_events') or [] }}"
+                  all_lines: "{{ (carryover + lines) if carryover else lines }}"
+              - condition: template
+                value_template: "{{ all_lines | length > 0 }}"
+              - service: script.push_enhy
+                data:
+                  title: "Calendar Reminder"
+                  message: >
+                    📅 Today ({{ now().strftime('%d %b') }})
+                    {{ all_lines | join('\n') }}
+                  tag: "daily"
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.enhy_last_notification
+                data:
+                  value: "{{ now().isoformat() }}"
+
+  - alias: "Calendar Evening Preview"
+    id: calendar_evening_preview
+    description: "Sends evening preview of tomorrow's calendar events"
+    mode: single
+    trigger:
+      - platform: time
+        at: "18:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.calendar_notifications
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.calendar_system_health
+        state: "on"
+    action:
+      - parallel:
+          - sequence:
+              - condition: template
+                value_template: >
+                  {% set last = states('input_text.cam_last_notification') %}
+                  {% if last in ['unknown', '', 'unavailable'] %}
+                    true
+                  {% else %}
+                    {% set last_time = last | as_datetime %}
+                    {% if last_time is none %}
+                      true
+                    {% else %}
+                      {{ last_time < (now() - timedelta(hours=6)) }}
+                    {% endif %}
+                  {% endif %}
+              - variables:
+                  lines: "{{ state_attr('sensor.cam_daily_digest', 'tomorrow_lines') or [] }}"
+              - condition: template
+                value_template: "{{ lines | length > 0 }}"
+              - service: script.push_cam
+                data:
+                  title: "Calendar Preview"
+                  message: >
+                    📅 Tomorrow ({{ (now() + timedelta(days=1)).strftime('%d %b') }})
+                    {{ lines | join('\n') }}
+                  tag: "daily"
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.cam_last_notification
+                data:
+                  value: "{{ now().isoformat() }}"
+          - sequence:
+              - condition: template
+                value_template: >
+                  {% set last = states('input_text.enhy_last_notification') %}
+                  {% if last in ['unknown', '', 'unavailable'] %}
+                    true
+                  {% else %}
+                    {% set last_time = last | as_datetime %}
+                    {% if last_time is none %}
+                      true
+                    {% else %}
+                      {{ last_time < (now() - timedelta(hours=6)) }}
+                    {% endif %}
+                  {% endif %}
+              - variables:
+                  lines: "{{ state_attr('sensor.enhy_daily_digest', 'tomorrow_lines') or [] }}"
+              - condition: template
+                value_template: "{{ lines | length > 0 }}"
+              - service: script.push_enhy
+                data:
+                  title: "Calendar Preview"
+                  message: >
+                    📅 Tomorrow ({{ (now() + timedelta(days=1)).strftime('%d %b') }})
+                    {{ lines | join('\n') }}
+                  tag: "daily"
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.enhy_last_notification
+                data:
+                  value: "{{ now().isoformat() }}"
+      - delay: "00:00:45"
+      - parallel:
+          - sequence:
+              - variables:
+                  cam_carryover: "{{ state_attr('sensor.cam_daily_digest', 'carryover_events') or [] }}"
+              - condition: template
+                value_template: "{{ cam_carryover | length == 0 }}"
+              - service: script.clear_calendar_notifications
+                data:
+                  person: "cam"
+                  tag: "daily"
+          - sequence:
+              - variables:
+                  enhy_carryover: "{{ state_attr('sensor.enhy_daily_digest', 'carryover_events') or [] }}"
+              - condition: template
+                value_template: "{{ enhy_carryover | length == 0 }}"
+              - service: script.clear_calendar_notifications
+                data:
+                  person: "enhy"
+                  tag: "daily"
+
+  - alias: "Calendar 15-Minute Warning"
+    id: calendar_15min_warning
+    description: "Sends 15-minute warning notifications for upcoming events"
+    mode: single
+    trigger:
+      - platform: calendar
+        entity_id: calendar.cam
+        event: start
+        offset: "-0:15:00"
+      - platform: calendar
+        entity_id: calendar.enhy
+        event: start
+        offset: "-0:15:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.calendar_notifications
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.calendar_system_health
+        state: "on"
+      - condition: template
+        value_template: >
+          {% set event_start = as_timestamp(trigger.calendar_event.start) %}
+          {% set event_end = as_timestamp(trigger.calendar_event.end) %}
+          {% set duration_hours = (event_end - event_start) / 3600 %}
+          {{ duration_hours < 23 }}
+      - condition: time
+        after: "06:00:00"
+        before: "22:00:00"
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'calendar.cam' }}"
+            sequence:
+              - service: script.push_cam
+                data:
+                  title: "⏰ Starting in 15 minutes"
+                  message: "{{ trigger.calendar_event.summary }} ({{ as_timestamp(trigger.calendar_event.start) | timestamp_custom('%H:%M') }})"
+                  tag: "warning"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'calendar.enhy' }}"
+            sequence:
+              - service: script.push_enhy
+                data:
+                  title: "⏰ Starting in 15 minutes"
+                  message: "{{ trigger.calendar_event.summary }} ({{ as_timestamp(trigger.calendar_event.start) | timestamp_custom('%H:%M') }})"
+                  tag: "warning"
+
+  - alias: "Calendar System Health Check"
+    id: calendar_system_health_check
+    description: "Monitors calendar system health and updates components"
+    mode: single
+    trigger:
+      - platform: homeassistant
+        event: start
+      - platform: time_pattern
+        hours: "*"
+        minutes: "0"
+    action:
+      - condition: state
+        entity_id: input_boolean.calendar_notifications
+        state: "on"
+      - if:
+          - condition: state
+            entity_id: binary_sensor.calendar_system_health
+            state: "off"
+        then:
+          - service: persistent_notification.create
+            data:
+              notification_id: "calendar_system_error"
+              title: "⚠️ Calendar System Error"
+              message: >
+                Missing components detected:
+                Calendars: {{ state_attr('binary_sensor.calendar_system_health', 'missing_calendars') }}
+                Services: {{ state_attr('binary_sensor.calendar_system_health', 'missing_services') }}
+        else:
+          - service: persistent_notification.dismiss
+            data:
+              notification_id: "calendar_system_error"
+          - service: homeassistant.update_entity
+            target:
+              entity_id:
+                - calendar.cam
+                - calendar.enhy
+                - sensor.cam_daily_digest
+                - sensor.enhy_daily_digest
+
+  - alias: "Calendar Notification Auto-Cleanup"
+    id: calendar_notification_cleanup
+    description: "Automatically cleans up old calendar notifications"
+    mode: single
+    trigger:
+      - platform: time_pattern
+        minutes: "/30"
+    condition:
+      - condition: state
+        entity_id: input_boolean.calendar_notifications
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.calendar_system_health
+        state: "on"
+    action:
+      - parallel:
+          - sequence:
+              - variables:
+                  carryover: "{{ state_attr('sensor.cam_daily_digest', 'carryover_events') or [] }}"
+              - condition: template
+                value_template: "{{ carryover | length == 0 }}"
+              - service: script.clear_calendar_notifications
+                data:
+                  person: "cam"
+                  tag: "daily"
+          - sequence:
+              - variables:
+                  carryover: "{{ state_attr('sensor.enhy_daily_digest', 'carryover_events') or [] }}"
+              - condition: template
+                value_template: "{{ carryover | length == 0 }}"
+              - service: script.clear_calendar_notifications
+                data:
+                  person: "enhy"
+                  tag: "daily"
+
+  - alias: "Calendar Catch-Up Notification"
+    id: calendar_catchup
+    description: "Sends catch-up notifications for missed calendar updates"
+    mode: single
+    trigger:
+      - platform: time
+        at: "18:30:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.calendar_notifications
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.calendar_system_health
+        state: "on"
+    action:
+      - parallel:
+          - sequence:
+              - condition: template
+                value_template: >
+                  {% set last = states('input_text.cam_last_notification') %}
+                  {% if last in ['unknown', '', 'unavailable'] %}
+                    true
+                  {% else %}
+                    {% set last_time = last | as_datetime %}
+                    {% if last_time is none %}
+                      true
+                    {% else %}
+                      {{ last_time < (now() - timedelta(hours=6)) }}
+                    {% endif %}
+                  {% endif %}
+              - variables:
+                  lines: "{{ state_attr('sensor.cam_daily_digest', 'tomorrow_lines') or [] }}"
+              - condition: template
+                value_template: "{{ lines | length > 0 }}"
+              - service: script.push_cam
+                data:
+                  title: "Calendar Update"
+                  message: >
+                    📅 Late Update - Tomorrow ({{ (now() + timedelta(days=1)).strftime('%d %b') }})
+                    {{ lines | join('\n') }}
+                  tag: "catchup"
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.cam_last_notification
+                data:
+                  value: "{{ now().isoformat() }}"
+          - sequence:
+              - condition: template
+                value_template: >
+                  {% set last = states('input_text.enhy_last_notification') %}
+                  {% if last in ['unknown', '', 'unavailable'] %}
+                    true
+                  {% else %}
+                    {% set last_time = last | as_datetime %}
+                    {% if last_time is none %}
+                      true
+                    {% else %}
+                      {{ last_time < (now() - timedelta(hours=6)) }}
+                    {% endif %}
+                  {% endif %}
+              - variables:
+                  lines: "{{ state_attr('sensor.enhy_daily_digest', 'tomorrow_lines') or [] }}"
+              - condition: template
+                value_template: "{{ lines | length > 0 }}"
+              - service: script.push_enhy
+                data:
+                  title: "Calendar Update"
+                  message: >
+                    📅 Late Update - Tomorrow ({{ (now() + timedelta(days=1)).strftime('%d %b') }})
+                    {{ lines | join('\n') }}
+                  tag: "catchup"
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.enhy_last_notification
+                data:
+                  value: "{{ now().isoformat() }}"
+
+  - alias: "Calendar Real-Time Update"
+    id: calendar_realtime_update
+    description: "Handles real-time calendar updates and notifications"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id:
+          - calendar.cam
+          - calendar.enhy
+          - calendar.both
+          - calendar.special_day
+          - calendar.united_kingdom_eng
+    condition:
+      - condition: state
+        entity_id: input_boolean.calendar_notifications
+        state: "on"
+      - condition: time
+        after: "06:00:00"
+        before: "22:00:00"
+    action:
+      - delay: "00:02:00"
+      - service: script.update_current_notifications
+
+  - alias: "Calendar Startup Refresh"
+    id: calendar_startup_refresh
+    description: "Refreshes calendar data on Home Assistant startup"
+    mode: single
+    trigger:
+      - platform: homeassistant
+        event: start
+    condition:
+      - condition: state
+        entity_id: input_boolean.calendar_notifications
+        state: "on"
+    action:
+      - delay: "00:00:30"
+      - service: script.update_current_notifications

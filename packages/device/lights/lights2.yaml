@@ -91,18 +91,7 @@ sensor:
 
 
 
-# ╭────────────────────╮
-# │   GROUP
-# ╰────────────────────╯
-group:
 
-# ➔ Elgato Panels
-  elgato_panels:
-    name: Elgato Panels
-    entities:
-      - light.elgato_panel_01
-      - light.elgato_panel_02
-    all: true
 
 
 

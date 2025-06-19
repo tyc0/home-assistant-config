@@ -1,0 +1,179 @@
+# | START: map.yaml
+# |  PATH: /config/packages/travel/map.yaml
+
+
+
+# ╭────────────────────╮
+# │   INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+# ➔ Map focus
+#   Toggles for map focus for C
+  map_focus_c:
+    name: Map focus - C
+    icon: mdi:map-marker-radius
+    initial: true
+
+#   Toggles for map focus for E
+  map_focus_e:
+    name: Map focus - E
+    icon: mdi:map-marker-radius
+    initial: true
+
+# ➔ Info display selector
+#   Toggle to choose whose info to display (false = E, true = C)
+  location_info_selector:
+    name: Location Info - Show C
+    icon: mdi:account-switch
+    initial: false
+
+
+
+# ╭────────────────────╮
+# │   TEMPLATE SENSORS
+# ╰────────────────────╯
+template:
+  - sensor:
+    # ➔ Location distance display
+    - name: "Location Distance Display"
+      unique_id: location_distance_display
+      state: >
+        {% set show_c = is_state('input_boolean.location_info_selector', 'on') %}
+        {% set target_sensor = 'sensor.location_cam_phone' if show_c else 'sensor.location_enhy_phone' %}
+        {% set target = states(target_sensor) %}
+        {% if target in ['unknown', 'unavailable'] %}unavailable
+        {% else %}
+          {% set km = state_attr(target_sensor, 'distance_from_home_km')|float(0) %}
+          {% if km >= 1 %}{{ km|round }}km
+          {% else %}{{ state_attr(target_sensor, 'distance_from_home_m')|round }}m{% endif %}
+        {% endif %}
+      icon: mdi:map-marker-distance
+
+    # ➔ Location ETA display
+    - name: "Location ETA Display"
+      unique_id: location_eta_display
+      state: >
+        {% set show_c = is_state('input_boolean.location_info_selector', 'on') %}
+        {% set travel_sensor = 'sensor.google_travel_time_c' if show_c else 'sensor.google_travel_time_e' %}
+        {% set google_travel = states(travel_sensor) %}
+        {% if google_travel in ['unknown', 'unavailable'] %}hmm...
+        {% else %}
+          {% set now = now().timestamp() %}
+          {% set updated = as_timestamp(states[travel_sensor].last_updated) %}
+          {% set elapsed_min = ((now - updated) / 60)|round %}
+          {% set remaining = (google_travel|float(0) - (elapsed_min if elapsed_min < 15 else 15))|round %}
+          {% if remaining > 0 %}
+            {% set hours = (remaining // 60)|int %}
+            {% set minutes = (remaining % 60)|int %}
+            {% if hours > 0 and minutes > 0 %}{{ hours }}h {{ minutes }}m
+            {% elif hours > 0 %}{{ hours }}h
+            {% elif minutes > 0 %}{{ minutes }}m
+            {% else %}-{% endif %}
+          {% else %}-{% endif %}
+        {% endif %}
+      icon: mdi:clock-outline
+
+    # ➔ Location status display
+    - name: "Location Status Display"
+      unique_id: location_status_display
+      state: >
+        {% set show_c = is_state('input_boolean.location_info_selector', 'on') %}
+        {% set target_sensor = 'sensor.location_cam_phone' if show_c else 'sensor.location_enhy_phone' %}
+        {% set target = states(target_sensor) %}
+        {% if target in ['unknown', 'unavailable'] %}Lost
+        {% else %}
+          {% set attrs = state_attr(target_sensor, '') %}
+          {% set now = now().timestamp() %}
+          {% set updated = as_timestamp(states[target_sensor].last_updated) %}
+          {% set time_diff = now - updated %}
+          {% set current_lat = attrs.current_latitude|float(0) %}
+          {% set current_lon = attrs.current_longitude|float(0) %}
+          {% set previous_lat = attrs.previous_latitude|float(0) %}
+          {% set previous_lon = attrs.previous_longitude|float(0) %}
+          {% set is_stalled = current_lat == previous_lat and current_lon == previous_lon and time_diff > 300 %}
+          {% if is_stalled %}Lost{% else %}Good{% endif %}
+        {% endif %}
+      icon: mdi:signal
+
+    # ➔ Location movement display
+    - name: "Location Movement Display"
+      unique_id: location_movement_display
+      state: >
+        {% set show_c = is_state('input_boolean.location_info_selector', 'on') %}
+        {% set target_sensor = 'sensor.location_cam_phone' if show_c else 'sensor.location_enhy_phone' %}
+        {% set target = states(target_sensor) %}
+        {% if target in ['unknown', 'unavailable'] %}N/A
+        {% else %}
+          {% set movement = state_attr(target_sensor, 'direction_of_travel')|default('N/A') %}
+          {% if movement == 'stationary' %}Still
+          {% elif movement == 'N/A' %}N/A
+          {% else %}{{ movement|title }}{% endif %}
+        {% endif %}
+      icon: mdi:compass
+
+    # ➔ Location updated display
+    - name: "Location Updated Display"
+      unique_id: location_updated_display
+      state: >
+        {% set show_c = is_state('input_boolean.location_info_selector', 'on') %}
+        {% set target_sensor = 'sensor.location_cam_phone' if show_c else 'sensor.location_enhy_phone' %}
+        {% set target = states(target_sensor) %}
+        {% if target in ['unknown', 'unavailable'] %}Unknown
+        {% else %}
+          {% set now = now().timestamp() %}
+          {% set updated = as_timestamp(states[target_sensor].last_updated) %}
+          {% set diff = (now - updated)|int %}
+          {% if diff < 60 %}Just now
+          {% elif diff < 3600 %}{{ (diff // 60)|int }}m ago
+          {% elif diff < 86400 %}
+            {% set hours = (diff // 3600)|int %}
+            {% set minutes = ((diff % 3600) // 60)|int %}
+            {% if minutes > 0 %}{{ hours }}h {{ minutes }}m ago
+            {% else %}{{ hours }}h ago{% endif %}
+          {% else %}
+            {% set days = (diff // 86400)|int %}
+            {% set hours = ((diff % 86400) // 3600)|int %}
+            {{ days }}d {{ hours }}h ago
+          {% endif %}
+        {% endif %}
+      icon: mdi:clock-check
+
+
+
+    # ➔ Battery display text
+    - name: "Battery Display Text"
+      unique_id: battery_display_text
+      state: >
+        {% set show_c = is_state('input_boolean.location_info_selector', 'on') %}
+        {% set battery_sensor = 'sensor.phone_c_battery_level' if show_c else 'sensor.phone_e_battery_level' %}
+        {% set charging_sensor = 'binary_sensor.phone_c_is_charging' if show_c else 'binary_sensor.phone_e_is_charging' %}
+        {% set battery = states(battery_sensor) %}
+        {% set charging = states(charging_sensor) %}
+        {% if battery in ['unknown', 'unavailable'] %}Unknown
+        {% else %}
+          {% set level = battery|int %}
+          {% set is_charging = charging == 'on' %}
+          {{ level }}%{{ ' ⚡' if is_charging else '' }}
+        {% endif %}
+      icon: mdi:battery
+
+    # ➔ Battery display color
+    - name: "Battery Display Color"
+      unique_id: battery_display_color
+      state: >
+        {% set show_c = is_state('input_boolean.location_info_selector', 'on') %}
+        {% set battery_sensor = 'sensor.phone_c_battery_level' if show_c else 'sensor.phone_e_battery_level' %}
+        {% set battery = states(battery_sensor) %}
+        {% if battery in ['unknown', 'unavailable'] %}rgba(247, 84, 84, 1)
+        {% else %}
+          {% set level = battery|int %}
+          {% if level <= 20 %}rgba(247, 84, 84, 1)
+          {% elif level <= 50 %}rgba(247, 205, 81, 1)
+          {% else %}rgba(71, 192, 173, 1){% endif %}
+        {% endif %}
+      icon: mdi:battery-heart
+
+
+
+# | END: map.yaml
