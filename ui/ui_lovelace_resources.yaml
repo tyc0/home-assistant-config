@@ -54,6 +54,11 @@
 #  │   HACS STUFF
 #  ╰────────────────────╯
 
+
+# ➔ Advanced camera card
+  - url: /hacsfiles/advanced-camera-card/advanced-camera-card.js
+    type: module
+
 # ➔ Gallery card
   - url: /hacsfiles/gallery-card/gallery-card.js
     type: module

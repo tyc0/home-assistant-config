@@ -3228,24 +3228,14 @@
   description: Analyzes motion events from cameras using AI and sends notifications
     to multiple devices
   triggers:
-  - entity_id: binary_sensor.c05_motion
-    to: 'on'
-    id: c05_driveway
-    alias: 'Triggers for: C05 - Driveway'
-    trigger: state
-  - alias: 'Triggers for: C08 - Floor 01'
+  - alias: 'Triggers for: Driveway'
     entity_id:
-    - binary_sensor.ms04_motion
-    - binary_sensor.ms05_motion
-    - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_4
-    - binary_sensor.vs00_vibrationp
-    - binary_sensor.vs05_vibration
-    - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_6
+    - binary_sensor.c08_motion
     to: 'on'
-    id: c08_floor01
+    id: driveway
     trigger: state
   conditions:
-  - alias: 1 minute buffer before re-trigger allowed
+  - alias: Buffer before re-trigger allowed
     condition: template
     value_template: "{{ state_attr('automation.motion_ai_summary', 'last_triggered')
       is none or\n   (now() - state_attr('automation.motion_ai_summary', 'last_triggered'))
@@ -3255,72 +3245,39 @@
     choose:
     - conditions:
       - condition: template
-        value_template: '{{ trigger.id == ''c05_driveway'' }}'
+        value_template: '{{ trigger.id == ''driveway'' }}'
       sequence:
       - alias: 'AI prompt: Driveway & Road'
         data:
           remember: true
-          duration: 3
-          model: claude-3-5-sonnet-latest
-          max_frames: 3
+          duration: 2
+          max_frames: 2
           include_filename: true
           target_width: 1280
           max_tokens: 100
           temperature: 0.2
           generate_title: true
           expose_images: true
-          provider: 01JKHRYNMXDRT7H519T78H2XSH
+          provider: 01JGCADAG52GEGWZGPST01164A
+          image_entity:
+          - camera.c08_clear
           message: 'Check for persons on the brick driveway or its adjacent garden.
             If found, report their movement (entering or exiting) and note any delivery
             cues (uniform, branded vehicle, or carried items). If no persons are detected,
-            look for vehicles slowing or stopping on the driveway and specify if they
-            are branded or used for deliveries. Otherwise, examine the road spanning
-            the driveway’s width for similar vehicles. When multiple events occur,
-            choose the one nearest to the property. Respond with one sentence detailing
-            the subject, direction (if applicable), action, location, and any delivery
-            or service type. If only passing vehicles, pedestrians, shadows, animals,
-            or peripheral motion is seen, return ''false_alarm''. Do not mention timestamps,
-            weather, or lighting.
+            look for vehicles stopping on the driveway or in front of it and specify
+            if they are branded or used for deliveries. Otherwise, examine the road
+            spanning the driveway’s width for similar vehicles. When multiple events
+            occur, choose the one nearest to the property. Respond with one sentence
+            detailing the subject, direction (if applicable), action, location, and
+            any delivery or service type. If only passing vehicles, pedestrians, shadows,
+            animals, or peripheral motion is seen, return ''false_alarm''. Do not
+            mention timestamps, weather, or lighting.
 
             '
-          image_entity:
-          - camera.c05_clear
+          use_memory: true
         response_variable: response
         action: llmvision.stream_analyzer
       alias: Driveway prompt
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.id == ''c08_floor01'' }}'
-      sequence:
-      - data:
-          remember: true
-          model: claude-3-5-sonnet-latest
-          max_frames: 3
-          include_filename: true
-          max_tokens: 100
-          temperature: 0.2
-          provider: 01JKHRYNMXDRT7H519T78H2XSH
-          image_entity:
-          - camera.c08_clear
-          generate_title: true
-          expose_images: true
-          target_width: 1280
-          message: 'This security camera faces downward from the floor 01 hallway
-            ceiling with a fisheye view showing right stairs to ground floor, left
-            stairs to floor 02, and several room doors. Two small white dogs live
-            here. Return exactly one sentence describing the most notable movement
-            (examples: "an old man is going downstairs to ground floor", "a woman
-            is carrying laundry to floor 02", "a child is running between rooms",
-            "the white dog is playing with its toy"). For unclear or partial views
-            use "a person". When multiple movements occur, describe the most prominent
-            one. Write "false_alarm" for no movement. Never describe timestamps, lighting,
-            or static objects.
-
-            '
-          duration: 3
-        response_variable: response
-        action: llmvision.stream_analyzer
-      alias: Floor 01 prompt
     default: []
   - alias: Notifications
     choose:
@@ -3331,7 +3288,16 @@
       sequence:
       - variables:
           notify_id: '{{ now().timestamp() }}'
-      - parallel:
+      - action: tts.speak
+        metadata: {}
+        data:
+          cache: true
+          media_player_entity_id: media_player.sonos_speaker
+          message: '{{ response.response_text }}'
+        target:
+          entity_id: tts.home_assistant_cloud
+      - alias: Issue notifications
+        parallel:
         - data:
             message: '{{ response.response_text }}'
             title: Motion
@@ -3341,7 +3307,9 @@
             icon: mdi:motion-sensor
           action: notify.mobile_app_phone_c
           alias: 'Notify: C phone'
-        - data:
+          enabled: false
+        - alias: 'Notify: E phone'
+          data:
             message: '{{ response.response_text }}'
             title: Motion
             notification_id: motion-{{ notify_id }}
@@ -3349,12 +3317,13 @@
             color: '#ff8080'
             icon: mdi:motion-sensor
           action: notify.mobile_app_phone_e
-          alias: 'Notify: E phone'
+          enabled: false
         - data:
             title: Motion
             message: '{{ response.response_text }}'
           action: rest_command.send_hass_agent_notification
           alias: 'Notify: C PC'
+          enabled: false
         - sequence:
           - data:
               title: Motion
@@ -3370,7 +3339,8 @@
                 tag: c-tablet-{{ notify_id }}
             action: notify.mobile_app_ipad
           alias: 'Notify: C iPad'
-        alias: Issue notifications
+          enabled: false
+        enabled: false
   mode: single
 - id: '1736585694735'
   alias: Pets - Food and Water Alerts

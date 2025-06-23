@@ -1,0 +1,121 @@
+input_text:
+  event_creator_title:
+    name: "Event Title"
+    initial: ""
+  event_creator_description:
+    name: "Event Description"
+    initial: ""
+
+input_datetime:
+  event_creator_date:
+    name: "Event Date"
+    has_date: true
+    has_time: false
+  event_creator_end_date:
+    name: "End Date"
+    has_date: true
+    has_time: false
+  event_creator_start_time:
+    name: "Start Time"
+    has_date: false
+    has_time: true
+  event_creator_end_time:
+    name: "End Time"
+    has_date: false
+    has_time: true
+
+input_boolean:
+  event_creator_multiday:
+    name: "Multi-day Event"
+    initial: false
+
+automation:
+  - alias: "Create Calendar Event"
+    id: create_calendar_event
+    mode: single
+    trigger:
+      - platform: event
+        event_type: create_calendar_event
+    condition:
+      - condition: template
+        value_template: >
+          {{ states('input_text.event_creator_title') | trim | length > 0 and
+             states('input_text.event_creator_title') | trim | length <= 255 }}
+      - condition: template
+        value_template: >
+          {{ states('input_datetime.event_creator_date') not in 
+             ['unknown', 'unavailable', '', 'none'] }}
+    action:
+      - variables:
+          event_date: "{{ states('input_datetime.event_creator_date') }}"
+          start_time: "{{ states('input_datetime.event_creator_start_time') }}"
+          end_time: "{{ states('input_datetime.event_creator_end_time') }}"
+          event_title: "{{ states('input_text.event_creator_title') | trim }}"
+          event_description: "{{ states('input_text.event_creator_description') | trim }}"
+          is_multiday: "{{ is_state('input_boolean.event_creator_multiday', 'on') }}"
+          event_end_date: "{{ states('input_datetime.event_creator_end_date') }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ start_time not in ['unknown', 'unavailable', '', 'none'] }}"
+            sequence:
+              - service: calendar.create_event
+                continue_on_error: true
+                target:
+                  entity_id: calendar.enhy
+                data:
+                  summary: "{{ event_title }}"
+                  description: "{{ event_description }}"
+                  start_date_time: "{{ event_date }}T{{ start_time }}"
+                  end_date_time: >
+                    {% if is_multiday %}
+                      {% if event_end_date not in ['unknown', 'unavailable', '', 'none'] %}
+                        {% set target_date = event_end_date %}
+                      {% else %}
+                        {% set target_date = (as_datetime(event_date) + timedelta(days=1)).strftime('%Y-%m-%d') %}
+                      {% endif %}
+                    {% else %}
+                      {% set target_date = event_date %}
+                    {% endif %}
+                    
+                    {% if end_time not in ['unknown', 'unavailable', '', 'none'] %}
+                      {{ target_date }}T{{ end_time }}
+                    {% else %}
+                      {% if is_multiday %}
+                        {{ target_date }}T{{ start_time }}
+                      {% else %}
+                        {% set start_time_parts = start_time.split(':') %}
+                        {% set start_hour = start_time_parts[0] | int %}
+                        {% set start_minute = start_time_parts[1] | int %}
+                        {% set end_hour = start_hour + 1 %}
+                        {% if end_hour >= 24 %}
+                          {% set end_hour = end_hour - 24 %}
+                          {% set next_day = (as_datetime(event_date) + timedelta(days=1)).strftime('%Y-%m-%d') %}
+                          {{ next_day }}T{{ '%02d' | format(end_hour) }}:{{ '%02d' | format(start_minute) }}
+                        {% else %}
+                          {{ target_date }}T{{ '%02d' | format(end_hour) }}:{{ '%02d' | format(start_minute) }}
+                        {% endif %}
+                      {% endif %}
+                    {% endif %}
+        default:
+          - service: calendar.create_event
+            continue_on_error: true
+            target:
+              entity_id: calendar.enhy
+            data:
+              summary: "{{ event_title }}"
+              description: "{{ event_description }}"
+              start_date: "{{ event_date }}"
+              end_date: >
+                {% if is_multiday %}
+                  {% if event_end_date not in ['unknown', 'unavailable', '', 'none'] %}
+                    {% set next_day = (as_datetime(event_end_date) + timedelta(days=1)).strftime('%Y-%m-%d') %}
+                    {{ next_day }}
+                  {% else %}
+                    {% set next_day = (as_datetime(event_date) + timedelta(days=2)).strftime('%Y-%m-%d') %}
+                    {{ next_day }}
+                  {% endif %}
+                {% else %}
+                  {% set next_day = (as_datetime(event_date) + timedelta(days=1)).strftime('%Y-%m-%d') %}
+                  {{ next_day }}
+                {% endif %}

@@ -3996,6 +3996,22 @@ alexa_set_silent_alarm:
       entity_id:
       - media_player.echo_show_15
     action: media_player.play_media
+  - alias: Set timer
+    data:
+      media_content_id: set a timer  for 1 hour on Echo Show 15
+      media_content_type: custom
+    target:
+      entity_id:
+      - media_player.cam_s_echo_flex
+    action: media_player.play_media
+  - alias: Cancel all timers
+    data:
+      media_content_id: cancel all timers on Echo Show 15
+      media_content_type: custom
+    target:
+      entity_id:
+      - media_player.cam_s_echo_flex
+    action: media_player.play_media
   mode: single
 ai_ask_about_c07_view:
   alias: AI - Ask about C07 view
