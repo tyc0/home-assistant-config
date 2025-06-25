@@ -3967,7 +3967,7 @@ alexa_set_silent_alarm:
   sequence:
   - alias: Set alarm
     data:
-      media_content_id: set an alarm for 9am on Echo Show 15
+      media_content_id: set an alarm for 09:15 on Echo Show 15
       media_content_type: custom
     target:
       entity_id:

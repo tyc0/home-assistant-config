@@ -87,10 +87,10 @@ sun_position_card:
 
       /* Animation keyframes for marker pop-in effect */
       @keyframes markerPopIntro {
-        0%   { transform: scale(0); opacity: 0; }
-        40%  { transform: scale(1.2); opacity: 1; }
+        0%   { transform: scale(0); opacity: 0;    }
+        40%  { transform: scale(1.2); opacity: 1;  }
         85%  { transform: scale(0.95); opacity: 1; }
-        100% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(1); opacity: 1;    }
       }
 
       /* Responsive design for smaller screens */
@@ -107,7 +107,7 @@ sun_position_card:
       - width: auto
       - padding: 14px 20px
       - transition: all 0.2s ease-in-out
-      - "--marker-delay": 0.96s              # Delay for marker animation
+      - "--marker-delay": 0.96s                # Delay for marker animation
       - "--mdc-ripple-color": rgba(0,0,0,0)  # Disable ripple effect
 
 

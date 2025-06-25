@@ -1,0 +1,464 @@
+# | START: daily_affirmation_card.yaml
+# | PATH: /config/templates/custom_button_card_templates/olympus_cards/daily_affirmation_card/daily_affirmation_card.yaml
+
+
+
+# ➔ Daily Affirmation Card
+#   Animated card displaying daily affirmations with sophisticated visual effects including
+#   animated gradients, floating bubbles, shimmer effects, and 3D tilt interactions. Core functionality:
+#
+#     • Dynamic gradient backgrounds with animated color shifts
+#     • Floating bubble animations with randomized properties
+#     • Shimmer overlay with sparkle effects for premium feel
+#     • 3D tilt interaction using VanillaTilt library (requires installation)
+#     • Tap action opens popup with affirmation history using logbook-card
+#     • Fully responsive text rendering with advanced typography
+
+
+# | EXAMPLE USAGE
+
+# ➔ REQUIRED:
+# type: custom:button-card
+# template: daily_affirmation_card
+
+# ➔ OPTIONAL:
+# variables:
+#   affirmation_entity: sensor.daily_affirmation
+#   card_name: Daily Affirmation
+#   popup_title: Past Affirmations
+#   history_count: 8
+#   enable_tilt: true
+
+
+
+daily_affirmation_card:
+
+  variables:
+    affirmation_entity: sensor.daily_affirmation                                   # Entity containing daily affirmation text
+    card_name: Daily Affirmation                                                   # Display name shown above affirmation
+    popup_title: Past Affirmations                                                 # Title for history popup
+    history_count: 8                                                               # Number of past affirmations to show
+    enable_tilt: true                                                              # Enable 3D tilt effects (requires VanillaTilt)
+
+  entity: '[[[ return variables.affirmation_entity; ]]]'
+  name: '[[[ return variables.card_name; ]]]'
+  show_icon: false
+  show_state: true
+
+  tap_action:
+    action: fire-dom-event
+    browser_mod:
+      service: browser_mod.popup
+      data:
+        title: '[[[ return variables.popup_title; ]]]'
+        content:
+          type: custom:logbook-card                                                # Requires logbook-card custom component
+          entity: '[[[ return variables.affirmation_entity; ]]]'
+          show:
+            state: true
+            duration: false
+            start_date: true
+            end_date: false
+            icon: false
+            separator: true
+          separator_style:
+            color: rgba(156, 132, 165, 0.1)
+          history: '[[[ return variables.history_count; ]]]'
+          no_event: No logs yet
+          date_format: dddd D MMMM
+          custom_logs: false
+          max_items: '[[[ return variables.history_count; ]]]'
+          collapse: '[[[ return variables.history_count; ]]]'
+          desc: true
+          card_mod:
+            style: |
+              ha-card {
+                padding: 0 30px;
+                margin: 0;
+                font-weight: 400;
+                color: var(--primary-text-color);
+                font-size: 1em;
+                box-shadow: none;
+                background: transparent;
+              }
+              .date {
+                color: var(--secondary-text-color) !important;
+                font-size: 0.75em !important;
+                padding-bottom: 3px;
+              }
+        size: normal
+        dismissable: true
+        autoclose: false
+
+  hold_action:
+    action: none
+  double_tap_action:
+    action: none
+  long_press: false
+
+  styles:
+    card:
+      - background: none
+      - border-radius: 24px
+      - height: 200px
+      - width: 200px
+      - position: relative
+      - pointer-events: auto
+      - cursor: default
+      - overflow: hidden
+      - margin: 25px auto
+      - transform-style: preserve-3d                                               # Required for 3D tilt effects
+
+    grid:
+      - grid-template-areas: "\"n\" \"s\""
+      - grid-template-columns: 1fr
+      - grid-template-rows: auto 1fr
+
+    name:
+      - font-size: 0.85rem
+      - font-weight: 300
+      - color: rgba(255, 255, 255, 0.9)
+      - align-self: center
+      - opacity: 0                                                                 # Starts hidden, animated in
+      - white-space: normal
+      - word-spacing: 0.3px
+      - letter-spacing: 1.2px
+      - padding-top: 16px
+      - font-family: Roboto, Segoe UI, Helvetica Neue, sans-serif
+      - text-rendering: geometricPrecision
+      - "-webkit-font-smoothing": antialiased
+      - "-moz-osx-font-smoothing": grayscale
+      - font-kerning: none
+      - hyphens: none
+      - z-index: 4
+      - animation: fadeInLabel 2s ease-out 0.5s forwards
+      - text-shadow: 0 0 20px rgba(255, 255, 255, 0.3)
+
+    state:
+      - font-size: 1.25em
+      - font-weight: 300
+      - color: white
+      - align-self: center
+      - white-space: normal
+      - word-spacing: 3px
+      - letter-spacing: 0.8px
+      - line-height: 1.3
+      - padding: 12px
+      - font-family: Roboto, Segoe UI, Helvetica Neue, sans-serif
+      - text-rendering: optimizeLegibility
+      - "-webkit-font-smoothing": antialiased
+      - "-moz-osx-font-smoothing": grayscale
+      - font-kerning: normal
+      - hyphens: none
+      - word-break: normal
+      - overflow-wrap: break-word
+      - z-index: 3
+      - opacity: 0                                                                 # Starts hidden, animated in
+      - background: none
+      - border: none
+      - box-shadow: none
+      - animation: pulseIn 1s ease-out 1s forwards
+
+    custom_fields:
+      bg:                                                                          # Animated gradient background layer
+        - position: absolute
+        - width: 100%
+        - height: 100%
+        - top: 0
+        - left: 0
+        - z-index: 0
+        - border-radius: 24px
+        - overflow: hidden
+
+      bubbles:                                                                     # Floating bubble animation layer
+        - position: absolute
+        - height: 100%
+        - width: 100%
+        - top: 0
+        - left: 0
+        - border-radius: 24px
+        - overflow: hidden
+        - z-index: 1
+
+      shimmer:                                                                     # Shimmer and sparkle overlay layer
+        - position: absolute
+        - height: 100%
+        - width: 100%
+        - top: 0
+        - left: 0
+        - z-index: 2
+        - pointer-events: none
+        - border-radius: 24px
+        - overflow: hidden
+
+  custom_fields:
+    bg: |
+      [[[
+        const gradientColors = [
+          'hsla(20, 90%, 75%, 0.85)',
+          'hsla(350, 75%, 80%, 0.7)',
+          'hsla(320, 55%, 75%, 0.75)',
+          'hsla(240, 70%, 70%, 0.7)',
+          'hsla(200, 85%, 65%, 0.85)'
+        ];
+
+        return `
+          <style>
+            @keyframes gradientShift {
+              0%, 100% { background-position: 0% 0%; }
+              25% { background-position: 50% 100%; }
+              50% { background-position: 100% 50%; }
+              75% { background-position: 50% 0%; }
+            }
+            @keyframes glow {
+              0%, 100% { opacity: 0.3; }
+              50% { opacity: 0.6; }
+            }
+            .bg-container {
+              position: relative;
+              width: 100%;
+              height: 100%;
+              border-radius: 24px;
+              overflow: hidden;
+            }
+            .bg-gradient {
+              position: absolute;
+              width: 150%;
+              height: 150%;
+              top: -25%;
+              left: -25%;
+              background: linear-gradient(135deg, ${gradientColors.join(', ')});
+              background-size: 300% 300%;
+              animation: gradientShift 20s ease infinite;
+              filter: blur(40px);
+            }
+            .radial-glow {
+              position: absolute;
+              width: 120%;
+              height: 120%;
+              top: -10%;
+              left: -10%;
+              background: radial-gradient(circle at 50% 50%, hsla(10, 80%, 85%, 0.4) 0%, transparent 70%);
+              animation: glow 8s ease-in-out infinite;
+            }
+          </style>
+          <div class="bg-container">
+            <div class="bg-gradient"></div>
+            <div class="radial-glow"></div>
+          </div>
+        `;
+      ]]]
+
+    bubbles: |
+      [[[
+        const bubbleCount = 40;
+        const bubbleConfig = Array.from({length: bubbleCount}, (_, i) => ({
+          id: i,
+          size: 20 + Math.random() * 40,
+          duration: 25 + Math.random() * 20,
+          delay: 2 + Math.random() * 12,
+          startX: Math.random() * 100,
+          startY: Math.random() * 100,
+          moveX: -30 + Math.random() * 60,
+          moveY: -60 - Math.random() * 40,
+          scale: 0.8 + Math.random() * 0.6,
+          blur: 1 + Math.random() * 2,
+          opacity1: 0.2 + Math.random() * 0.3,
+          opacity2: 0.1 + Math.random() * 0.2,
+          opacity3: 0.3 + Math.random() * 0.4,
+          opacity4: 0.2 + Math.random() * 0.3,
+          opacity5: 0.1 + Math.random() * 0.2
+        }));
+
+        const baseStyles = `
+          @keyframes fadeInLabel {
+            to { opacity: 0.9; }
+          }
+          @keyframes pulseIn {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+          }
+          .bubble-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            overflow: hidden;
+          }
+          .bubble {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+          }
+        `;
+
+        // Generate individual keyframes and styles for each bubble for randomized movement
+        const bubbleStyles = bubbleConfig.map(b => `
+          .bubble-${b.id} {
+            width: ${b.size}px;
+            height: ${b.size}px;
+            left: ${b.startX}%;
+            top: ${b.startY}%;
+            background: radial-gradient(circle at 30% 30%,
+              hsla(${10 + (b.id % 6) * 60}, 75%, 85%, ${b.opacity1}),
+              hsla(${350 + (b.id % 7) * 40}, 65%, 80%, ${b.opacity2})
+            );
+            box-shadow:
+              inset -${b.size/8}px -${b.size/8}px ${b.size/4}px hsla(${15 + (b.id % 8) * 50}, 70%, 75%, 0.2),
+              0 0 ${b.size/2}px hsla(${5 + (b.id % 6) * 55}, 80%, 80%, 0.3);
+            animation:
+              float-${b.id} ${b.duration}s ease-in-out ${b.delay}s infinite both,
+              pulse-${b.id} ${b.duration/2}s ease-in-out ${b.delay}s infinite both;
+            filter: blur(${b.blur}px);
+          }
+          @keyframes float-${b.id} {
+            0% {
+              transform: translate(0, 0) scale(1);
+              opacity: 0;
+            }
+            10% { opacity: ${b.opacity3}; }
+            50% {
+              transform: translate(${b.moveX}px, ${b.moveY}px) scale(${b.scale});
+              opacity: ${b.opacity4};
+            }
+            70% { opacity: ${b.opacity5}; }
+            80% { opacity: ${b.opacity5 * 0.8}; }
+            85% { opacity: ${b.opacity5 * 0.6}; }
+            90% { opacity: ${b.opacity5 * 0.4}; }
+            94% { opacity: ${b.opacity5 * 0.25}; }
+            97% { opacity: ${b.opacity5 * 0.12}; }
+            99% { opacity: ${b.opacity5 * 0.05}; }
+            100% {
+              transform: translate(0, 0) scale(1);
+              opacity: 0;
+            }
+          }
+          @keyframes pulse-${b.id} {
+            0%, 100% { filter: blur(${b.blur}px) brightness(1); }
+            50% { filter: blur(${b.blur + 1}px) brightness(1.3); }
+          }
+        `).join('');
+
+        const bubbleElements = bubbleConfig.map(b =>
+          `<div class="bubble bubble-${b.id}"></div>`
+        ).join('');
+
+        return `
+          <style>${baseStyles}${bubbleStyles}</style>
+          <div class="bubble-container">${bubbleElements}</div>
+        `;
+      ]]]
+
+    shimmer: |
+      [[[
+        const sparkleCount = 8;
+        const sparkles = Array.from({length: sparkleCount}, (_, i) => ({
+          id: i,
+          left: 10 + Math.random() * 80,
+          top: 10 + Math.random() * 80,
+          duration: 2 + Math.random() * 3,
+          delay: Math.random() * 5
+        }));
+
+        const shimmerStyles = `
+          @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+          }
+          @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+          }
+          .shimmer-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            overflow: hidden;
+          }
+          .shimmer-effect {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.08) 50%, transparent 60%);
+            animation: shimmer 12s ease-in-out infinite;
+          }
+          .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 6px white;
+          }
+        `;
+
+        const sparkleStyles = sparkles.map(s => `
+          .sparkle-${s.id} {
+            left: ${s.left}%;
+            top: ${s.top}%;
+            animation: sparkle ${s.duration}s ease-in-out ${s.delay}s infinite;
+          }
+        `).join('');
+
+        const sparkleElements = sparkles.map(s =>
+          `<div class="sparkle sparkle-${s.id}"></div>`
+        ).join('');
+
+        return `
+          <style>${shimmerStyles}${sparkleStyles}</style>
+          <div class="shimmer-container">
+            <div class="shimmer-effect"></div>
+            ${sparkleElements}
+          </div>
+        `;
+      ]]]
+
+    tilt: |
+      [[[
+        // Initialize VanillaTilt 3D effects if enabled and library is available
+        if (variables.enable_tilt) {
+          setTimeout(() => {
+            const cardElement = this.shadowRoot.getElementById('card');
+            if (cardElement && typeof VanillaTilt === 'function') {
+              VanillaTilt.init(cardElement, {
+                max: 15,                                                           // Maximum tilt angle
+                scale: 1.06,                                                       // Scale on hover
+                glare: true,                                                       // Add glare effect
+                'max-glare': 0.35,                                                 // Maximum glare opacity
+                perspective: 1000,                                                 // 3D perspective
+                speed: 1000,                                                       // Animation speed
+                gyroscope: true,                                                   // Enable gyroscope on mobile
+                gyroscopeMinAngleX: -45,
+                gyroscopeMaxAngleX: 45,
+                gyroscopeMinAngleY: -45,
+                gyroscopeMaxAngleY: 45
+              });
+              cardElement.style.transition = 'all 0.8s cubic-bezier(0.03, 0.98, 0.52, 0.99)';
+              cardElement.style.willChange = 'transform';
+            }
+          }, 100);
+        }
+      ]]]
+
+  card_mod:
+    style: |
+      :host {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        transform-style: preserve-3d;                                              /* Required for 3D tilt effects */
+        perspective: 1000px;
+      }
+      ha-card {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        margin: 0;
+        overflow: visible;
+      }
+
+
+
+# | END: daily_affirmation_card.yaml

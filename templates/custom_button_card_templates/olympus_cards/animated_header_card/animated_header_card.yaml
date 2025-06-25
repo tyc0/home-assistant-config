@@ -1,0 +1,132 @@
+# | START: animated_header_card.yaml
+# | PATH: /config/templates/custom_button_card_templates/olympus_cards/animated_header_card/animated_header_card.yaml
+
+
+
+# ➔ Animated Header Card
+#   Text display card with character-by-character blur-in animation from the right. Perfect for
+#   section headers, device names, or informational displays. Core functionality:
+#
+#     • Character-by-character staggered text animation
+#     • Configurable title and subtitle text
+#     • Optimized typography with advanced font rendering
+#     • Right-to-left blur entrance effect with smooth transitions
+#     • Minimal styling for clean header presentation
+
+
+# | EXAMPLE USAGE
+
+# ➔ REQUIRED:
+# type: custom:button-card
+# template: animated_header_card
+
+# ➔ OPTIONAL:
+# variables:
+#   header_title: Server
+#   header_subtitle: NUC 11 i7 Mini PC
+#   animation_delay: 0.4
+#   character_delay: 0.03
+
+
+
+animated_header_card:
+
+  variables:
+    header_title: Server                                                           # Main title text
+    header_subtitle: NUC 11 i7 Mini PC                                            # Subtitle/description text
+    animation_delay: 0.4                                                           # Base delay before animation starts
+    character_delay: 0.03                                                          # Delay between each character animation
+
+  show_name: true
+  show_label: true
+
+  name: |
+    [[[
+      const title = variables.header_title || '';
+      const baseDelay = Number(variables.animation_delay) || 0.4;
+      const charDelay = Number(variables.character_delay) || 0.03;
+
+      return title.split('').map((char, i) =>
+        `<span style="display:inline-block;animation:leBlurInRight 1s both;animation-delay:${baseDelay + i * charDelay}s">${char === ' ' ? '&nbsp;' : char}</span>`
+      ).join('');
+    ]]]
+
+  label: |
+    [[[
+      const subtitle = variables.header_subtitle || '';
+      const baseDelay = Number(variables.animation_delay) || 0.4;
+      const charDelay = Number(variables.character_delay) || 0.03;
+
+      return subtitle.split('').map((char, i) =>
+        `<span style="display:inline-block;animation:leBlurInRight 1s both;animation-delay:${baseDelay + i * charDelay}s">${char === ' ' ? '&nbsp;' : char}</span>`
+      ).join('');
+    ]]]
+
+  styles:
+    card:
+      - padding-left: 20px
+      - background: none
+      - box-shadow: none
+      - border: none
+
+    name:
+      - justify-self: start
+      - overflow: visible                                                          # Allow animation overflow
+      - font-size: 1.25em
+      - font-weight: 400
+      - color: var(--primary-text-color)
+      - align-self: center
+      - white-space: normal
+      - letter-spacing: 1px
+      - font-family: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" # System font stack
+      - text-rendering: optimizeLegibility                                        # Enhanced text rendering
+      - "-webkit-font-smoothing": antialiased
+      - "-moz-osx-font-smoothing": grayscale
+      - font-kerning: normal
+      - hyphens: none
+      - word-break: normal
+      - background: none
+      - border: none
+      - box-shadow: none
+
+    label:
+      - justify-self: start
+      - overflow: visible                                                          # Allow animation overflow
+      - font-size: 0.75em
+      - font-weight: 400
+      - color: var(--secondary-text-color)
+      - align-self: center
+      - white-space: normal
+      - word-spacing: 0px
+      - letter-spacing: 0.8px
+      - font-family: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" # System font stack
+      - text-rendering: optimizeLegibility                                        # Enhanced text rendering
+      - "-webkit-font-smoothing": antialiased
+      - "-moz-osx-font-smoothing": grayscale
+      - font-kerning: normal
+      - hyphens: none
+      - word-break: normal
+      - background: none
+      - border: none
+      - box-shadow: none
+
+  extra_styles: |
+    @keyframes leBlurInRight {
+      0% {
+        transform: scaleX(0.5) translateX(90px);
+        filter: blur(6px);
+        opacity: 0;
+      }
+      70% {
+        filter: blur(0.5px);                                                     /* Gradual blur reduction */
+      }
+      100% {
+        transform: scaleX(1) translateX(0);
+        filter: blur(0);
+        opacity: 1;
+      }
+    }
+
+
+
+# | END: animated_header_card.yaml

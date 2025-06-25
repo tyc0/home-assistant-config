@@ -5,7 +5,7 @@
 
 # ╭────────────────────╮
 # │ CORE
-# ╰────────────────────╯ 
+# ╰────────────────────╯
 default_config:
 homeassistant:
   name:                              "Home"
@@ -26,7 +26,7 @@ homeassistant:
 
 # ╭────────────────────╮
 # │ INCLUDES
-# ╰────────────────────╯ 
+# ╰────────────────────╯
 automation:                          !include automations.yaml
 scene:                               !include scenes.yaml
 script:                              !include scripts.yaml
@@ -35,32 +35,37 @@ script:                              !include scripts.yaml
 
 # ╭────────────────────╮
 # │ FRONTEND
-# ╰────────────────────╯ 
+# ╰────────────────────╯
 lovelace:
-  mode: yaml
+  mode:                              yaml
   resources:                         !include ui/ui_lovelace_resources.yaml
 frontend:
-  themes:                            !include_dir_merge_named themes
+  themes:                            !include_dir_merge_named themes/
   extra_module_url:                  !include ui/frontend_extra_modules.yaml
 
 
 
 # ╭────────────────────╮
 # │ INTEGRATIONS
-# ╰────────────────────╯ 
+# ╰────────────────────╯
 lovelace_gen:
 powercalc:
 whatsapp:
 browser_mod:
-
+panel_custom:
+  - name: material-you-panel
+    url_path: material-you-configuration
+    sidebar_title: Material You Utilities
+    sidebar_icon: mdi:material-design
+    module_url: /hacsfiles/material-you-utilities/material-you-utilities.min.js
 
 
 # ╭────────────────────╮
 # │ COMMS
-# ╰────────────────────╯ 
+# ╰────────────────────╯
 sensor:
-  - platform: chatreader
-    scan_interval: 5
+  - platform:                        chatreader
+    scan_interval:                   30
 
 
 # |   END: configuration.yaml

@@ -1,18 +1,28 @@
-  
-# | START: frontend_extra_modules.yaml  
+
+# | START: frontend_extra_modules.yaml
 # |  PATH: /config/ui/frontend_extra_modules.yaml
 
 
 #  ╭────────────────────╮
 #  │   JS
-#  ╰────────────────────╯ 
+#  ╰────────────────────╯
 
   - https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js   # Feather icons CDN
   - /local/add_item.js                                               # Add item
   - /hacsfiles/Bubble-Card/bubble-pop-up.js                          # Bubble pop up
   - /hacsfiles/lovelace-card-mod/card-mod.js                         # Card mod
   - /local/toolbar-clock.js                                          # Toolbar clock
-  - /local/community/custom-brand-icons/custom-brand-icons.js        # Custom brand icons  
+  - /local/community/custom-brand-icons/custom-brand-icons.js        # Custom brand icons
+  - /hacsfiles/material-you-utilities/material-you-utilities.min.js  # Material you utilities
+
+
+#  ╭────────────────────╮
+#  │   CSS
+#  ╰────────────────────╯
+
+  - /local/fonts/figtree.css
+
+
 
 
 # | END: frontend_extra_modules.yaml

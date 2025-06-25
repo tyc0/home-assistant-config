@@ -1,0 +1,119 @@
+
+# | START: animated_nav_tile.yaml
+# |  PATH: /config/templates/custom_button_card_templates/olympus_cards/animated_nav_tile.yaml
+
+
+# ➔ Animated Nav Tile
+#   Custom button card template that displays a nav tile with a text animation effect
+#   using CSS animations and JavaScript DOM manipulation. Core functionality:
+#
+#     • Text animation with configurable speed
+#     • Category input with default value
+#     • Navigation path input with default value
+#     • Index input with default value
+
+
+# ➔ Example Usage
+# type: custom:button-card
+# template: animated_nav_tile
+# variables:
+#   icon: fapro:solar_bed_bold_18
+#   name: Example
+#   navigation_path: /dashboard-home/bedroom
+#   index: 0
+#   delay_speed: 1.8
+#   animation_speed: 1
+#   text_animation_speed: 1.4
+
+animated_nav_tile:
+  variables:
+    icon: fapro:solar_bed_bold_18
+    name: Example
+    navigation_path: /config/
+    index: 0
+    delay_speed: 1.8
+    animation_speed: 1
+    text_animation_speed: 1.4
+  icon: |
+    [[[ return variables.icon; ]]]
+  name: |
+    [[[
+      const name = variables.name || '';
+      const index = Number(variables.index) || 0;
+      const textAnimationSpeed = Number(variables.text_animation_speed) || 1.4;
+
+      const fadeText = (text, startDelay) => {
+        return [...text].map((char, idx) => {
+          if (char === ' ') {
+            return `<span style="width: 0.5em; display: inline-block;"></span>`;
+          }
+          return `<span style="
+            display: inline-block;
+            animation: textfadeintro ${1 / textAnimationSpeed}s both;
+            animation-delay: ${(startDelay + index * 0.2 + idx * 0.1) / textAnimationSpeed}s;
+            letter-spacing: 0.08rem;">
+            ${char}</span>`;
+        }).join('');
+      };
+
+      return `<span>${fadeText(name, 0.2)}</span>`;
+    ]]]
+  aspect_ratio: 1/1
+  styles:
+    card:
+      - padding: 10%
+      - '--mdc-ripple-color': transparent
+      - animation: |
+          [[[
+            const delaySpeed = Number(variables.delay_speed) || 1.8;
+            const animationSpeed = Number(variables.animation_speed) || 1;
+            const delay = (0.3 + (Number(variables.index) || 0) * 0.2) / delaySpeed;
+            return `cardpopintro ${1 / animationSpeed}s ${delay}s both`;
+          ]]]
+      - border: none
+      - box-shadow: none
+    img_cell:
+      - border-radius: 50%
+      - width: 30px
+      - height: 30px
+      - background-color: var(--contrast4)
+      - justify-self: start
+      - padding: 5%
+      - animation: |
+          [[[
+            const delaySpeed = Number(variables.delay_speed) || 1.8;
+            const animationSpeed = Number(variables.animation_speed) || 1;
+            const delay = (0.7 + (Number(variables.index) || 0) * 0.2) / delaySpeed;
+            return `cardpopintro 0.6s ${delay}s both`;
+          ]]]
+    icon:
+      - width: 50%
+      - animation: |
+          [[[
+            const delaySpeed = Number(variables.delay_speed) || 1.8;
+            const animationSpeed = Number(variables.animation_speed) || 1;
+            const delay = (0.85 + (Number(variables.index) || 0) * 0.2) / delaySpeed;
+            return `cardpopintro 0.6s ${delay}s both`;
+          ]]]
+    name:
+      - padding: 5%
+      - font-size: 0.8em
+      - justify-self: start
+      - align-self: end
+      - overflow: visible
+    grid:
+      - grid-template-areas: '"i ." "n n"'
+      - grid-template-rows: min-content 1fr
+      - grid-template-columns: 1fr 1fr
+  extra_styles: |
+    @keyframes cardpopintro {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes textfadeintro {
+      from { transform: scaleX(0.2) translateX(100px); filter: blur(20px); opacity: 0; }
+      to { transform: scaleX(1) translateX(0); filter: blur(0); opacity: 1; }
+    }
+
+# | END: animated_category_card.yaml

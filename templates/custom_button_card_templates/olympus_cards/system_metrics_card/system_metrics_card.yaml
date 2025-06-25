@@ -1,0 +1,374 @@
+# | START: system_metrics_card.yaml
+# | PATH: /config/templates/custom_button_card_templates/olympus_cards/system_metrics_card/system_metrics_card.yaml
+
+
+
+# ➔ System Metrics Card
+#   Dual-view system performance display featuring circular progress arcs and animated bar charts.
+#   Shows CPU, memory, and storage metrics with sophisticated color gradients and interactive elements.
+#   Core functionality:
+#
+#     • Circular progress chart with configurable radii and angles
+#     • Animated bar charts with randomized visual variation
+#     • Color-coded metrics using gradient color stops system
+#     • Interactive hover effects and click-to-more-info functionality
+#     • Performance-optimized with animation state management and color caching
+#     • Fully configurable chart dimensions, colors, and timing
+
+
+# | EXAMPLE USAGE
+
+# ➔ REQUIRED:
+# type: custom:button-card
+# template: system_metrics_card
+
+# ➔ OPTIONAL:
+# variables:
+#   entities:
+#     cpu: sensor.processor_use
+#     memory: sensor.memory_use_percent
+#     storage: sensor.disk_use_percent_config
+#   chart:
+#     dimensions: [300, 300]
+#     radii: [122, 95, 65]
+#     arc_width: 9
+#     bars: 8
+#     bar_height: 40
+#   labels:
+#     names: [CPU, Memory, Storage]
+
+
+
+system_metrics_card:
+
+  variables:
+    entities:                                                                      # Entity configuration block
+      cpu: sensor.processor_use
+      memory: sensor.memory_use_percent
+      storage: sensor.disk_use_percent_config
+    colors:                                                                        # Color system configuration
+      stops:
+        - [0, "#72EFDD"]
+        - [25, "#0085FF"]
+        - [50, "#6510F8"]
+        - [75, "#FF2E92"]
+        - [100, "#D30101"]
+    chart:                                                                         # Centralized chart configuration
+      center: [140, 160]
+      radii: [122, 95, 65]
+      dimensions: [300, 300]
+      arc_width: 9
+      bg_arc_width: 2
+      marker_size: 13
+      marker_hole: 3
+      bg_marker: 4
+      start_angle: 270
+      sweep_angle: 270
+      stroke_width: 3.2
+      bars: 8
+      bar_height: 40
+      variation: 15
+    labels:                                                                        # Label configuration
+      names: [CPU, Memory, Storage]
+      positions: [[-50, -117], [-73, -91], [-71, -61.5]]
+
+  entity: '[[[ return variables.entities.memory; ]]]'                                # Primary entity for card state
+  show_icon: false
+  show_name: false
+  tap_action: none
+
+  styles:
+    card:
+      - width: 100%
+      - height: 300px
+      - padding: 0
+      - "--mdc-ripple-color": rgba(0,0,0,0)
+      - cursor: default
+      - animation: cardIn 0.8s cubic-bezier(.23,1,.32,1) both
+      - box-shadow: none
+      - border: none
+      - background: none
+
+  card_mod:
+    style: |
+      :host {
+        --bg-arc-color: var(--disabled-text-color);                               /* Background arc color */
+        --text-color: var(--primary-text-color);
+        --text-secondary: #8b8d9a;
+        display: block;
+      }
+      svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      svg text {
+        fill: var(--text-color);
+        font-size: 14px;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+      }
+      svg .marker {                                                                /* Circular progress markers */
+        stroke: var(--ha-card-background);
+        stroke-width: var(--stroke-width, 3.2);
+      }
+
+  custom_fields:
+    integrated_view: |
+      [[[
+        // ─── Animation State Management ─────────────
+        const getAnimationState = () => {
+          const cardElement = this.shadowRoot?.host?.closest('ha-card') || this.parentElement?.closest('ha-card');
+          if (!cardElement) return { shouldAnimate: true, setAnimated: () => {} };
+
+          const hasAnimated = cardElement.hasAttribute('data-metrics-animated');
+          return {
+            shouldAnimate: !hasAnimated,
+            setAnimated: () => cardElement.setAttribute('data-metrics-animated', 'true')
+          };
+        };
+
+        const animState = getAnimationState();
+
+        // ─── Optimized Color System ─────────────────
+        const createColorSystem = (() => {
+          const stops = variables.colors.stops;
+          const rgbCache = new Map();
+          const colorCache = new Map();
+
+          const toRGB = hex => {
+            if (rgbCache.has(hex)) return rgbCache.get(hex);
+            const num = parseInt(hex.slice(1), 16);
+            const rgb = [(num >> 16) & 0xff, (num >> 8) & 0xff, num & 0xff];
+            rgbCache.set(hex, rgb);
+            return rgb;
+          };
+
+          return pct => {
+            const key = Math.round(pct * 10) / 10;
+            if (colorCache.has(key)) return colorCache.get(key);
+
+            for (let i = 0; i < stops.length - 1; i++) {
+              const [v1, c1] = stops[i];
+              const [v2, c2] = stops[i + 1];
+              if (pct >= v1 && pct <= v2) {
+                const t = (pct - v1) / (v2 - v1);
+                const [r1, g1, b1] = toRGB(c1);
+                const [r2, g2, b2] = toRGB(c2);
+                const r = Math.round(r1 + (r2 - r1) * t);
+                const g = Math.round(g1 + (g2 - g1) * t);
+                const b = Math.round(b1 + (b2 - b1) * t);
+                const result = '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
+                colorCache.set(key, result);
+                return result;
+              }
+            }
+            return stops[stops.length - 1][1];
+          };
+        })();
+
+        // ─── Data Processing ────────────────────────
+        const getMetricValue = entity => {
+          const state = states[entity];
+          const val = parseFloat(state?.state);
+          return (state?.state !== 'unavailable' && !isNaN(val)) ? Math.max(0, Math.min(100, val)) : 0;
+        };
+
+        const metricsData = [
+          { entity: variables.entities.cpu, name: variables.labels.names[0], pct: getMetricValue(variables.entities.cpu) },
+          { entity: variables.entities.memory, name: variables.labels.names[1], pct: getMetricValue(variables.entities.memory) },
+          { entity: variables.entities.storage, name: variables.labels.names[2], pct: getMetricValue(variables.entities.storage) }
+        ];
+
+        // ─── Circular Chart Generation ──────────────
+        const generateCircularChart = () => {
+          const deg2rad = deg => deg * Math.PI / 180;
+          const cfg = variables.chart;
+          const [cx, cy] = cfg.center;
+          const startRad = deg2rad(cfg.start_angle);
+
+          const createArc = (radius, sweepPct, isBg = false) => {
+            const sweep = isBg ? cfg.sweep_angle : (sweepPct / 100) * cfg.sweep_angle;
+            if (sweep <= 0) return { path: '', marker: '' };
+
+            const endRad = startRad + deg2rad(sweep);
+            const [x1, y1] = [cx + radius * Math.cos(startRad), cy + radius * Math.sin(startRad)];
+            const [x2, y2] = [cx + radius * Math.cos(endRad), cy + radius * Math.sin(endRad)];
+            const largeArc = sweep > 180 ? 1 : 0;
+
+            const strokeWidth = isBg ? cfg.bg_arc_width : cfg.arc_width;
+            const color = isBg ? 'var(--bg-arc-color)' : createColorSystem(sweepPct);
+
+            const path = `<path d="M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round"/>`;
+
+            const markerSize = isBg ? cfg.bg_marker : cfg.marker_size;
+            const marker = isBg
+              ? `<circle cx="${x2}" cy="${y2}" r="${markerSize}" fill="${color}"/>`
+              : `<g><circle cx="${x2}" cy="${y2}" r="${cfg.marker_size}" fill="${color}" class="marker"/><circle cx="${x2}" cy="${y2}" r="${cfg.marker_hole}" fill="var(--bg-arc-color)"/></g>`;
+
+            return { path, marker };
+          };
+
+          const elements = { bg: [], fg: [], text: [] };
+
+          metricsData.forEach(({ pct }, index) => {
+            const radius = cfg.radii[index];
+            const bg = createArc(radius, 100, true);
+            const fg = createArc(radius, pct);
+
+            elements.bg.push(bg.path, bg.marker);
+            elements.fg.push(fg.path, fg.marker);
+            elements.text.push(`<text x="${cx + variables.labels.positions[index][0]}" y="${cy + variables.labels.positions[index][1]}">${variables.labels.names[index]}</text>`);
+          });
+
+          return `<svg viewBox="0 0 ${cfg.dimensions[0]} ${cfg.dimensions[1]}" preserveAspectRatio="xMidYMid meet" style="--stroke-width: ${cfg.stroke_width}; width: 100%; height: 100%;">
+            ${elements.bg.join('')}${elements.fg.join('')}${elements.text.join('')}
+          </svg>`;
+        };
+
+        // ─── Bar Chart Generation ───────────────────
+        const generateBarChart = () => {
+          const generateBars = currentValue => {
+            const bars = [];
+            const cfg = variables.chart;
+
+            for (let i = 0; i < cfg.bars; i++) {
+              const offset = Math.sin(i * 0.8) * cfg.variation + (Math.random() * 10 - 5);
+              bars.push(Math.max(5, Math.min(95, currentValue + offset)));
+            }
+            bars[cfg.bars - 1] = currentValue;                                     // Last bar shows exact value
+            return bars;
+          };
+
+          const createMetricCard = ({ entity, name, pct }, index) => {
+            if (!entity || !states[entity] || states[entity].state === 'unavailable') return '';
+
+            const bars = generateBars(pct);
+            const maxValue = Math.max(...bars);
+            const delay = animState.shouldAnimate ? 0.5 + index * 0.15 : 0;
+
+            const cardAnimation = animState.shouldAnimate
+              ? `animation: slideUp 0.6s ease-out ${delay}s both; opacity: 0; transform: translateY(20px);`
+              : 'opacity: 1; transform: translateY(0);';
+
+            const barElements = bars.map((value, barIndex) => {
+              const height = (value / maxValue) * variables.chart.bar_height;
+              const color = createColorSystem(value);
+              const isLast = barIndex === bars.length - 1;
+              const animDelay = animState.shouldAnimate ? delay + 0.3 + (barIndex * 0.05) : 0;
+
+              const barAnimation = animState.shouldAnimate
+                ? `animation: barGrow 0.6s ease-out ${animDelay}s both; transform: scaleY(0); transform-origin: bottom;`
+                : 'transform: scaleY(1); transform-origin: bottom;';
+
+              return `<div style="flex: 1; background: ${color}; height: ${height}px; border-radius: 2px; opacity: ${isLast ? '1' : '0.7'}; transition: all 0.3s ease; ${barAnimation} ${isLast ? 'box-shadow: 0 0 8px rgba(255,255,255,0.3);' : ''}"></div>`;
+            }).join('');
+
+            return `
+              <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 8px 20px 1px 20px; cursor: pointer; transition: all 0.3s ease; ${cardAnimation}"
+                  onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.transform='translateY(-2px)'"
+                  onmouseout="this.style.background='rgba(255,255,255,0.04)'; this.style.borderColor='rgba(255,255,255,0.08)'; this.style.transform='translateY(0)'"
+                  onclick="window.dispatchEvent(new CustomEvent('hass-more-info', {detail: {entityId: '${entity}'}, bubbles: true, composed: true}))">
+
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-shrink: 0; margin-bottom: 12px;">
+                  <span style="font-size: 12px; font-weight: 500;">${name}</span>
+                  <span style="font-size: 14px; font-weight: 400;">${Math.round(pct)}%</span>
+                </div>
+
+                <div style="display: flex; align-items: end; height: ${variables.chart.bar_height}px; gap: 2px; margin-bottom: 8px;">
+                  ${barElements}
+                </div>
+              </div>
+            `;
+          };
+
+          const cards = metricsData.map(createMetricCard).filter(Boolean);
+
+          const containerAnimation = animState.shouldAnimate
+            ? 'animation: fadeIn 0.5s ease-out 0.3s both; opacity: 0;'
+            : 'opacity: 1;';
+
+          return `
+            <div style="width: 100%; height: 100%; padding: 24px; ${containerAnimation} display: flex; align-items: center;">
+              <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                ${cards.length ? cards.join('') : '<div style="text-align: center; opacity: 0.5; padding: 32px; font-size: 14px;">No metric data available</div>'}
+              </div>
+            </div>
+          `;
+        };
+
+        // Mark as animated after first render to prevent re-animation
+        if (animState.shouldAnimate) {
+          setTimeout(() => animState.setAnimated(), 100);
+        }
+
+        // ─── Main Layout ────────────────────────────
+        return `
+          <div style="display: flex; align-items: stretch; height: 300px; width: 100%;">
+            <div style="width: ${variables.chart.dimensions[0]}px; height: ${variables.chart.dimensions[1]}px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+              ${generateCircularChart()}
+            </div>
+            <div style="flex: 1; display: flex; align-items: center;">
+              ${generateBarChart()}
+            </div>
+          </div>
+        `;
+      ]]]
+
+  extra_styles: |
+    @keyframes cardIn {
+      0% {
+        transform: scale(0.96);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {                                                           /* Staggered card entrance */
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes barGrow {                                                           /* Individual bar growth animation */
+      0% {
+        transform: scaleY(0);
+      }
+      100% {
+        transform: scaleY(1);
+      }
+    }
+
+    ha-card {
+      position: relative !important;
+    }
+
+    .card-content {
+      position: relative !important;
+      padding: 0 !important;
+      height: 300px !important;
+    }
+
+
+
+# | END: system_metrics_card.yaml
