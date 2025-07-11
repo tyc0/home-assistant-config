@@ -1,95 +1,69 @@
+# | START: test_theme.yaml
+# |  PATH: /config/themes/test_theme.yaml
+
+Test-Theme:
 
 
 
-
-
-
-test_theme:
-  card-mod-theme: Test Theme
+  card-mod-theme: 'Test-Theme'
 
   card-mod-root-yaml: |
-    .: |
-
-      /* Header: make background transparent */
-      .header {
-        background-color: transparent !important;
-      }
-
-      /* Toolbar: add blur and dark translucent background */
-      .toolbar {
-        backdrop-filter: blur(10px) saturate(100%);
-        background-color: rgba(0, 0, 0, .5);
+    .:                                                                                  /* Target the root element */
+      * {                                                                               /* For every single thing you can see */
+        font-family: Poppins, Raleway, SF Pro Text, sans-serif, system-ui !important;   /* set the font family */
       }
 
 
-    ha-tabs$: |
-      /* Tab titles: switch from all-caps to normal case */
-      #tabsContainer {
-        text-transform: capitalize;
-        font-size: 25px;
-      }
 
-  card-mod-view-yaml: |
-    .: |
-    hui-vertical-stack-card$: |
-      /* View background: sets background of vertical-stack to solid black */
-      #root {
-        background-color: rgb(0, 0, 0);
-      }
+  card-mod-sidebar-yaml: |
+    .menu .title {                                                                      /* Target the title at the top of the side bar */
+      font-weight: 600;                                                                 /* make the font bold */
+    }
 
-  card-mod-card-yaml: |
-    .: |
-      /* Heading card: white, bold text with larger size */
-      ha-card.type-heading .content {
-        color: white !important;
-        font-size: 22px;
-        font-weight: bold;
-      }
+    :host([expanded]) paper-icon-item {                                                 /* When the side bar is stretched wide */
+      width: 100%;                                                                      /* let each menu button fill the whole width */
+    }
 
-      /* Tile card (inactive): blur effect with semi-transparent black background and white text/icons */
-      ha-card.type-tile:not(.active) {
-        backdrop-filter: blur(10px) saturate(100%);
-        background-color: rgba(0, 0, 0, .3);
-        --primary-text-color: white;
-        --tile-color: white !important;
-      }
+    .iron-selected paper-icon-item {                                                    /* For the menu button that's been clicked */
+      border-left: 3px solid var(--accent-color) !important;                            /* draw a 3 px coloured strip on its left */
+      border-radius: var(--ha-card-border-radius) !important;                           /* round its corners the same way as cards */
+      padding-left: 9px !important;                                                     /* nudge its content right so the coloured strip aligns */
+    }
 
-      /* Expander card (base): transparent background, no shadow or transition effects */
-      ha-card.expander-card {
-        background-color: transparent !important;
-        box-shadow: none;
-        transition: none !important;
-      }
+    .profile.iron-selected paper-icon-item {                                            /* If the profile button gets clicked */
+      padding-left: 1px !important;                                                     /* nudge it only 1 px (tiny strip, tiny nudge) */
+    }
 
-      /* Expander card (content spacing): adds top margin between header and expanded content */
-      ha-card.expander-card .children-container {
-        margin-top: 8px;
-      }
+    paper-icon-item span {                                                              /* Inside every menu button, for the text part */
+      font-weight: normal !important;                                                   /* dont bold the text */
+    }
 
-      /* Expander card (hover): header highlights on hover when expanded */
-      ha-card.expander-card .header:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-      }
 
-      /* Expander card (inactive): circular toggle button style for collapsed state */
-      ha-card.expander-card:not(.active) .header {
-        position: absolute;
-        right: 5px;
-        cursor: pointer;
-        padding: 5px;
-        margin: 0;
-        border-radius: 100%;
-        transition: background 0s;
-      }
 
-      /* Expander icon (inactive): disables animation when collapsed */
-      ha-card.expander-card:not(.active) .ico.svelte-icqkke {
-        transition-duration: 0s;
-      }
+  card-mod-more-info-yaml: |
+    :host([card]) .content .container {                                                 /* Inside pop-up info cards */
+      padding: 0px !important;                                                          /* remove padding so the content touches the edges */
+    }
 
-      /* Vertical-stack-in-card: remove background, shadow, and allow overflow for child elements */
-      ha-card.type-custom-vertical-stack-in-card {
-        background-color: transparent !important;
-        box-shadow: none;
-        overflow: initial !important;
+    ha-dialog {                                                                         /* Target the pop-up window itself (every 'dialog') */
+      --vertical-align-dialog: var(--tablet-popup-align-dialog) !important;             /* Line it up vertically the same way tablets do */
+      --dialog-surface-margin-top: var(--tablet-popup-margin-top) !important;           /* Give it the same top gap tablets expect */
+      --dialog-box-shadow: 0 0px 16px 4px rgba(101,115,134,.15), 0 16px 64px 32px rgba(101,115,134,.5) !important;  /* Add shadow */
+      --mdc-theme-surface: transparent !important;                                      /* Make its base transparent */
+      --bar-card-border-radius: 12px !important;                                        /* Any bar-cards inside get 12 px rounded corners */
+      --ha-card-border-radius: 0px !important;                                          /* remove curved corners for Native Home Assistant cards */
+      --ha-card-background: none !important;                                            /* Strip the white background so custom styles show */
+      --button-card-border-radius: 10%;                                                 /* Buttons inside become slightly rounded (10 % curve) */
+    }
+
+    ha-dialog *:focus-visible {                                                         /* When an item in the pop-up gains keyboard focus */
+      outline: none !important;                                                         /* don't draw blue outline ring */
+    }
+
+    @media (max-width: 800px), (max-height: 500px) {                                    /* If the screen is small (phone-sized) */
+      ha-dialog {                                                                       /* Target the pop-up window */
+        --mdc-dialog-min-width: 100vw !important;                                       /* Make it stretch the full screen width */
+        --mdc-dialog-min-height: 100vh !important;                                      /* Make it stretch the full screen height */
+        --popup-border-radius: 0 !important;                                            /* Flatten corners to mimic full-screen page */
       }
+    }

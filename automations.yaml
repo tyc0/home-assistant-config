@@ -2708,6 +2708,11 @@
     - binary_sensor.ds06_position
     - binary_sensor.withings_c_in_bed
     - binary_sensor.withings_e_in_bed
+    - binary_sensor.presence_sensor_fp2_c8ec_presence_sensor_3
+    - binary_sensor.presence_sensor_fp2_c8ec_presence_sensor_5
+    - binary_sensor.presence_sensor_fp2_c8ec_presence_sensor_6
+    - binary_sensor.presence_sensor_fp2_c8ec_presence_sensor_2
+    - binary_sensor.presence_sensor_fp2_c8ec_presence_sensor_1
     to: 'on'
     trigger: state
   actions:
@@ -2727,7 +2732,10 @@
         data:
           media_content_id: media-source://media_source/local/sound/tech_click_2s_ver12.wav
           media_content_type: audio/x-wav
-    - if: '{{ is_state(''input_boolean.c_pc_display_notifications'', ''on'') }}'
+    - if:
+      - condition: template
+        value_template: '{{ is_state(''input_boolean.c_pc_display_notifications'',
+          ''on'') }}'
       then:
       - action: rest_command.send_hass_agent_notification
         continue_on_error: true
@@ -2735,7 +2743,9 @@
           title: '{{ title }}'
           message: '{{ message }}'
     - sequence:
-      - if: '{{ not is_state(''person.cam'', ''home'') }}'
+      - if:
+        - condition: template
+          value_template: '{{ not is_state(''person.cam'', ''home'') }}'
         then:
         - action: notify.mobile_app_phone_c
           continue_on_error: true
@@ -2757,7 +2767,9 @@
             tag: '{{ tag_base }}-tablet'
       - delay: 15
       - parallel:
-        - if: '{{ not is_state(''person.cam'', ''home'') }}'
+        - if:
+          - condition: template
+            value_template: '{{ not is_state(''person.cam'', ''home'') }}'
           then:
           - action: notify.mobile_app_phone_c
             continue_on_error: true

@@ -1,36 +1,26 @@
-# Tile Feature Test Entities Package
-# Place this file in your packages folder (e.g., packages/tile_features_test_entities.yaml)
 
-input_select:
-  tester:
-    name: "Test"
-    options:
-      - "A"
-      - "B"
-      - "C"
-      - "D"
-      - "E"
-      - "F"
-      - "G"
-      - "H"
-      - "I"
-    icon: mdi:format-list-bulleted
+
+
+
+input_boolean:
+  test_boolean:
+    name: "Test Boolean"
 
 input_number:
-  tester:
-    name: "Test"
+  test_number:
+    name: "Test Number"
     min: 0
     max: 255
     step: 1
-    icon: mdi:numeric-0-box
+
+input_select:
+  test_select:
+    name: "Test Select"
+    options:
+      - Option A
+      - Option B
+      - Option C
 
 input_text:
-  tester:
-    name: "Test"
-    icon: mdi:text-box
-
-input_boolean:
-  tester:
-    name: "Test"
-
-
+  test_text:
+    name: "Test Text"

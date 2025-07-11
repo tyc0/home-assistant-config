@@ -25,13 +25,22 @@ binary_sensor:
 input_datetime:
 
 # ➔ Echo Alarm Time
-#   Displays the time of the Echo Show 5 alarm
+#   Displays the time of the Echo Show alarm
   echo_alarm_time:
     name: Echo Alarm Time
     has_date: false
     has_time: true
     initial: "09:00:00"
 
+input_number:
+  echo_timer_minutes:
+    name: "Echo Timer Minutes"
+    min: 1
+    max: 480
+    step: 1
+    initial: 15
+    unit_of_measurement: "minutes"
+    mode: box
 
 
 # ╭────────────────────╮

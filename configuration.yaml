@@ -65,7 +65,7 @@ panel_custom:
 # ╰────────────────────╯
 sensor:
   - platform:                        chatreader
-    scan_interval:                   30
+    scan_interval:                   5
 
 
 # |   END: configuration.yaml

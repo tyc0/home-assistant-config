@@ -2,25 +2,13 @@
 # | START: lights2.yaml
 # |  PATH: /config/packages/light/lights2.yaml
 
-
-# ╭────────────────────╮
-# │   INPUT NUMBER
-# ╰────────────────────╯
-input_number:
-
-# ➔ Brightness
-  brightness:
-    name: Brightness
-    initial: 0
-    min: 0
-    max: 255
-    step: 1
-    icon: mdi:brightness-5
+# Note: light.bedroom entity refers to the office light due to historical room changes.
+# Entity ID remains unchanged to avoid breaking existing references throughout the system.
 
 
 
 # ╭────────────────────╮
-# │   INPUT SELECT
+# │   INPUT SELECT     │
 # ╰────────────────────╯
 input_select:
 
@@ -28,92 +16,175 @@ input_select:
   light_dropdown_areas:
     name: "Rooms"
     options:
-      - "Enhy's room"
-      - "Cam's room"
-      - "Top floor"
-      - "Bathroom"
-    icon: fapro:duotone_layer_group
-
-# ➔ Light Dropdown Room 01 (Cam's bedroom)
-  light_dropdown_room_01:
-    name: "Cam's bedroom"
-    options:
-      - "Ceiling"
-      - "Desk"
-      - "Bed"
-      - "Mirror"
-      - "Fans"
-    icon: fas:c
-
-# ➔ Light Dropdown Room 02 (Enhy's bedroom)
-  light_dropdown_room_02:
-    name: "Enhy's bedroom"
-    options:
-      - "Bed lamp"
-      - "Bedframe"
-      - "Sofas"
-      - "Ceiling"
-      - "Desk Pole"
-      - "Desk panels"
-    icon: fas:e
-
-# ➔ Light Dropdown Room 03 (House areas)
-  light_dropdown_room_03:
-    name: "House areas"
-    options:
-      - "Bathroom"
-      - "Stairs"
-    icon: fas:person-walking
+      - "Office"      # light.bedroom (legacy naming)
+      - "Bedroom"     # light.room_02
+      - "Floor 02"    # light.second_floor
+      - "Floor 01"    # light.first_floor
+      - "Bathroom"    # light.bathroom_light
+    icon: mdi:home-group
 
 
 
 # ╭────────────────────╮
-# │   SENSOR
-# ╰────────────────────╯
-sensor:
-  - platform: template
-
-# ➔ Dynamic Light Entity
-    sensors:
-      dynamic_light_entity:
-        value_template: >
-          {% if is_state('input_select.light_dropdown_areas', "Cam's room") %}
-            light.bedroom
-          {% elif is_state('input_select.light_dropdown_areas', "Enhy's room") %}
-            light.room_02
-          {% elif is_state('input_select.light_dropdown_areas', "Top floor") %}
-            light.2nd_floor
-          {% elif is_state('input_select.light_dropdown_areas', "Bathroom") %}
-            light.bathroom_light
-          {% else %}
-            light.bedroom
-          {% endif %}
-
-
-
-
-
-
-
-# ╭────────────────────╮
-# │   INPUT BOOLEAN
+# │   INPUT BOOLEAN    │
 # ╰────────────────────╯
 input_boolean:
 
-# ➔ Cam's Bedroom Auto Mode
-  lights_room01_automode:
-    name: Lights - C room - Auto mode
+# ➔ Auto-mode toggles (when off, suppress automations)
+  lights_office_automode:
+    name: Lights - Office - Auto mode
     icon: mdi:lightbulb-auto
-
-# ➔ Enhy's Bedroom Auto Mode
-  lights_room02_automode:
-    name: Lights - E room - Auto mode
+  lights_bedroom_automode:
+    name: Lights - Bedroom - Auto mode
     icon: mdi:lightbulb-auto
-
-# ➔ Top Floor Auto Mode  
-  lights_room03_automode:
+  lights_floor02_automode:
     name: Lights - Floor 02 - Auto mode
     icon: mdi:lightbulb-auto
+  lights_floor01_automode:
+    name: Lights - Floor 01 - Auto mode
+    icon: mdi:lightbulb-auto
+  lights_bathroom_automode:
+    name: Lights - Bathroom - Auto mode
+    icon: mdi:lightbulb-auto
+
+# ➔ Card-visibility flags (toggled by automation)
+  show_office_light_card:
+    name: Show Office Light Card
+    icon: mdi:card
+  show_bedroom_light_card:
+    name: Show Bedroom Light Card
+    icon: mdi:card
+  show_floor02_light_card:
+    name: Show Floor 02 Light Card
+    icon: mdi:card
+  show_floor01_light_card:
+    name: Show Floor 01 Light Card
+    icon: mdi:card
+  show_bathroom_light_card:
+    name: Show Bathroom Light Card
+    icon: mdi:card
+
+
+
+# ╭────────────────────╮
+# │   TEMPLATE         │
+# ╰────────────────────╯
+template:
+
+  - light:
+
+# ➔ Virtual 1st Floor Light
+      - name: "1st Floor"
+        unique_id: light_first_floor_virtual
+        state: >
+          {% set s = states('switch.sonoff_zbminil2_switch') %}
+          {{ s if s in ['on','off'] else 'off' }}
+        turn_on:
+          service: switch.turn_on
+          target:
+            entity_id: switch.sonoff_zbminil2_switch
+        turn_off:
+          service: switch.turn_off
+          target:
+            entity_id: switch.sonoff_zbminil2_switch
+        availability: >
+          {{ states('switch.sonoff_zbminil2_switch') in ['on','off'] }}
+
+  - sensor:
+
+# ➔ Dynamic Light Entity
+      - name: "Dynamic Light Entity"
+        unique_id: sensor_dynamic_light_entity
+        state: >
+          {% set room_map = {
+            "Office":   "light.bedroom",
+            "Bedroom":  "light.room_02",
+            "Floor 02": "light.second_floor",
+            "Floor 01": "light.first_floor",
+            "Bathroom": "light.bathroom_light"
+          } %}
+          {{ room_map.get(states('input_select.light_dropdown_areas'), 'light.bedroom') }}
+
+
+
+# ╭────────────────────╮
+# │   AUTOMATION       │
+# ╰────────────────────╯
+automation:
+
+# ➔ Light Card Visibility (Unified)
+  - alias: "Light Card Visibility (Unified)"
+    description: >
+      Show each room's card on any on/off event, then hide it 5 min after off—
+      only if that room's auto-mode is enabled.
+    mode: parallel      # allow each light's off-delay to run independently
+    max: 5              # up to 5 concurrent instances (one per room)
+
+    trigger:
+# ➔ Trigger on any light state change to on/off
+      - platform: state
+        entity_id:
+          - light.bedroom
+          - light.room_02
+          - light.second_floor
+          - light.first_floor
+          - light.bathroom_light
+        to:
+          - "on"
+          - "off"
+
+    variables:
+# ➔ Map each light to its toggles
+      light_map: &light_map
+        light.bedroom:
+          auto_toggle: input_boolean.lights_office_automode
+          show_toggle: input_boolean.show_office_light_card
+        light.room_02:
+          auto_toggle: input_boolean.lights_bedroom_automode
+          show_toggle: input_boolean.show_bedroom_light_card
+        light.second_floor:
+          auto_toggle: input_boolean.lights_floor02_automode
+          show_toggle: input_boolean.show_floor02_light_card
+        light.first_floor:
+          auto_toggle: input_boolean.lights_floor01_automode
+          show_toggle: input_boolean.show_floor01_light_card
+        light.bathroom_light:
+          auto_toggle: input_boolean.lights_bathroom_automode
+          show_toggle: input_boolean.show_bathroom_light_card
+
+# ➔ Toggles for this triggered light
+      this_auto: "{{ light_map[trigger.entity_id].auto_toggle }}"
+      this_show: "{{ light_map[trigger.entity_id].show_toggle }}"
+
+    condition:
+# ➔ Only proceed if that room's auto-mode is on
+      - condition: state
+        entity_id: "{{ this_auto }}"
+        state: "on"
+
+    action:
+# ➔ Immediately show the card
+      - service: input_boolean.turn_on
+        target:
+          entity_id: "{{ this_show }}"
+
+# ➔ If it was an off-event, schedule hide 5 min later
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ trigger.to_state.state == 'off'
+                     and trigger.from_state.state == 'on' }}
+            sequence:
+              - delay: "00:05:00"
+# ➔ Check auto-mode is still enabled before hiding
+              - condition: state
+                entity_id: "{{ this_auto }}"
+                state: "on"
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: "{{ this_show }}"
+
 
 
 # |   END: lights2.yaml
