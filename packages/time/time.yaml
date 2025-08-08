@@ -25,33 +25,16 @@ sensor:
 #  │   TEMPLATE
 #  ╰────────────────────╯
 template:
-  - sensor:
 
 # ➔ Current Time Seconds
-#   Displays the current time in seconds
-      - name: "current_time_seconds"
-        unique_id: current_time_seconds
-        state: "{{ now().timestamp() | int }}"
-
-
-
-#  ╭────────────────────╮
-#  │   AUTOMATION
-#  ╰────────────────────╯
-automation:
-
-# ➔ Refresh Current Time Seconds
-#   Refreshes the current time in seconds
-  refresh_current_time_seconds:
-    id: refresh_current_time_seconds
-    alias: "Refresh Current Time Seconds"
-    trigger:
+#    Unlocks per-second custom:button-card updates via triggers_update
+  - trigger:
       - platform: time_pattern
         seconds: "*"
-    action:
-      - service: homeassistant.update_entity
-        entity_id: sensor.current_time_seconds
-
+    sensor:
+      - name: "Current Time Seconds"
+        unique_id: current_time_seconds
+        state: "{{ now().timestamp() | int }}"
 
 
 

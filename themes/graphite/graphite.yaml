@@ -8,7 +8,7 @@ Graphite:
   # https://github.com/TilmanGriesel/graphite
 
   #------------------------------------------------------
-  # This file was generated at 2025-06-14 15:49:23
+  # This file was generated at 2025-08-04 21:36:48
   #------------------------------------------------------
 
   card-mod-theme: Graphite
@@ -82,6 +82,11 @@ Graphite:
   token-color-codemirror-keyword: rgb(140, 169, 255)
   token-color-codemirror-number: rgb(255, 91, 29)
   token-shadow-card-medium: 0 3px 8px 0 rgba(0, 0, 0, 0.12)
+  # ..............................................................................
+  # Font Weight
+  token-weight-font-body: 400
+  token-weight-font-title: 600
+  token-weight-font-title-card: var(--token-weight-font-title)
 
   # ------------------------------------------------------------------------------
   # Size tokens
@@ -130,7 +135,6 @@ Graphite:
   # ..............................................................................
   # Font
   token-font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"
-  token-weight-font-title-card: 500
 
   # ------------------------------------------------------------------------------
   # Definitions

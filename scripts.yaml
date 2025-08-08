@@ -4344,3 +4344,72 @@ test_update_thumbnails:
       message: 'Set current image to: /local/media/image/ai_generated/ai_image_20250521070052.jpg'
       level: info
     action: system_log.write
+tts_test:
+  sequence:
+  - action: tts.speak
+    metadata: {}
+    data:
+      cache: true
+      media_player_entity_id: media_player.home_assistant_voice_09dbbd_media_player
+      message: Hey. Someone's just opened the front door to the house.
+    target:
+      entity_id: tts.openai_gpt_4o_mini_tts
+  alias: tts test
+  description: ''
+test_tts_script:
+  alias: Ask permission to turn off lights
+  sequence:
+  - action: assist_satellite.ask_question
+    response_variable: light_response
+    data:
+      entity_id: assist_satellite.home_assistant_voice_09dbbd_assist_satellite
+      question: Hey there Ehknee. You've been in bed for a while. Do you mind if I
+        turn off the lights?
+      preannounce: true
+      preannounce_media_id:
+        media_content_id: media-source://media_source/local/sound/magic_notification_4s_ver2.wav
+        media_content_type: audio/x-wav
+        metadata:
+          title: magic_notification_4s_ver2.wav
+          media_class: music
+          navigateIds:
+          - {}
+          - media_content_type: app
+            media_content_id: media-source://media_source
+          - media_content_type: ''
+            media_content_id: media-source://media_source/local/sound
+      answers:
+      - id: 'yes'
+        sentences:
+        - ok
+        - 'yes'
+        - no problem
+        - go ahead
+        - go on
+        - it's ok
+        - yes you can
+        - alright
+      - id: 'no'
+        sentences:
+        - don't do it
+        - 'no'
+        - please don't
+        - I don't want
+        - stop
+        - go away
+        - leave them on
+        - not really
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ light_response.id == ''yes'' }}'
+      sequence:
+      - target:
+          entity_id: light.room_02
+        action: light.turn_off
+    default:
+    - action: assist_satellite.announce
+      data:
+        message: Okay, I’ll leave the lights on.
+      target:
+        entity_id: assist_satellite.home_assistant_voice_09dbbd_assist_satellite

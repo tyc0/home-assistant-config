@@ -1,0 +1,19 @@
+
+# | START: home_activity_alerts.yaml
+# | PATH: /config/packages/security/home_activity_alerts.yaml
+
+
+# ╭────────────────────╮
+# │ INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+
+# ➔ Toggle for motion alert sounds
+#   Used in active zones card on dashboard
+  motion_alert_sound_mode:
+    name: "Motion Alert Sound Mode"
+    icon: "mdi:bell"
+
+
+
+# | END: home_activity_alerts.yaml

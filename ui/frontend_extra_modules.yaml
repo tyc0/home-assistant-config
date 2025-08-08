@@ -11,7 +11,6 @@
   - /local/add_item.js                                               # Add item
   - /hacsfiles/Bubble-Card/bubble-pop-up.js                          # Bubble pop up
   - /hacsfiles/lovelace-card-mod/card-mod.js                         # Card mod
-  - /local/toolbar-clock.js                                          # Toolbar clock
   - /local/community/custom-brand-icons/custom-brand-icons.js        # Custom brand icons
   - /hacsfiles/material-you-utilities/material-you-utilities.min.js  # Material you utilities
 

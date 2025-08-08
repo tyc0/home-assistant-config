@@ -1,0 +1,123 @@
+# | START: light_pill.yaml
+# |  PATH: /config/templates/custom_button_card_templates/olympus_cards/light_pill.yaml
+
+
+# ➔ Light Pill
+#   Custom button card template that displays a compact pill-shaped light control
+#   with dynamic state tracking and auto-hide functionality. Core functionality:
+#
+#     • Real-time timestamp showing time since last state change
+#     • Auto-hide when off for 5min, but always shows in edit mode
+#     • Performance-optimized update intervals (1s/1m/1h based on elapsed time)
+#     • Visual state feedback with yellow glow when on, muted when off
+#     • Pill design with 38px height and rounded edges for minimal footprint
+
+# Usage example:
+# type: custom:button-card
+# template: light_pill
+# entity: light.bedroom
+#
+# With custom timeout (minutes):
+# type: custom:button-card
+# template: light_pill
+# entity: light.kitchen
+# variables:
+#   timeout: 10
+
+light_pill:
+  triggers_update:
+    - "[[[ return entity.entity_id; ]]]"
+    - sensor.current_time_seconds
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+  double_tap_action:
+    action: more-info
+  show_icon: true
+  show_state: false
+  name: "[[[ return entity.attributes.friendly_name||'Light'; ]]]"
+  custom_fields:
+    timestamp: |
+      [[[
+        const s=(Date.now()-Date.parse(entity.last_changed))/1e3,e=Math.max(0,isFinite(s)?s:0),f=n=>n<60?`${~~n||1}s`:n<3600?`${~~(n/60)}m`:`${~~(n/3600)}h`;
+        clearTimeout(this._timer);
+        if(e<3600)this._timer=setTimeout(()=>this.requestUpdate(),e<60?1e3:6e4);
+        return`<span>${entity?.last_changed?f(e):'--'}</span>`;
+      ]]]
+  state:
+    - value: "on"
+      icon: mdi:lightbulb-on
+      styles:
+        card:
+          - background: var(--ha-card-background)
+          - border: 3px solid rgba(245, 234, 196, 1)
+          - box-shadow: 0 1px 15px rgba(255, 243, 160, 0.2)
+        icon:
+          - color: rgba(245, 234, 196, 1)
+        custom_fields:
+          timestamp:
+            - color: rgba(250, 250, 250, 0.5)
+    - value: "off"
+      icon: mdi:lightbulb-off
+      styles:
+        card:
+          - background: var(--ha-card-background)
+          - border: 3px solid var(--ha-card-background)
+        icon:
+          - color: var(--secondary-text-color)
+          - opacity: 0.4
+        custom_fields:
+          timestamp:
+            - color: var(--secondary-text-color)
+  styles:
+    card:
+      - border-radius: 999px
+      - height: 38px
+      - min-width: 80px
+      - padding: 0 12px
+      - transition: all 0.3s ease
+      - "-webkit-font-smoothing": antialiased
+      - text-rendering: optimizeLegibility
+      
+      # Conditionally hide the card if it's been off for 5+ minutes and not in edit mode
+      - display: |
+          [[[        
+            const last = new Date(entity?.last_changed || 0);
+            const mins = (Date.now() - last.getTime()) / 60000;
+            const isEdit = window.location.search.includes('edit=1');
+            return (entity?.state !== 'on' && mins >= 5 && !isEdit) ? 'none' : 'block';
+          ]]]         
+    grid:
+      - display: grid
+      - grid-template-areas: "\"i timestamp\" \"i n\""
+      - grid-template-columns: 0.5fr 1fr
+      - grid-template-rows: 1fr 1fr
+      - column-gap: 8px
+      - row-gap: 0
+    icon:
+      - grid-area: i
+      - width: 16px
+      - height: 16px
+      - align-self: center
+      - justify-self: center
+    name:
+      - grid-area: "n"
+      - font-family: Roboto, sans-serif
+      - font-weight: 500
+      - font-size: 12px
+      - line-height: 1
+      - align-self: start
+      - justify-self: start
+      - white-space: nowrap
+      - letter-spacing: 0.05px
+    custom_fields:
+      timestamp:
+        - grid-area: timestamp
+        - font-family: Roboto, sans-serif
+        - font-weight: 500
+        - font-size: 10px
+        - line-height: 12px
+        - letter-spacing: 0.3px
+        - align-self: end
+        - justify-self: start

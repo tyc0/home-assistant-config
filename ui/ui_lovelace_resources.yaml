@@ -11,6 +11,9 @@
   - url: /hacsfiles/horizontal-waterfall-history-card/horizontal-waterfall-history-card.js
     type: module
 
+# ➔ Prompt manager card
+  - url: /local/prompt-manager.js
+    type: module
 
 # ➔ Modern circular gauge card
   - url: /hacsfiles/modern-circular-gauge/modern-circular-gauge.js

@@ -19,7 +19,7 @@ input_select:
       - "Office"      # light.bedroom (legacy naming)
       - "Bedroom"     # light.room_02
       - "Floor 02"    # light.second_floor
-      - "Floor 01"    # light.first_floor
+      - "Floor 01"    # light.floor_01
       - "Bathroom"    # light.bathroom_light
     icon: mdi:home-group
 
@@ -29,6 +29,10 @@ input_select:
 # │   INPUT BOOLEAN    │
 # ╰────────────────────╯
 input_boolean:
+
+  lights_menu_toggle:
+    name: Lights - Toggle menu
+    icon: mdi:lightbulb
 
 # ➔ Auto-mode toggles (when off, suppress automations)
   lights_office_automode:
@@ -73,9 +77,10 @@ template:
 
   - light:
 
-# ➔ Virtual 1st Floor Light
-      - name: "1st Floor"
-        unique_id: light_first_floor_virtual
+# ➔ Virtual Floor 01 Light
+      - name: "Floor 01"
+        unique_id: light_floor_01_virtual
+        icon: mdi:numeric-1-box
         state: >
           {% set s = states('switch.sonoff_zbminil2_switch') %}
           {{ s if s in ['on','off'] else 'off' }}
@@ -100,90 +105,13 @@ template:
             "Office":   "light.bedroom",
             "Bedroom":  "light.room_02",
             "Floor 02": "light.second_floor",
-            "Floor 01": "light.first_floor",
+            "Floor 01": "light.floor_01",
             "Bathroom": "light.bathroom_light"
           } %}
           {{ room_map.get(states('input_select.light_dropdown_areas'), 'light.bedroom') }}
 
 
 
-# ╭────────────────────╮
-# │   AUTOMATION       │
-# ╰────────────────────╯
-automation:
-
-# ➔ Light Card Visibility (Unified)
-  - alias: "Light Card Visibility (Unified)"
-    description: >
-      Show each room's card on any on/off event, then hide it 5 min after off—
-      only if that room's auto-mode is enabled.
-    mode: parallel      # allow each light's off-delay to run independently
-    max: 5              # up to 5 concurrent instances (one per room)
-
-    trigger:
-# ➔ Trigger on any light state change to on/off
-      - platform: state
-        entity_id:
-          - light.bedroom
-          - light.room_02
-          - light.second_floor
-          - light.first_floor
-          - light.bathroom_light
-        to:
-          - "on"
-          - "off"
-
-    variables:
-# ➔ Map each light to its toggles
-      light_map: &light_map
-        light.bedroom:
-          auto_toggle: input_boolean.lights_office_automode
-          show_toggle: input_boolean.show_office_light_card
-        light.room_02:
-          auto_toggle: input_boolean.lights_bedroom_automode
-          show_toggle: input_boolean.show_bedroom_light_card
-        light.second_floor:
-          auto_toggle: input_boolean.lights_floor02_automode
-          show_toggle: input_boolean.show_floor02_light_card
-        light.first_floor:
-          auto_toggle: input_boolean.lights_floor01_automode
-          show_toggle: input_boolean.show_floor01_light_card
-        light.bathroom_light:
-          auto_toggle: input_boolean.lights_bathroom_automode
-          show_toggle: input_boolean.show_bathroom_light_card
-
-# ➔ Toggles for this triggered light
-      this_auto: "{{ light_map[trigger.entity_id].auto_toggle }}"
-      this_show: "{{ light_map[trigger.entity_id].show_toggle }}"
-
-    condition:
-# ➔ Only proceed if that room's auto-mode is on
-      - condition: state
-        entity_id: "{{ this_auto }}"
-        state: "on"
-
-    action:
-# ➔ Immediately show the card
-      - service: input_boolean.turn_on
-        target:
-          entity_id: "{{ this_show }}"
-
-# ➔ If it was an off-event, schedule hide 5 min later
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: >
-                  {{ trigger.to_state.state == 'off'
-                     and trigger.from_state.state == 'on' }}
-            sequence:
-              - delay: "00:05:00"
-# ➔ Check auto-mode is still enabled before hiding
-              - condition: state
-                entity_id: "{{ this_auto }}"
-                state: "on"
-              - service: input_boolean.turn_off
-                target:
-                  entity_id: "{{ this_show }}"
 
 
 

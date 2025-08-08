@@ -199,58 +199,79 @@
         entity_id: input_text.most_recent_scene_acvivated
   mode: single
 - id: '1697824736132'
-  alias: Presence - House door
+  alias: tts - activity alerts
   description: ''
   triggers:
   - entity_id:
     - binary_sensor.vs00_vibration
     from:
     to: 'on'
-    id: Front door moved
+    id: house_door_vibration
     trigger: state
+  - trigger: state
+    entity_id:
+    - binary_sensor.presence_sensor_fp2_9c35_presence_sensor_6
+    to: 'on'
+    id: upper_stairs_presence
+  - trigger: state
+    entity_id:
+    - binary_sensor.vs01_vibration
+    - binary_sensor.ds00_position
+    to: 'on'
+    id: office_entrance_activity
   conditions: []
   actions:
-  - alias: Room alert - Purple
-    if:
-    - condition: and
-      conditions:
-      - condition: and
-        conditions:
-        - alias: Triggers
-          condition: trigger
-          id:
-          - Front door moved
-          - C08 motion detected
-        - alias: Check if an alert method is enabled (either light or sound)
-          condition: template
-          value_template: '{{ is_state(''input_boolean.room_alert_flash_mode'', ''on'')
-            or is_state(''input_boolean.room_alert_sound_mode'', ''on'') }}'
-    then:
-    - alias: Activate room alert (variable data included)
-      data:
-        light_entity: light.room_02
-        flash_color: purple
-        flash_duration: 00:00:01
-        sound_file: tech_alert_4s_ver2.wav
-        sound_device: media_player.sonos_speaker
-      action: script.room_alert
-    - target:
-        entity_id: media_player.sonos_speaker
-      data:
-        media_content_id: media-source://media_source/local/sound/tech_alert_4s_ver2.wav
-        media_content_type: audio/mp4
-      metadata:
-        title: config_www_sound_popup.m4a
-        thumbnail:
-        media_class: music
-        children_media_class:
-        navigateIds:
-        - {}
-        - media_content_type: app
-          media_content_id: media-source://media_source
-        - media_content_type: ''
-          media_content_id: media-source://media_source/local/sound
-      action: media_player.play_media
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - house_door_vibration
+      sequence:
+      - action: tts.speak
+        metadata: {}
+        data:
+          cache: true
+          media_player_entity_id: media_player.home_assistant_voice_09dbbd_media_player
+          message: Hey. Someone's just opened the front door to the house.
+        target:
+          entity_id: tts.openai_gpt_4o_mini_tts
+    - conditions:
+      - condition: trigger
+        id:
+        - upper_stairs_presence
+      - condition: time
+        after: 00:01:00
+        before: 08:00:00
+        weekday:
+        - sun
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+        - sat
+      sequence:
+      - action: tts.speak
+        metadata: {}
+        data:
+          cache: true
+          media_player_entity_id: media_player.home_assistant_voice_09dbbd_media_player
+          message: Hey, someone's on the stairs to floor two
+        target:
+          entity_id: tts.openai_gpt_4o_mini_tts
+    - conditions:
+      - condition: trigger
+        id:
+        - office_entrance_activity
+      sequence:
+      - action: tts.speak
+        metadata: {}
+        data:
+          cache: true
+          media_player_entity_id: media_player.home_assistant_voice_09dbbd_media_player
+          message: Hey. The office door's just been opened
+        target:
+          entity_id: tts.openai_gpt_4o_mini_tts
   mode: single
 - id: '1698694409909'
   alias: Time - Hourly triggers
@@ -3551,7 +3572,7 @@
   - condition: template
     value_template: '
 
-      {{ trigger.event.data.clientId == "e" and "@s" in trigger.event.data.key.remoteJid
+      {{ trigger.event.data.clientId == "c" and "@s" in trigger.event.data.key.remoteJid
       and ''status@broadcast'' not in trigger.event.data.key.remoteJid }}'
   actions:
   - action: input_text.set_value
@@ -3915,3 +3936,169 @@
             '
         action: persistent_notification.create
   mode: single
+- id: '1752883394800'
+  alias: tts question test
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.room_02
+    to: 'on'
+    from: 'off'
+  conditions: []
+  actions:
+  - action: assist_satellite.ask_question
+    data:
+      question: Say something
+      entity_id: assist_satellite.home_assistant_voice_09dbbd_assist_satellite
+    response_variable: answer
+  - action: assist_satellite.announce
+    data:
+      message: You said {{ answer.sentence }}
+    target:
+      entity_id:
+      - assist_satellite.home_assistant_voice_09dbbd_assist_satellite
+  mode: single
+- id: '1754403630732'
+  alias: AI motion to TTS
+  description: test
+  triggers:
+  - trigger: conversation
+    command:
+    - tell me what you can see in the bedroom
+    - describe the bedroom
+    - whats happening inthe bedroom
+    - summarise the bedroom
+    id: bedroom_summary_verbal_request
+  conditions: []
+  actions:
+  - alias: Bedroom summary
+    data:
+      remember: false
+      duration: 2
+      max_frames: 2
+      include_filename: true
+      target_width: 1280
+      max_tokens: 100
+      temperature: 0.2
+      generate_title: true
+      expose_images: true
+      provider: 01JGCADAG52GEGWZGPST01164A
+      image_entity:
+      - camera.c07_profile000_mainstream
+      message: "Describe the scene, giving focus to people or animals. Don't comment
+        on the clutter in the area or the layout and furnature of the scene. Reply
+        as if you were telling  friend what is happening in his bedroom. keep it natural,
+        short and easy to vocalise. \n"
+      use_memory: true
+    response_variable: response
+    action: llmvision.stream_analyzer
+  - alias: Notifications
+    choose:
+    - conditions:
+      - condition: device
+        device_id: 81c897defc6f761d06ed3cebe25d0bee
+        domain: media_player
+        entity_id: 69d69bd23d817fb9d42906b017a4d59f
+        type: is_idle
+      sequence:
+      - variables:
+          notify_id: '{{ now().timestamp() }}'
+      - action: tts.speak
+        metadata: {}
+        data:
+          cache: true
+          media_player_entity_id: media_player.home_assistant_voice_09dbbd_media_player
+          message: '{{ response.response_text }}'
+        target:
+          entity_id: tts.openai_gpt_4o_mini_tts
+      - alias: Issue notifications
+        parallel:
+        - data:
+            message: '{{ response.response_text }}'
+            title: Motion
+            notification_id: motion-{{ notify_id }}
+            ttl: 30000
+            color: '#ff8080'
+            icon: mdi:motion-sensor
+          action: notify.mobile_app_phone_c
+          alias: 'Notify: C phone'
+          enabled: false
+        - alias: 'Notify: E phone'
+          data:
+            message: '{{ response.response_text }}'
+            title: Motion
+            notification_id: motion-{{ notify_id }}
+            ttl: 30000
+            color: '#ff8080'
+            icon: mdi:motion-sensor
+          action: notify.mobile_app_phone_e
+          enabled: false
+        - data:
+            title: Motion
+            message: '{{ response.response_text }}'
+          action: rest_command.send_hass_agent_notification
+          alias: 'Notify: C PC'
+          enabled: false
+        - sequence:
+          - data:
+              title: Motion
+              message: '{{ response.response_text }}'
+              data:
+                tag: c-tablet-{{ notify_id }}
+            action: notify.mobile_app_ipad
+          - delay:
+              seconds: 30
+          - data:
+              message: clear_notification
+              data:
+                tag: c-tablet-{{ notify_id }}
+            action: notify.mobile_app_ipad
+          alias: 'Notify: C iPad'
+          enabled: false
+        enabled: false
+  mode: single
+- id: '1754578346859'
+  alias: AI - Camera Motion Analysis
+  description: This automation analyzes camera footage when motion is detected, providing
+    alerts and insights based on AI processing. The automation triggers upon movement
+    detected by the C09 motion sensor and uses the corresponding camera for analysis.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.c09_motion
+    from: 'off'
+    to: 'on'
+  actions:
+  - variables:
+      camera_entity: camera.c09_clear
+      extra_instructions: ''
+  - delay:
+      seconds: 5
+  - alias: Analyse camera image
+    action: ai_task.generate_data
+    data:
+      task_name: '{{ this.entity_id }}'
+      instructions: 'Give a 1 sentence analysis of what is happening on this camera
+        picture. {{ extra_instructions }}
+
+        '
+      structure:
+        analysis:
+          selector:
+            text:
+      attachments:
+        media_content_id: media-source://camera/{{ camera_entity }}
+        media_content_type: ''
+    response_variable: result
+  - alias: Write analysis to logbook
+    action: logbook.log
+    data:
+      entity_id: '{{ camera_entity }}'
+      message: 'analysis: {{ result.data.analysis }}'
+      domain: ai_task
+      name: '{{ states[camera_entity].name }}'
+  - delay:
+      seconds: 60
+  mode: single
+  max_exceeded: silent

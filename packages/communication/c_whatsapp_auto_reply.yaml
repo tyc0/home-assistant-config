@@ -50,7 +50,7 @@ input_number:
 input_text:
   whatsapp_message_buffer:
     name: "WhatsApp Message Buffer"
-    max: 1000
+    max: 255
     initial: ""
 
 

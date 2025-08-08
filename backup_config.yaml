@@ -1,0 +1,63 @@
+
+# | START: frigate.yml
+# |  PATH: /config/frigate.yml
+
+
+# ╭────────────────────╮
+# │ MQTT
+# ╰────────────────────╯
+mqtt:
+  host: homeassistant.local
+  port: 1883
+  topic_prefix: frigate
+  user: Mqtt_user_cam
+  password: pux4dfrfb5n8gl
+
+
+# ╭────────────────────╮
+# │ GO2RTC
+# ╰────────────────────╯
+go2rtc:
+  streams:
+    c11: rtsp://admin:admin@192.168.4.163:554/main
+
+
+# ╭────────────────────╮
+# │ CAMERAS
+# ╰────────────────────╯
+cameras:
+  c11:
+    ffmpeg:
+      inputs:
+        - path: rtsp://admin:admin@192.168.4.163:554/main
+          roles:
+            - detect
+            - record
+            - rtmp
+    detect:
+      enabled: True
+    record:
+      enabled: True
+      retain:
+        days: 1
+      events:
+        retain:
+          default: 1
+
+
+# ╭────────────────────╮
+# │ RTMP
+# ╰────────────────────╯
+rtmp:
+  enabled: False
+
+
+# ╭────────────────────╮
+# │ WEB
+# ╰────────────────────╯
+web:
+  listen:
+    port: 5000
+
+
+# |   END: frigate.yml

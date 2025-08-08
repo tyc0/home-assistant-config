@@ -12,7 +12,7 @@ input_text:
   #   Input text for the AI image prompt
   ai_image_prompt:
     name: AI Image Prompt
-    max: 200
+    max: 255
     initial: ""
     icon: mdi:image-text
 
@@ -27,7 +27,7 @@ input_text:
   #   Input text for the AI gallery JSON
   ai_gallery_json:
     name: AI Gallery JSON
-    max: 16384
+    max: 255
     initial: "[]"
     icon: mdi:database
 

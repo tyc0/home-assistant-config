@@ -8,26 +8,65 @@
 #  ╰────────────────────╯
 input_number:
 
-# ➔ Camera Views to Show
-#   Number of CCTV feeds to show on page
-  camera_views_to_show:
-    name: Number of CCTV feeds to show on page
-    min: 1
-    max: 4
-    step: 1
-    initial: 2
-    icon: mdi:void
-
-
-# ➔ Camera Feed Effect Dim
-#   Dim the camera feed to make it easier on the eyes in dark environments
-  camera_feed_effect_dim:
-    name: Camera Feed Dim Effect
+# ➔ Camera brightness levels
+  c07_image_brightness:
+    name: C07 Brightness
     min: 0
-    max: 1
-    step: 0.1
-    initial: 1
-    icon: mdi:void
+    max: 255
+    step: 1
+    mode: slider
+
+  #────────────────────────────────────────────
+  #  UI Slider – Contrast
+  #────────────────────────────────────────────
+  c07_image_contrast:
+    name: C07 Contrast
+    min: 0
+    max: 255
+    step: 1
+    mode: slider
+
+  #────────────────────────────────────────────
+  #  UI Slider – Saturation
+  #────────────────────────────────────────────
+  c07_image_saturation:
+    name: C07 Saturation
+    min: 0
+    max: 255
+    step: 1
+    mode: slider
+
+  #────────────────────────────────────────────
+  #  UI Slider – Sharpness
+  #────────────────────────────────────────────
+  c07_image_sharpness:
+    name: C07 Sharpness
+    min: 0
+    max: 255
+    step: 1
+    mode: slider
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -38,49 +77,18 @@ input_number:
 #  ╰────────────────────╯
 input_boolean:
 
-
-
 # ➔ Camera Feed Display Video
 #   Toggle to display or hide camera feeds
   c01_feed_display_video:
-    initial: off
   c02_feed_display_video:
-    initial: off
   c03_feed_display_video:
-    initial: off
   c04_feed_display_video:
-    initial: off
   c05_feed_display_video:
-    initial: off
   c06_feed_display_video:
-    initial: off
   c07_feed_display_video:
-    initial: off
   c08_feed_display_video:
-    initial: off
   c09_feed_display_video:
-    initial: off
 
-# ➔ Camera Feed Display Settings
-#   Toggle to display or hide camera feed sliders
-  c01_feed_display_settings:
-    initial: off
-  c02_feed_display_settings:
-    initial: off
-  c03_feed_display_settings:
-    initial: off
-  c04_feed_display_settings:
-    initial: off
-  c05_feed_display_settings:
-    initial: off
-  c06_feed_display_settings:
-    initial: off
-  c07_feed_display_settings:
-    initial: off
-  c08_feed_display_settings:
-    initial: off
-  c09_feed_display_settings:
-    initial: off
 
 
 
