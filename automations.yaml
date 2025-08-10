@@ -4079,9 +4079,8 @@
     data:
       task_name: Front door opened comment
       instructions: 'Generate a concise, clear, friendly and natural sounding notification
-        that you''ve been watching that video for too long and should go and brush
-        your teeth and go to bed already. Only respond with notification message,
-        nothing else. '
+        that someone has just opened the front door of my house. Only respond with
+        notification message, nothing else. '
     response_variable: generated_text
   - action: tts.speak
     metadata: {}

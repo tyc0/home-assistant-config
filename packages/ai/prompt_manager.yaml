@@ -1,10 +1,6 @@
-# | START: prompt_manager.yaml
-# | PATH: /config/packages/ai/prompt_manager.yaml
+# This file contains configuration for managing prompts in Home Assistant.
+# Existing configuration for shell commands and sensors is preserved below.
 
-
-# ╭────────────────────╮
-# │   SHELL COMMAND
-# ╰────────────────────╯
 shell_command:
 
   save_prompt: >-
@@ -17,9 +13,6 @@ shell_command:
     /bin/bash -c 'ls -1 /config/www/prompts/*.json 2>/dev/null | xargs -I {} basename {} .json || echo ""'
 
 
-# ╭────────────────────╮
-# │   COMMAND LINE SENSOR
-# ╰────────────────────╯
 sensor:
   - platform: command_line
     name: "prompt_manager_list_command"
@@ -27,9 +20,6 @@ sensor:
     scan_interval: 30
 
 
-# ╭────────────────────╮
-# │   TEMPLATE SENSOR
-# ╰────────────────────╯
 template:
   - sensor:
 
@@ -74,5 +64,77 @@ template:
             {{ [] | tojson }}
           {% endif %}
 
+#
+# Script: generate_prompt_fields
+#
+# This script is used by the prompt manager UI to automatically generate
+# a concise title and a comprehensive description for a given prompt. It
+# leverages the AI Task integration via the `ai_task.generate_data` action.
+#
+# The script accepts three arguments:
+#  - prompt_content: the full text of the prompt to base generation on
+#  - generate_title: a boolean indicating whether the title should be generated
+#  - generate_description: a boolean indicating whether the description should be generated
+#
+# It builds a result dictionary containing any generated fields and uses the
+# `stop` action with `response_variable` to return this data back to the caller.
 
-# | END: prompt_manager.yaml
+script:
+  generate_prompt_fields:
+    alias: "Generate Prompt Fields"
+    description: "Generates a concise title and a clear description for a prompt using the AI Task integration."
+    fields:
+      prompt_content:
+        description: "The full text of the prompt."
+        required: true
+      generate_title:
+        description: "Whether to generate a title if the title field is empty."
+        required: true
+      generate_description:
+        description: "Whether to generate a description if the description field is empty."
+        required: true
+    sequence:
+      - variables:
+          result: {}
+      - if:
+          # Only generate a title when the caller indicates a title is needed.
+          - condition: template
+            value_template: "{{ generate_title }}"
+        then:
+          - alias: "Generate title using AI"
+            action: ai_task.generate_data
+            data:
+              task_name: "prompt title"
+              instructions: >-
+                Based on the following prompt content:
+
+                {{ prompt_content }}
+
+                Generate a very short, direct title. Use title case formatting.
+                No icons, symbols, or punctuation. Be extremely concise.
+            response_variable: ai_title
+          - variables:
+              result: "{{ result | merge({'title': ai_title.data}) }}"
+      - if:
+          # Only generate a description when the caller indicates a description is needed.
+          - condition: template
+            value_template: "{{ generate_description }}"
+        then:
+          - alias: "Generate description using AI"
+            action: ai_task.generate_data
+            data:
+              task_name: "prompt description"
+              instructions: >-
+                Based on the following prompt content:
+
+                {{ prompt_content }}
+
+                Do not use icons, do not ask any questions, just provide your content itself - don't use lots of lists and headers either.
+                Use language and sentence structures that are very easy to vocalise, and write it in a way a 10 year old child would find easy to understand - but don't patronise or treat them stupid
+            response_variable: ai_description
+          - variables:
+              result: "{{ result | merge({'description': ai_description.data}) }}"
+      - stop: "{{ result }}"
+        response_variable: result
+    mode: single
+    max_exceeded: silent

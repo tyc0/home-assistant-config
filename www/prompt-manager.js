@@ -278,18 +278,30 @@ class PromptManagerCard extends HTMLElement {
       const button = this.shadow.querySelector(`[data-copy-id="${prompt.id}"]`);
       if (!button) return;
 
-      const originalHtml = button.innerHTML;
+      // Prepare helpers
+      const copyIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a 2 2 0 0 1-2-2V4a 2 2 0 0 1 2-2h9a 2 2 0 0 1 2 2v1"></path></svg>';
+      const tickIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"></polyline></svg>';
       const originalAria = button.getAttribute('aria-label') || 'Copy prompt content';
 
+      // Show success state
       button.classList.add('copied');
-      button.setAttribute('aria-label', 'Copied');
-      button.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"></polyline></svg> Copied';
+      button.setAttribute('aria-label', 'Done');
+      button.innerHTML = tickIcon;
 
-      setTimeout(() => {
-        button.classList.remove('copied');
-        button.innerHTML = originalHtml;
-        button.setAttribute('aria-label', originalAria);
-      }, 1400);
+      // Ensure we revert even if DOM re-rendered
+      if (!this._copyTimers) this._copyTimers = new Map();
+      const existing = this._copyTimers.get(prompt.id);
+      if (existing) clearTimeout(existing);
+      const timeoutId = setTimeout(() => {
+        const btn = this.shadow.querySelector(`[data-copy-id="${prompt.id}"]`);
+        if (btn) {
+          btn.classList.remove('copied');
+          btn.innerHTML = copyIcon;
+          btn.setAttribute('aria-label', originalAria);
+        }
+        this._copyTimers.delete(prompt.id);
+      }, 3000);
+      this._copyTimers.set(prompt.id, timeoutId);
     };
 
     try {
@@ -454,7 +466,24 @@ class PromptManagerCard extends HTMLElement {
     if (!grid) return;
     // Use event delegation to avoid per-item listeners
     grid.addEventListener('click', (e) => {
-      const target = e.target.closest('[data-copy-id], [data-dropdown], [data-edit], [data-delete], [data-expand], [data-info-id]');
+      const selector = '[data-copy-id], [data-dropdown], [data-edit], [data-delete], [data-expand], [data-info-id]';
+      // Safely resolve the nearest actionable element even if the original click was on a text node or SVG child
+      let target = null;
+      if (typeof e.composedPath === 'function') {
+        for (const node of e.composedPath()) {
+          if (node && node.nodeType === Node.ELEMENT_NODE && node.matches && node.matches(selector)) {
+            target = node;
+            break;
+          }
+        }
+      }
+      if (!target) {
+        let el = e.target;
+        if (!el || el.nodeType !== Node.ELEMENT_NODE) {
+          el = el?.parentElement || null;
+        }
+        target = el && el.closest ? el.closest(selector) : null;
+      }
       if (!target) return;
       if (target.dataset.copyId) {
         const promptId = parseInt(target.dataset.copyId || '0');
@@ -489,7 +518,7 @@ class PromptManagerCard extends HTMLElement {
     }, { passive: true });
 
     // Improve reliability: ensure clicks on inner SVGs trigger buttons
-    grid.querySelectorAll('.dropdown-button svg, .copy-button svg').forEach(svg => {
+    grid.querySelectorAll('.dropdown-button svg, .copy-button svg, .show-more-button svg').forEach(svg => {
       svg.style.pointerEvents = 'none';
     });
 
@@ -556,11 +585,30 @@ class PromptManagerCard extends HTMLElement {
   };
 
   handleExpandClick = (promptId) => {
-    if (this.state.expandedPrompts.has(promptId)) {
+    const isCurrentlyExpanded = this.state.expandedPrompts.has(promptId);
+    if (isCurrentlyExpanded) {
       this.state.expandedPrompts.delete(promptId);
     } else {
       this.state.expandedPrompts.add(promptId);
     }
+
+    // Try to update the specific card inline without a full re-render for better UX
+    const button = this.shadow.querySelector(`.show-more-button[data-expand="${promptId}"]`);
+    const prompt = this.state.prompts.find(p => p.id === promptId);
+    if (button && prompt) {
+      const cardContent = button.closest('.card-content');
+      const pre = cardContent ? cardContent.querySelector('pre') : null;
+      const nowExpanded = !isCurrentlyExpanded;
+      button.setAttribute('aria-expanded', String(nowExpanded));
+      button.textContent = nowExpanded ? 'Show less' : 'Show more';
+      if (pre) {
+        const truncated = prompt.content.length > 200 ? `${prompt.content.substring(0, 200)}...` : prompt.content;
+        pre.textContent = nowExpanded ? prompt.content : truncated;
+      }
+      return;
+    }
+
+    // Fallback: if we cannot find the elements, do a full render
     this.render();
   };
 
@@ -750,10 +798,9 @@ class PromptManagerCard extends HTMLElement {
             ${prompt.description ? `
             <div class="info-container">
               <button class="info-button" data-info-id="${prompt.id}" aria-haspopup="true" aria-expanded="false" aria-label="Show description">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="12"></line>
-                  <line x1="12" y1="8" x2="12" y2="8"></line>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M2 4h20v2H2zM7 8h10a4 4 0 0 1 0 8H7z"></path>
+                  <circle cx="7" cy="12" r="2"></circle>
                 </svg>
               </button>
               <div class="description-popover" role="dialog" data-popover-for="${prompt.id}">
@@ -761,12 +808,11 @@ class PromptManagerCard extends HTMLElement {
               </div>
             </div>
             ` : ''}
-            <button class="copy-button" data-copy-id="${prompt.id}" aria-label="Copy prompt content">
+            <button class="copy-button" data-copy-id="${prompt.id}" aria-label="Copy prompt content" title="Copy">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a 2 2 0 0 1-2-2V4a 2 2 0 0 1 2-2h9a 2 2 0 0 1 2 2v1"></path>
               </svg>
-              Copy
             </button>
             <div class="dropdown-container">
               <button class="dropdown-button" data-dropdown="${prompt.id}" aria-label="More options" aria-haspopup="true">
@@ -799,7 +845,7 @@ class PromptManagerCard extends HTMLElement {
         <div class="card-content">
           <pre>${this.escapeHtml(isExpanded ? prompt.content : truncatedContent)}</pre>
           ${prompt.content.length > 200 ? `
-            <button class="show-more-button" data-expand="${prompt.id}" aria-expanded="${isExpanded}">
+            <button class="show-more-button" data-expand="${prompt.id}" aria-expanded="${isExpanded}" aria-label="${isExpanded ? 'Show less' : 'Show more'}">
               ${isExpanded ? 'Show less' : 'Show more'}
             </button>
           ` : ''}
@@ -1007,8 +1053,24 @@ class PromptManagerCard extends HTMLElement {
     const tagsContainer = this.shadow.getElementById('tags-container');
     if (tagsContainer) {
       tagsContainer.addEventListener('click', (e) => {
-        const target = e.target;
-        if (target.dataset.tag) {
+        const selector = '[data-tag]';
+        let target = null;
+        if (typeof e.composedPath === 'function') {
+          for (const node of e.composedPath()) {
+            if (node && node.nodeType === Node.ELEMENT_NODE && node.matches && node.matches(selector)) {
+              target = node;
+              break;
+            }
+          }
+        }
+        if (!target) {
+          let el = e.target;
+          if (!el || el.nodeType !== Node.ELEMENT_NODE) {
+            el = el?.parentElement || null;
+          }
+          target = el && el.closest ? el.closest(selector) : null;
+        }
+        if (target && target.dataset.tag) {
           this.handleTagClick(target.dataset.tag);
         }
       });
@@ -1178,7 +1240,8 @@ class PromptManagerCard extends HTMLElement {
         .container {
           background: var(--pm-surface-weak);
           color: var(--pm-text);
-          border-radius: 16px;
+          /* Use a theme-derived corner radius for the outer container */
+          border-radius: var(--md-sys-shape-corner-large, 16px);
           overflow: hidden;
           padding: 24px;
         }
@@ -1213,9 +1276,11 @@ class PromptManagerCard extends HTMLElement {
 
         /* Add button */
         .add-button {
+          /* Rounded shape matching Material You buttons */
+          border-radius: var(--md-sys-shape-corner-large, 16px);
+          /* Use accent colour for the outline to tie into the overall palette */
           background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 12px;
+          border: 1px solid var(--pm-accent);
           color: var(--pm-accent);
           padding: 8px 16px;
           font-size: 13px;
@@ -1223,19 +1288,21 @@ class PromptManagerCard extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 6px;
-          transition: all 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
 
         .add-button:hover {
-          background: var(--pm-border);
+          /* Fill on hover for clearer affordance */
+          background: var(--pm-accent);
+          color: var(--pm-surface-weak);
           border-color: var(--pm-accent);
         }
 
         /* Manage tags button */
         .manage-button {
+          border-radius: var(--md-sys-shape-corner-large, 16px);
           background: var(--pm-surface-strong);
           border: 1px solid var(--pm-border);
-          border-radius: 12px;
           color: var(--pm-text);
           padding: 8px 16px;
           font-size: 13px;
@@ -1243,7 +1310,7 @@ class PromptManagerCard extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 6px;
-          transition: all 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
 
         .manage-button:hover {
@@ -1268,9 +1335,9 @@ class PromptManagerCard extends HTMLElement {
 
         .search-input {
           width: 100%;
-          background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 12px;
+          background: var(--divider-color, #e0e0e0);
+          border: none;
+          border-radius: 20px;
           padding: 8px 12px 8px 36px;
           color: var(--pm-text);
           font-size: 13px;
@@ -1284,12 +1351,14 @@ class PromptManagerCard extends HTMLElement {
           background: var(--pm-surface-strong);
           border: 1px solid var(--pm-border);
           color: var(--pm-subtext);
-          border-radius: 8px;
+          /* Increase radius to match other controls */
+          border-radius: var(--md-sys-shape-corner-medium, 12px);
           padding: 4px 8px;
           font-size: 11px;
           line-height: 1;
           cursor: pointer;
           display: none;
+          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
 
         .clear-button:hover {
@@ -1298,7 +1367,7 @@ class PromptManagerCard extends HTMLElement {
         }
 
         .search-input:focus {
-          border-color: var(--pm-accent);
+          border: 2.5px solid var(--info-color);
         }
 
         /* Tag filter row */
@@ -1322,19 +1391,19 @@ class PromptManagerCard extends HTMLElement {
         .tag-button {
           background: var(--pm-surface);
           border: 1px solid var(--pm-border);
-          border-radius: 12px;
+          border-radius: var(--md-sys-shape-corner-large, 16px);
           padding: 8px 16px;
           font-size: 13px;
           font-weight: 500;
           color: var(--pm-text);
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
 
         .tag-button.selected {
-          background: var(--pm-surface-strong);
+          background: var(--pm-accent);
           border-color: var(--pm-accent);
-          color: var(--pm-accent);
+          color: var(--pm-surface-weak);
         }
 
         .tag-button:not(.selected):hover {
@@ -1357,8 +1426,9 @@ class PromptManagerCard extends HTMLElement {
         /* Individual prompt card */
         .prompt-card {
           background: var(--pm-surface);
-          border: 1px solid var(--pm-border);
-          border-radius: 16px;
+          border: 1px solid transparent;
+          /* Use a theme-derived corner radius for prompt cards */
+          border-radius: var(--md-sys-shape-corner-large, 16px);
           padding: 16px;
           transition: all 0.2s ease;
           position: relative;
@@ -1367,7 +1437,7 @@ class PromptManagerCard extends HTMLElement {
         }
 
         .prompt-card:hover {
-          border-color: var(--pm-accent);
+          border-color: var(--info-color);
           background: var(--pm-surface-strong);
         }
 
@@ -1401,27 +1471,36 @@ class PromptManagerCard extends HTMLElement {
           gap: 8px;
         }
 
-        /* Three-dots button */
-        .dropdown-button {
-          background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 8px;
-          padding: 6px;
+        /* Icon buttons (ellipsis, copy, description) */
+        .dropdown-button,
+        .copy-button,
+        .info-button {
+          background: none;
+          border: none;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          padding: 0;
           cursor: pointer;
-          color: var(--pm-text);
-          transition: all 0.2s ease;
-          display: flex;
+          color: var(--primary-text-color);
+          transition: color 0.2s ease;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
         }
 
-        .dropdown-button:hover {
-          background: var(--pm-border);
-          border-color: var(--pm-border-soft);
+        .dropdown-button:hover,
+        .copy-button:hover,
+        .info-button:hover {
+          background: none;
+          color: var(--primary-text-color);
+          border-color: transparent;
         }
 
-        /* Ensure inner SVG does not swallow click events */
+        /* Ensure inner icons do not swallow click events */
         .dropdown-button svg { pointer-events: none; }
+        .copy-button svg { pointer-events: none; }
+        .info-button ha-icon, .info-button svg { pointer-events: none; }
 
         /* Dropdown menu */
         .dropdown-menu {
@@ -1429,36 +1508,22 @@ class PromptManagerCard extends HTMLElement {
           top: 100%;
           right: 0;
           margin-top: 4px;
-          background: var(--pm-surface);
-          border: 1px solid var(--pm-border);
-          border-radius: 12px;
+          background: var(--md-menu-container-color, var(--card-background-color));
+          border: none;
+          /* Rounded corners matching other components */
+          border-radius: var(--md-sys-shape-corner-large, 16px);
           overflow: hidden;
           z-index: 100;
           min-width: 120px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+          box-shadow: var(--md-sys-elevation-level2, 0 2px 6px rgba(0,0,0,0.5));
           display: none;
         }
 
-        .dropdown-menu.open {
-          display: block;
-        }
+        .dropdown-menu.open { display: block; }
 
         /* Info button and popover (description reveal) */
         .info-container { position: relative; }
-        .info-button {
-          background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 8px;
-          padding: 6px;
-          cursor: pointer;
-          color: var(--pm-text);
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .info-button:hover { background: var(--pm-border); border-color: var(--pm-border-soft); }
-        .info-button svg { pointer-events: none; }
+        /* info-button now shares styles with icon buttons above */
 
         .description-popover {
           position: absolute;
@@ -1467,10 +1532,10 @@ class PromptManagerCard extends HTMLElement {
           z-index: 200;
           min-width: 260px;
           max-width: 420px;
-          background: var(--card-background-color);
-          border: none;
+          background: var(--md-dialog-container-color, var(--card-background-color));
+          border: none; /* No borders on popups */
           border-radius: var(--md-dialog-container-shape-start-start, var(--md-dialog-container-shape, var(--md-sys-shape-corner-extra-large, 28px)));
-          box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+          box-shadow: var(--md-sys-elevation-level3, 0 8px 24px rgba(0,0,0,0.35));
           opacity: 0;
           transform: translateY(-6px) scale(0.98);
           transition: opacity 180ms ease, transform 180ms ease;
@@ -1508,11 +1573,12 @@ class PromptManagerCard extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 8px;
-          transition: background 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease;
         }
 
         .dropdown-item:hover {
-          background: var(--pm-surface-strong);
+          background: rgba(from var(--md-list-item-hover-state-layer-color, var(--md-sys-color-on-surface)) r g b / var(--md-list-item-hover-state-layer-opacity, 0.08));
+          color: var(--primary-text-color);
         }
 
         .dropdown-item.danger {
@@ -1520,7 +1586,8 @@ class PromptManagerCard extends HTMLElement {
         }
 
         .dropdown-item.danger:hover {
-          background: rgba(229, 57, 53, 0.1);
+          background: var(--pm-danger);
+          color: var(--pm-surface-weak);
         }
 
         /* Main content area (prompt body + show more) */
@@ -1587,35 +1654,37 @@ class PromptManagerCard extends HTMLElement {
 
         /* Copy button */
         .copy-button {
-          background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 8px;
+          background: none;
+          border: none;
+          border-radius: var(--md-sys-shape-corner-medium, 12px);
           padding: 6px 10px;
-          color: var(--pm-accent);
+          color: #fff;
           cursor: pointer;
           font-size: 12px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 6px;
-          transition: all 0.2s ease;
+          transition: background 0.2s ease, color 0.2s ease;
           position: relative;
           overflow: hidden;
         }
 
         .copy-button:hover {
-          background: var(--pm-border);
-          border-color: var(--pm-border-soft);
+          background: var(--md-list-item-label-text-color, var(--md-sys-color-on-surface, #1d1b20));
+          color: var(--pm-surface-weak);
         }
+
+        /* Ensure icons within copy buttons do not intercept clicks */
+        .copy-button svg { pointer-events: none; }
 
         /* Copy success animation state */
         .copy-button.copied {
           background: var(--pm-surface);
-          border-color: var(--pm-success);
           color: var(--pm-success);
           transform: translateY(-1px);
           box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18), inset 0 0 0 1px currentColor;
-          transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+          transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
         }
 
         .copy-button.copied::after {
@@ -1651,7 +1720,7 @@ class PromptManagerCard extends HTMLElement {
           left: 0;
           right: 0;
           bottom: 0;
-          background: var(--pm-overlay);
+          background: var(--mdc-dialog-scrim-color, rgba(0, 0, 0, 0.8));
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1661,7 +1730,7 @@ class PromptManagerCard extends HTMLElement {
 
         /* Modal window */
         .modal {
-          background: var(--card-background-color);
+          background: var(--md-dialog-container-color, var(--card-background-color));
           border: none;
           border-radius: var(--md-dialog-container-shape-start-start, var(--md-dialog-container-shape, var(--md-sys-shape-corner-extra-large, 28px)));
           padding: 24px;
@@ -1689,9 +1758,9 @@ class PromptManagerCard extends HTMLElement {
         /* Inputs */
         .form-input {
           width: 100%;
-          background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 12px;
+          background: var(--divider-color, #e0e0e0);
+          border: none;
+          border-radius: 20px;
           padding: 8px 12px;
           color: var(--pm-text);
           font-size: 13px;
@@ -1703,9 +1772,9 @@ class PromptManagerCard extends HTMLElement {
         .form-textarea {
           width: 100%;
           min-height: 150px;
-          background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 12px;
+          background: var(--divider-color, #e0e0e0);
+          border: none;
+          border-radius: 20px;
           padding: 12px;
           color: var(--pm-text);
           font-size: 13px;
@@ -1718,7 +1787,7 @@ class PromptManagerCard extends HTMLElement {
 
         .form-input:focus,
         .form-textarea:focus {
-          border-color: var(--pm-accent);
+          border: 2.5px solid var(--info-color);
         }
 
         /* Tag suggestion list in forms */
@@ -1731,24 +1800,27 @@ class PromptManagerCard extends HTMLElement {
 
         .tag-suggestion {
           background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 8px;
+          border: 1px solid var(--pm-accent);
+          border-radius: var(--md-sys-shape-corner-medium, 12px);
           padding: 4px 8px;
           color: var(--pm-accent);
           cursor: pointer;
           font-size: 12px;
+          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
 
         .tag-suggestion:hover {
-          background: var(--pm-border);
-          border-color: var(--pm-border-soft);
+          background: var(--pm-accent);
+          color: var(--pm-surface-weak);
+          border-color: var(--pm-accent);
         }
 
         /* Tag chips editor in forms */
         .tags-editor {
           background: var(--pm-surface);
           border: 1px dashed var(--pm-border);
-          border-radius: 12px;
+          /* Larger radius to align with other containers */
+          border-radius: var(--md-sys-shape-corner-large, 16px);
           padding: 8px;
           margin-bottom: 12px;
         }
@@ -1792,6 +1864,17 @@ class PromptManagerCard extends HTMLElement {
         .tag-row .form-button.danger {
           justify-self: end;
           min-width: 84px;
+          /* Render tag deletion actions as outlined rather than filled to reduce visual weight */
+          background: none;
+          border: 1px solid var(--pm-danger);
+          color: var(--pm-danger);
+          border-radius: var(--md-sys-shape-corner-large, 16px);
+          transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .tag-row .form-button.danger:hover {
+          background: var(--pm-danger);
+          color: var(--pm-surface-weak);
         }
 
         /* Generic chips layout */
@@ -1836,16 +1919,16 @@ class PromptManagerCard extends HTMLElement {
         /* Chip input */
         .chip-input {
           width: 100%;
-          background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 8px;
+          background: var(--divider-color, #e0e0e0);
+          border: none;
+          border-radius: 20px;
           padding: 6px 10px;
           color: var(--pm-text);
           font-size: 13px;
           outline: none;
         }
 
-        .chip-input:focus { border-color: var(--pm-accent); }
+        .chip-input:focus { border: 2.5px solid var(--info-color); }
 
         /* Form buttons */
         .form-buttons {
@@ -1856,29 +1939,30 @@ class PromptManagerCard extends HTMLElement {
         }
 
         .form-button {
-          background: var(--pm-surface-strong);
-          border: 1px solid var(--pm-border);
-          border-radius: 12px;
+          border-radius: var(--md-sys-shape-corner-large, 16px);
           padding: 8px 16px;
-          color: var(--pm-subtext);
-          cursor: pointer;
           font-size: 13px;
-        }
-
-        .form-button.primary {
-          background: var(--pm-surface-strong);
-          border-color: var(--pm-accent);
+          cursor: pointer;
+          border: none;
+          background: none;
           color: var(--pm-accent);
+          transition: background 0.2s ease, color 0.2s ease;
         }
 
+        /* Primary actions are filled with the accent colour */
+        .form-button.primary {
+          background: var(--pm-accent);
+          color: var(--pm-surface-weak);
+        }
+
+        /* Danger actions use the error colour */
         .form-button.danger {
-          border-color: var(--pm-danger);
-          color: var(--pm-danger);
+          background: var(--pm-danger);
+          color: var(--pm-surface-weak);
         }
 
         .form-button:disabled {
           background: var(--pm-border);
-          border-color: var(--pm-border);
           color: var(--pm-subtext);
           cursor: not-allowed;
         }
