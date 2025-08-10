@@ -134,43 +134,6 @@
     alias: PC key - Delete button
     enabled: true
   mode: single
-- id: '1696876481088'
-  alias: Theme - Rounded - Toggle light/dark
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - input_select.theme_rounded_toggle_light_and_dark
-    to: light
-    id: roundedlight
-  - platform: state
-    entity_id:
-    - input_select.theme_rounded_toggle_light_and_dark
-    to: dark
-    id: roundeddark
-  condition: []
-  action:
-  - alias: Light mode
-    if:
-    - condition: trigger
-      id:
-      - roundedlight
-    then:
-    - service: browser_mod.set_theme
-      data:
-        theme: Rounded-Alt-2
-        dark: light
-  - alias: Dark mode
-    if:
-    - condition: trigger
-      id:
-      - roundeddark
-    then:
-    - service: browser_mod.set_theme
-      data:
-        theme: Rounded-Alt-2
-        dark: dark
-  mode: single
 - id: '1697647087979'
   alias: Scene - Log activated scene
   description: ''
@@ -1478,11 +1441,9 @@
   alias: Startup actions following a server reboot
   description: Initiate various startup actions following a server reboot.
   triggers:
-  - event: start
-    trigger: homeassistant
+  - trigger: event
+    event_type: homeassistant_started
   actions:
-  - delay: 00:05:00
-    alias: 'Startup stability buffer: 5 minutes'
   - data:
       addon: f4fdf59d_whatsapp_addon
     action: hassio.addon_start
@@ -2060,12 +2021,13 @@
 - id: '1717665115348'
   alias: Set default theme on server boot
   description: ''
-  trigger:
-  - platform: homeassistant
-    event: start
-  action:
+  triggers:
+  - event: start
+    trigger: homeassistant
+  actions:
   - data:
-      name: Rounded-Alt-2
+      name: Material You
+      mode: dark
     action: frontend.set_theme
   mode: single
 - id: '1717992172639'
@@ -3986,10 +3948,10 @@
       provider: 01JGCADAG52GEGWZGPST01164A
       image_entity:
       - camera.c07_profile000_mainstream
-      message: "Describe the scene, giving focus to people or animals. Don't comment
-        on the clutter in the area or the layout and furnature of the scene. Reply
-        as if you were telling  friend what is happening in his bedroom. keep it natural,
-        short and easy to vocalise. \n"
+      message: "In a single sentence, describe the scene, giving focus to people or
+        animals. Don't comment on the clutter in the area or the layout and furnature
+        of the scene. Reply as if you were telling  friend what is happening in his
+        bedroom. keep it natural, short and easy to vocalise. \n"
       use_memory: true
     response_variable: response
     action: llmvision.stream_analyzer
@@ -4102,3 +4064,31 @@
       seconds: 60
   mode: single
   max_exceeded: silent
+- id: '1754782454647'
+  alias: TTS - Front Door Opened Notification
+  description: This automation generates a friendly message and announces it when
+    the front door is opened. It utilizes AI for the message content, ensuring that
+    the notification is always polite and engaging.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.vs00_vibration
+    to: 'on'
+  actions:
+  - action: ai_task.generate_data
+    data:
+      task_name: Front door opened comment
+      instructions: 'Generate a concise, clear, friendly and natural sounding notification
+        that you''ve been watching that video for too long and should go and brush
+        your teeth and go to bed already. Only respond with notification message,
+        nothing else. '
+    response_variable: generated_text
+  - action: tts.speak
+    metadata: {}
+    data:
+      cache: false
+      media_player_entity_id: media_player.home_assistant_voice_09dbbd_media_player
+      message: '{{ generated_text.data }}'
+    target:
+      entity_id: tts.openai_gpt_4o_mini_tts
+  mode: single

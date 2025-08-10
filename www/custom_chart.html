@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Body Composition Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #chart-container {
+            width: 50%;
+            height: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chart-container">
+    <canvas id="bodyCompositionChart"></canvas>
+</div>
+
+<script>
+    async function fetchData(entity_id) {
+        const url = 'https://0lzzezo208hjmjairhsh1gjzwn72kts9.ui.nabu.casa/api/states/' + entity_id;
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIzMTM3MGM3NWQyNGE0NDZkYjcwZTJmMzM2OTMwZTM1YyIsImlhdCI6MTcyMjkyOTU5MSwiZXhwIjoyMDM4Mjg5NTkxfQ.mTX4eVC_HGMEYHHC0BZBCUVulGnn1COgWWmhntKmiiw',
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        return parseFloat(data.state);
+    }
+
+    async function renderChart() {
+        const fatMass = await fetchData('sensor.c_fat_mass_percentage');
+        const muscleMass = await fetchData('sensor.c_muscle_mass_percentage');
+        const boneMass = await fetchData('sensor.c_bone_mass_percentage');
+
+        const ctx = document.getElementById('bodyCompositionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Fat Mass', 'Muscle Mass', 'Bone Mass'],
+                datasets: [{
+                    data: [fatMass, muscleMass, boneMass],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                    hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                }]
+            },
+            options: {
+                circumference: Math.PI,
+                rotation: -Math.PI,
+                cutoutPercentage: 50,  // This makes it a semi-circle
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    renderChart();
+</script>
+
+</body>
+</html>

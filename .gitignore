@@ -1,5 +1,6 @@
+# --------------------------------------------
 # Ignore folders
-www/
+# --------------------------------------------
 cloud/
 .cursor/
 .vscode/
@@ -18,12 +19,37 @@ popup/
 pyscript/
 tts/
 
-# Ignore files
+# --------------------------------------------
+# WWW rules — track root, but ignore subfolders (recursive)
+# --------------------------------------------
+www/**/
+
+# --------------------------------------------
+# Ignore specific file types (global)
+# --------------------------------------------
+*.tsx
+*.txt
+*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+*.png
+*.PNG
+
+# --------------------------------------------
+# Ignore anything with "backup" in the name
+# --------------------------------------------
+*backup*
+*Backup*
+*BACKUP*
+
+# --------------------------------------------
+# Ignore individual files
+# --------------------------------------------
 .activities_list.json
 .cursorignore
 .HA_VERSION
 .shopping_list.json
-centered_navicon_bin.svg
 go2rtc-1.9.4
 home-assistant.log
 home-assistant*
@@ -31,7 +57,6 @@ home-assistant_backup_default
 home-assistant_v2.db
 home-assistant_v2.db-shm
 home-assistant_v2.db-wal
-i_want_an_absolute_best_mpv.md
 secrets.yaml
 theme_variables.md
 ui_conversation.md

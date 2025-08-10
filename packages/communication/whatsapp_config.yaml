@@ -125,15 +125,6 @@ shell_command:
   append_whatsapp_message: >-
     /bin/bash -c 'echo -e "{{ message | replace("'", "'\\''") | replace('"', '\\"') | replace('\n', '\\n') }}" >> /config/www/whatsapp_histories/{{ file }}'
 
-  save_prompt: >-
-    /bin/bash -c 'echo "{{ prompt_data | tojson }}" > /config/www/prompts/{{ prompt_id }}.json'
-
-  delete_prompt: >-
-    /bin/bash -c 'rm -f /config/www/prompts/{{ prompt_id }}.json'
-
-  list_prompts: >-
-    /bin/bash -c 'ls -1 /config/www/prompts/*.json 2>/dev/null | xargs -I {} basename {} .json || echo ""'
-
 
 
 # ╭────────────────────╮
@@ -236,74 +227,7 @@ template:
               "Angela Young": "Ange"
             }
 
-      - name: "prompt_manager_all_prompts"
-        unique_id: prompt_manager_all_prompts
-        state: >
-          {% set prompt_ids = states('sensor.prompt_manager_prompt_list') | from_json %}
-          {% if prompt_ids %}
-            {{ prompt_ids | length }} prompts available
-          {% else %}
-            No prompts available
-          {% endif %}
-        attributes:
-          prompt_ids: >
-            {% set prompt_ids = states('sensor.prompt_manager_prompt_list') | from_json %}
-            {{ prompt_ids if prompt_ids else [] }}
-          prompts_data: >
-            {% set prompt_ids = states('sensor.prompt_manager_prompt_list') | from_json %}
-            {% set prompts = [] %}
-            {% for prompt_id in prompt_ids %}
-              {% set prompt_file = '/config/www/prompts/' ~ prompt_id ~ '.json' %}
-              {% set prompt_data = states('sensor.prompt_manager_prompt_' ~ prompt_id) | from_json %}
-              {% if prompt_data %}
-                {% set prompts = prompts + [prompt_data] %}
-              {% endif %}
-            {% endfor %}
-            {{ prompts | tojson }}
 
-      - name: "prompt_manager_prompt_list"
-        unique_id: prompt_manager_prompt_list
-        state: >
-          {% set result = states('sensor.prompt_manager_prompt_list_raw') | from_json %}
-          {{ result if result else [] | tojson }}
-
-      - name: "prompt_manager_prompt_list_raw"
-        unique_id: prompt_manager_prompt_list_raw
-        state: >
-          {% set cmd_result = states('sensor.prompt_manager_list_command') %}
-          {% if cmd_result and cmd_result != 'unknown' %}
-            {% set ids = cmd_result.split('\n') | select('string') | list %}
-            {{ ids | tojson }}
-          {% else %}
-            {{ [] | tojson }}
-          {% endif %}
-
-      # Individual prompt sensors (dynamically created based on prompt files)
-      {% for prompt_id in states('sensor.prompt_manager_prompt_list') | from_json %}
-      - name: "prompt_manager_prompt_{{ prompt_id }}"
-        unique_id: prompt_manager_prompt_{{ prompt_id }}
-        state: >
-          {% set file_path = '/config/www/prompts/' ~ prompt_id ~ '.json' %}
-          {% set file_content = states('sensor.prompt_manager_file_' ~ prompt_id) %}
-          {% if file_content and file_content != 'unknown' %}
-            {{ file_content }}
-          {% else %}
-            {{ {} | tojson }}
-          {% endif %}
-      {% endfor %}
-
-      # File content sensors for each prompt
-      {% for prompt_id in states('sensor.prompt_manager_prompt_list') | from_json %}
-      - name: "prompt_manager_file_{{ prompt_id }}"
-        unique_id: prompt_manager_file_{{ prompt_id }}
-        state: >
-          {% set cmd_result = states('sensor.prompt_manager_file_command_' ~ prompt_id) %}
-          {% if cmd_result and cmd_result != 'unknown' %}
-            {{ cmd_result }}
-          {% else %}
-            {{ {} | tojson }}
-          {% endif %}
-      {% endfor %}
 
 
 # ╭────────────────────╮
@@ -588,22 +512,7 @@ automation:
             {{ entities }}
 
 
-# ╭────────────────────╮
-# │   COMMAND LINE SENSOR
-# ╰────────────────────╯
-sensor:
-  - platform: command_line
-    name: "prompt_manager_list_command"
-    command: "ls -1 /config/www/prompts/*.json 2>/dev/null | xargs -I {} basename {} .json || echo ''"
-    scan_interval: 30
 
-  # Individual prompt file sensors (dynamically created)
-  {% for prompt_id in states('sensor.prompt_manager_prompt_list') | from_json %}
-  - platform: command_line
-    name: "prompt_manager_file_command_{{ prompt_id }}"
-    command: "cat /config/www/prompts/{{ prompt_id }}.json 2>/dev/null || echo '{}'"
-    scan_interval: 30
-  {% endfor %}
 
 
 # | END: whatsapp_config.yaml

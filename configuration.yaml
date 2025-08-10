@@ -58,6 +58,7 @@ panel_custom:
     sidebar_title: Material You Utilities
     sidebar_icon: mdi:material-design
     module_url: /hacsfiles/material-you-utilities/material-you-utilities.min.js
+prompt_manager:
 
 
 # ╭────────────────────╮

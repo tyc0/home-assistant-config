@@ -1,0 +1,78 @@
+# | START: prompt_manager.yaml
+# | PATH: /config/packages/ai/prompt_manager.yaml
+
+
+# ╭────────────────────╮
+# │   SHELL COMMAND
+# ╰────────────────────╯
+shell_command:
+
+  save_prompt: >-
+    /bin/bash -c 'echo "{{ prompt_data | tojson }}" > /config/www/prompts/{{ prompt_id }}.json'
+
+  delete_prompt: >-
+    /bin/bash -c 'rm -f /config/www/prompts/{{ prompt_id }}.json'
+
+  list_prompts: >-
+    /bin/bash -c 'ls -1 /config/www/prompts/*.json 2>/dev/null | xargs -I {} basename {} .json || echo ""'
+
+
+# ╭────────────────────╮
+# │   COMMAND LINE SENSOR
+# ╰────────────────────╯
+sensor:
+  - platform: command_line
+    name: "prompt_manager_list_command"
+    command: "ls -1 /config/www/prompts/*.json 2>/dev/null | xargs -I {} basename {} .json || echo ''"
+    scan_interval: 30
+
+
+# ╭────────────────────╮
+# │   TEMPLATE SENSOR
+# ╰────────────────────╯
+template:
+  - sensor:
+
+      - name: "prompt_manager_all_prompts"
+        unique_id: prompt_manager_all_prompts
+        state: >
+          {% set prompt_ids = states('sensor.prompt_manager_prompt_list') | from_json %}
+          {% if prompt_ids %}
+            {{ prompt_ids | length }} prompts available
+          {% else %}
+            No prompts available
+          {% endif %}
+        attributes:
+          prompt_ids: >
+            {% set prompt_ids = states('sensor.prompt_manager_prompt_list') | from_json %}
+            {{ prompt_ids if prompt_ids else [] }}
+          prompts_data: >
+            {% set prompt_ids = states('sensor.prompt_manager_prompt_list') | from_json %}
+            {% set prompts = [] %}
+            {% for prompt_id in prompt_ids %}
+              {% set prompt_data = states('sensor.prompt_manager_prompt_' ~ prompt_id) | from_json %}
+              {% if prompt_data %}
+                {% set prompts = prompts + [prompt_data] %}
+              {% endif %}
+            {% endfor %}
+            {{ prompts | tojson }}
+
+      - name: "prompt_manager_prompt_list"
+        unique_id: prompt_manager_prompt_list
+        state: >
+          {% set result = states('sensor.prompt_manager_prompt_list_raw') | from_json %}
+          {{ result if result else [] | tojson }}
+
+      - name: "prompt_manager_prompt_list_raw"
+        unique_id: prompt_manager_prompt_list_raw
+        state: >
+          {% set cmd_result = states('sensor.prompt_manager_list_command') %}
+          {% if cmd_result and cmd_result != 'unknown' %}
+            {% set ids = cmd_result.split('\n') | select('string') | list %}
+            {{ ids | tojson }}
+          {% else %}
+            {{ [] | tojson }}
+          {% endif %}
+
+
+# | END: prompt_manager.yaml

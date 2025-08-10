@@ -1,0 +1,10 @@
+﻿<!--
+/config/www/myfont.css
+Also need /config/www/myfont.ttf
+or whatever file format it is, could be several.
+src: may need to be adjusted with a format() function or so - check the font docs.
+-->
+@font-face {
+  font-family: "myfont";
+  src: url("/local/Montserrat-Regular.ttf");
+}
