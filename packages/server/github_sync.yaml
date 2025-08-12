@@ -6,7 +6,7 @@
 #  ╭────────────────────╮
 #  │   SHELL COMMAND
 #  ╰────────────────────╯
-# ➔ Git Sync
+# ➔ Git Sync to GitHub
 #   Triggers script to automate git add, commit, and push to GitHub
 shell_command:
   git_sync_config: /bin/sh /config/git_sync.sh
