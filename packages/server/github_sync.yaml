@@ -1,6 +1,6 @@
 
 # | START: github_sync.yaml
-# |  PATH: /config/packages/server/github_sync.yaml
+# | PATH: /config/packages/server/github_sync.yaml
 
 
 #  ╭────────────────────╮
@@ -9,7 +9,7 @@
 # ➔ Git Sync
 #   Triggers script to automate git add, commit, and push to GitHub
 shell_command:
-  git_sync_config: bash /config/git_sync.sh
+  git_sync_config: /bin/sh /config/git_sync.sh
 
 
 
@@ -21,6 +21,7 @@ shell_command:
 sensor:
   - platform: command_line
     name: Git Sync Result
+    unique_id: git_sync_result
     command: cat /config/git_sync_result.txt || echo "No sync run yet."
     scan_interval: 5
 
@@ -46,6 +47,15 @@ automation:
         data:
           title: Git Sync Result
           message: "{{ states('sensor.git_sync_result') }}"
+
+      - service: event.fire
+        target:
+          event_type: notify_e_or_c
+        data:
+          title: Git Sync Result
+          message: "{{ states('sensor.git_sync_result') }}"
+          priority: high
+          tag: git_sync
 
 
 # | END: github_sync.yaml
