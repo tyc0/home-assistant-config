@@ -71,4 +71,19 @@ input_number:
     initial: 0
 
 
+
+#  ╭────────────────────╮
+#  │   INPUT BOOLEAN
+#  ╰────────────────────╯
+input_boolean:
+
+# ➔ Frontend toggle for auto-refresh the page
+#   Displays the current time in seconds
+  auto_refresh:
+    name: Auto Refresh
+    icon: mdi:refresh-auto
+    initial: off
+
+
+
 # |   END: time.yaml

@@ -1,140 +1,60 @@
-# This file contains configuration for managing prompts in Home Assistant.
-# Existing configuration for shell commands and sensors is preserved below.
+# | START: prompt_manager.yaml
+# | PATH: /config/packages/ai/prompt_manager.yaml
 
-shell_command:
+automation:
 
-  save_prompt: >-
-    /bin/bash -c 'echo "{{ prompt_data | tojson }}" > /config/www/prompts/{{ prompt_id }}.json'
-
-  delete_prompt: >-
-    /bin/bash -c 'rm -f /config/www/prompts/{{ prompt_id }}.json'
-
-  list_prompts: >-
-    /bin/bash -c 'ls -1 /config/www/prompts/*.json 2>/dev/null | xargs -I {} basename {} .json || echo ""'
-
-
-sensor:
-  - platform: command_line
-    name: "prompt_manager_list_command"
-    command: "ls -1 /config/www/prompts/*.json 2>/dev/null | xargs -I {} basename {} .json || echo ''"
-    scan_interval: 30
-
-
-template:
-  - sensor:
-
-      - name: "prompt_manager_all_prompts"
-        unique_id: prompt_manager_all_prompts
-        state: >
-          {% set prompt_ids = states('sensor.prompt_manager_prompt_list') | from_json %}
-          {% if prompt_ids %}
-            {{ prompt_ids | length }} prompts available
-          {% else %}
-            No prompts available
-          {% endif %}
-        attributes:
-          prompt_ids: >
-            {% set prompt_ids = states('sensor.prompt_manager_prompt_list') | from_json %}
-            {{ prompt_ids if prompt_ids else [] }}
-          prompts_data: >
-            {% set prompt_ids = states('sensor.prompt_manager_prompt_list') | from_json %}
-            {% set prompts = [] %}
-            {% for prompt_id in prompt_ids %}
-              {% set prompt_data = states('sensor.prompt_manager_prompt_' ~ prompt_id) | from_json %}
-              {% if prompt_data %}
-                {% set prompts = prompts + [prompt_data] %}
-              {% endif %}
-            {% endfor %}
-            {{ prompts | tojson }}
-
-      - name: "prompt_manager_prompt_list"
-        unique_id: prompt_manager_prompt_list
-        state: >
-          {% set result = states('sensor.prompt_manager_prompt_list_raw') | from_json %}
-          {{ result if result else [] | tojson }}
-
-      - name: "prompt_manager_prompt_list_raw"
-        unique_id: prompt_manager_prompt_list_raw
-        state: >
-          {% set cmd_result = states('sensor.prompt_manager_list_command') %}
-          {% if cmd_result and cmd_result != 'unknown' %}
-            {% set ids = cmd_result.split('\n') | select('string') | list %}
-            {{ ids | tojson }}
-          {% else %}
-            {{ [] | tojson }}
-          {% endif %}
-
-#
-# Script: generate_prompt_fields
-#
-# This script is used by the prompt manager UI to automatically generate
-# a concise title and a comprehensive description for a given prompt. It
-# leverages the AI Task integration via the `ai_task.generate_data` action.
-#
-# The script accepts three arguments:
-#  - prompt_content: the full text of the prompt to base generation on
-#  - generate_title: a boolean indicating whether the title should be generated
-#  - generate_description: a boolean indicating whether the description should be generated
-#
-# It builds a result dictionary containing any generated fields and uses the
-# `stop` action with `response_variable` to return this data back to the caller.
-
-script:
-  generate_prompt_fields:
-    alias: "Generate Prompt Fields"
-    description: "Generates a concise title and a clear description for a prompt using the AI Task integration."
-    fields:
-      prompt_content:
-        description: "The full text of the prompt."
-        required: true
-      generate_title:
-        description: "Whether to generate a title if the title field is empty."
-        required: true
-      generate_description:
-        description: "Whether to generate a description if the description field is empty."
-        required: true
-    sequence:
+  # Generate Prompt Fields — event-driven AI generation
+  - id: generate_prompt_fields_automation
+    alias: Generate Prompt Fields
+    mode: parallel
+    trigger:
+      - platform: event
+        event_type: prompt_ai_request
+    action:
       - variables:
-          result: {}
+          req: "{{ trigger.event.data }}"
+          request_id: "{{ req.request_id }}"
+          prompt_content: "{{ req.prompt_content | default('') }}"
+          gen_title: "{{ req.generate_title | default(false) }}"
+          gen_desc: "{{ req.generate_description | default(false) }}"
+      - variables:
+          ai_title: ""
+          ai_description: ""
       - if:
-          # Only generate a title when the caller indicates a title is needed.
-          - condition: template
-            value_template: "{{ generate_title }}"
+          - "{{ gen_title }}"
         then:
-          - alias: "Generate title using AI"
-            action: ai_task.generate_data
+          - service: ai_task.generate_data
             data:
-              task_name: "prompt title"
+              entity_id: ai_task.openai_ai_task
+              task_name: prompt title
               instructions: >-
                 Based on the following prompt content:
 
                 {{ prompt_content }}
 
-                Generate a very short, direct title. Use title case formatting.
-                No icons, symbols, or punctuation. Be extremely concise.
+                Generate a very short, direct title in Title Case.
+                No icons, symbols, or punctuation. Extremely concise.
             response_variable: ai_title
-          - variables:
-              result: "{{ result | merge({'title': ai_title.data}) }}"
       - if:
-          # Only generate a description when the caller indicates a description is needed.
-          - condition: template
-            value_template: "{{ generate_description }}"
+          - "{{ gen_desc }}"
         then:
-          - alias: "Generate description using AI"
-            action: ai_task.generate_data
+          - service: ai_task.generate_data
             data:
-              task_name: "prompt description"
+              entity_id: ai_task.openai_ai_task
+              task_name: prompt description
               instructions: >-
                 Based on the following prompt content:
 
                 {{ prompt_content }}
 
-                Do not use icons, do not ask any questions, just provide your content itself - don't use lots of lists and headers either.
-                Use language and sentence structures that are very easy to vocalise, and write it in a way a 10 year old child would find easy to understand - but don't patronise or treat them stupid
+                In a single short sentence that a 10-year-old could easily read aloud, describe what this prompt does.
             response_variable: ai_description
-          - variables:
-              result: "{{ result | merge({'description': ai_description.data}) }}"
-      - stop: "{{ result }}"
-        response_variable: result
-    mode: single
-    max_exceeded: silent
+
+      # Reply via the `event` action
+      - event: prompt_ai_response
+        event_data:
+          request_id: "{{ request_id }}"
+          title: "{{ (ai_title.data | default('')) if gen_title else '' }}"
+          description: "{{ (ai_description.data | default('')) if gen_desc else '' }}"
+
+# | END: prompt_manager.yaml

@@ -1,6 +1,25 @@
 // Custom Prompt Manager Card for Home Assistant
 // JavaScript version with modern patterns
 
+function uuid(){return (globalThis.crypto?.randomUUID?.()||`req_${Date.now()}_${Math.random().toString(36).slice(2)}`)}
+
+function requestPromptAI(hass,{promptContent,generateTitle=true,generateDescription=true,timeoutMs=30000}){
+  const request_id=uuid();
+  hass.callWS({
+    type:'fire_event',
+    event_type:'prompt_ai_request',
+    event_data:{request_id, prompt_content:promptContent, generate_title:!!generateTitle, generate_description:!!generateDescription}
+  });
+  return new Promise((resolve,reject)=>{
+    let unsub; const timer=setTimeout(()=>{try{unsub?.()}catch{} reject(new Error('AI response timeout'));},timeoutMs);
+    hass.connection.subscribeEvents(ev=>{
+      const d=ev?.data; if(!d||d.request_id!==request_id) return;
+      clearTimeout(timer); try{unsub?.()}catch{};
+      resolve({title: typeof d.title==='string'?d.title:'', description: typeof d.description==='string'?d.description:''});
+    },'prompt_ai_response').then(u=>{unsub=u}).catch(e=>{clearTimeout(timer); reject(e)});
+  });
+}
+
 
 
 class PromptManagerCard extends HTMLElement {
@@ -700,6 +719,60 @@ class PromptManagerCard extends HTMLElement {
     this.render();
   };
 
+  /**
+   * Handle clicks on the AI Generate button. Determines which fields are
+   * missing and dispatches an AI request accordingly. The button text
+   * and disabled state are toggled while awaiting a response. When the
+   * response arrives, the corresponding form fields are populated and
+   * the form validity is rechecked.
+   *
+   * @param {string} formType - Either "add" or "edit"
+   */
+  async handleGenerateClick(formType) {
+    const isEdit = formType === 'edit';
+    const titleInput = this.shadow.getElementById(isEdit ? 'edit-title' : 'add-title');
+    const contentInput = this.shadow.getElementById(isEdit ? 'edit-content' : 'add-content');
+    const descInput = this.shadow.getElementById(isEdit ? 'edit-description' : 'add-description');
+    const generateTitle = !titleInput?.value?.trim();
+    const generateDescription = !descInput?.value?.trim();
+    const content = contentInput?.value?.trim() || '';
+    // Require content and at least one field to generate
+    if (!content || (!generateTitle && !generateDescription)) return;
+    const btn = this.shadow.getElementById(isEdit ? 'edit-generate' : 'add-generate');
+    const originalLabel = btn ? btn.textContent : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
+    }
+    try {
+      // Guard: do not attempt if hass is not yet bound
+      if (!this._hass) throw new Error('Home Assistant not ready');
+      const { title, description } = await requestPromptAI(this._hass, {
+        promptContent: content,
+        generateTitle,
+        generateDescription
+      });
+      if (generateTitle && title && titleInput) titleInput.value = title;
+      if (generateDescription && description && descInput) descInput.value = description;
+    } catch (err) {
+      console.error('AI generation failed', err);
+      // Basic user feedback; do not permanently alter UI
+      if (btn) {
+        btn.textContent = 'Error';
+        setTimeout(() => {
+          btn.textContent = originalLabel;
+        }, 3000);
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = originalLabel || 'Generate';
+      }
+      // Revalidate after autofill to enable the submit button
+      this.updateFormValidity(formType);
+    }
+  }
+
   // Chip helpers
   getChips(formType) {
     const chipsContainer = this.shadow.getElementById(formType === 'edit' ? 'edit-chips' : 'add-chips');
@@ -903,6 +976,7 @@ class PromptManagerCard extends HTMLElement {
           ></textarea>
           <div class="form-buttons">
             <button class="form-button" id="add-cancel">Cancel</button>
+            <button class="form-button" id="add-generate">Generate</button>
             <button class="form-button primary" id="add-submit" disabled>Add Prompt</button>
           </div>
         </div>
@@ -970,6 +1044,7 @@ class PromptManagerCard extends HTMLElement {
           >${this.escapeHtml(prompt.content)}</textarea>
           <div class="form-buttons">
             <button class="form-button" id="edit-cancel">Cancel</button>
+            <button class="form-button" id="edit-generate">Generate</button>
             <button class="form-button primary" id="edit-submit" disabled>Update</button>
           </div>
         </div>
@@ -1132,12 +1207,19 @@ class PromptManagerCard extends HTMLElement {
     const editContent = this.shadow.getElementById('edit-content');
     const addDesc = this.shadow.getElementById('add-description');
     const editDesc = this.shadow.getElementById('edit-description');
+    // AI generate buttons (optional)
+    const addGenerate = this.shadow.getElementById('add-generate');
+    const editGenerate = this.shadow.getElementById('edit-generate');
 
     if (addSubmit) addSubmit.addEventListener('click', () => this.handleFormSubmit(false));
     if (addCancel) addCancel.addEventListener('click', this.handleFormCancel);
     if (editSubmit) editSubmit.addEventListener('click', () => this.handleFormSubmit(true));
     if (editCancel) editCancel.addEventListener('click', this.handleFormCancel);
     if (manageCancel) manageCancel.addEventListener('click', this.handleFormCancel);
+
+    // Bind AI generation buttons
+    if (addGenerate) addGenerate.addEventListener('click', () => this.handleGenerateClick('add'));
+    if (editGenerate) editGenerate.addEventListener('click', () => this.handleGenerateClick('edit'));
 
     // Tag suggestions click
     this.shadow.querySelectorAll('.tag-suggestion').forEach(button => {
@@ -1818,7 +1900,7 @@ class PromptManagerCard extends HTMLElement {
         /* Tag chips editor in forms */
         .tags-editor {
           background: var(--pm-surface);
-          border: 1px dashed var(--pm-border);
+          border: none;
           /* Larger radius to align with other containers */
           border-radius: var(--md-sys-shape-corner-large, 16px);
           padding: 8px;

@@ -2350,12 +2350,11 @@
     action: homeassistant.update_entity
     data: {}
 - id: '1725825021532'
-  alias: Lights - Floor 02
+  alias: Lights - Floor 02 Control
   description: Automatically manages the lights on Floor 02 based on motion and door
-    activity from multiple sensors. Lights adjust their brightness dynamically based
-    on the time of night and outside light levels. The automation checks every 2 minutes
-    and turns the lights off when no presence is detected on stairs or landing for
-    a specified period.
+    activity from multiple sensors. Lights adjust their brightness based on time and
+    outside light levels. The automation checks every 2 minutes and turns the lights
+    off when no presence is detected for a specified period.
   triggers:
   - entity_id:
     - binary_sensor.vs01_vibration
@@ -3698,6 +3697,7 @@
   mode: single
 - id: '1744669624474'
   alias: Shopping - Clubcard notification
+  description: ''
   triggers:
   - entity_id:
     - person.cam
@@ -3723,7 +3723,9 @@
       phone: "{% set id = trigger.entity_id %} {% if 'cam' in id or id.split('_')
         | last == 'cam' %}\n  phone_c\n{% else %}\n  phone_e\n{% endif %}\n"
   - choose:
-    - conditions: '{{ trigger.id == ''enter'' }}'
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.id == ''enter'' }}'
       sequence:
       - data:
           message: Scan this code
@@ -3732,7 +3734,9 @@
             image: /local/media/image/shopping/tesco_clubcard_qr_code.png
             tag: clubcard_notify
         action: notify.mobile_app_{{ phone }}
-    - conditions: '{{ trigger.id == ''clear'' }}'
+    - conditions:
+      - condition: template
+        value_template: '{{ trigger.id == ''clear'' }}'
       sequence:
       - data:
           message: clear_notification
@@ -3784,25 +3788,6 @@
     action: whatsapp.send_message
   mode: queued
   max: 2
-- id: '1746361497814'
-  alias: Server status via AI
-  description: ''
-  use_blueprint:
-    path: Oshayr/heartbeat.yaml
-    input:
-      run_every: '180'
-      reject_domains:
-      - sensor
-      - automation
-      - scene
-      - script
-      - camera
-      - person
-      - button
-      - weather
-      bad_states:
-      - ''
-      max_prompt_len: 32000
 - id: '1746560193153'
   alias: Vibrating Alarm Failsafe
   description: 'Ensures the vibrating alarm is armed with checks at 08:00, 18:00,
@@ -4021,10 +4006,10 @@
         enabled: false
   mode: single
 - id: '1754578346859'
-  alias: AI - Camera Motion Analysis
+  alias: AI - Camera Motion Insights
   description: This automation analyzes camera footage when motion is detected, providing
-    alerts and insights based on AI processing. The automation triggers upon movement
-    detected by the C09 motion sensor and uses the corresponding camera for analysis.
+    alerts and insights based on AI processing. It captures images and creates a one-sentence
+    analysis before logging it.
   triggers:
   - trigger: state
     entity_id:
@@ -4065,10 +4050,10 @@
   mode: single
   max_exceeded: silent
 - id: '1754782454647'
-  alias: TTS - Front Door Opened Notification
+  alias: TTS - Front Door Opened Friendly Notification
   description: This automation generates a friendly message and announces it when
-    the front door is opened. It utilizes AI for the message content, ensuring that
-    the notification is always polite and engaging.
+    the front door is opened. It utilizes AI for creating polite and engaging notifications,
+    ensuring seamless interaction when someone arrives at home.
   triggers:
   - trigger: state
     entity_id:
