@@ -90,6 +90,11 @@ input_number:
 # ╰────────────────────╯
 input_boolean:
 
+# ➔ Toggle for dashboard chat window visibility
+  whatsapp_display_chat_window:
+    name: "Toggle Chat Window Visibility"
+    initial: false
+
   whatsapp_c_unread_exists:
     name: "C Has Unread Messages"
     initial: false

@@ -1,0 +1,29 @@
+# | START: bed_ai_presence.yaml
+# | PATH: /config/packages/security/bed_ai_presence.yaml
+
+mqtt:
+  sensor:
+    - name: "Bed Occupancy Analysis"
+      unique_id: bed_occupancy_analysis
+      state_topic: "homeassistant/sensor/bed_analysis/state"
+      value_template: "{{ value_json.people_count | int(0) }}"
+      json_attributes_topic: "homeassistant/sensor/bed_analysis/state"
+
+template:
+  - sensor:
+      - name: "Bed People Count"
+        unique_id: bed_people_count
+        state: "{{ states('sensor.bed_occupancy_analysis') | int(0) }}"
+    binary_sensor:
+      - name: "Bed Occupied"
+        unique_id: bed_occupied
+        state: "{{ (states('sensor.bed_occupancy_analysis') | int(0)) > 0 }}"
+
+input_datetime:
+  bed_ai_last_run:
+    name: Bed AI Last Run
+    has_date: true
+    has_time: true
+
+
+# | END: bed_ai_presence.yaml

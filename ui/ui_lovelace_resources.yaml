@@ -8,6 +8,11 @@
 #  ╰────────────────────╯
 
 
+  - url: /hacsfiles/llmvision-card/llmvision-card.js
+    type: module
+
+
+
   - url: /hacsfiles/horizontal-waterfall-history-card/horizontal-waterfall-history-card.js
     type: module
 
@@ -71,6 +76,11 @@
   - url: /hacsfiles/ring-tile-card/ring-tile-card.js
     type: module
 
+
+
+# ➔ Expander card
+  - url: /hacsfiles/lovelace-expander-card/expander-card.js
+    type: module
 
 
 # ➔ Custom card features

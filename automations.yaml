@@ -182,6 +182,13 @@
     - binary_sensor.ds00_position
     to: 'on'
     id: office_entrance_activity
+    enabled: false
+  - trigger: time
+    at: '21:00:00'
+    id: night_time_start
+  - trigger: time
+    at: 08:00:00
+    id: day_time_start
   conditions: []
   actions:
   - choose:
@@ -219,7 +226,7 @@
         data:
           cache: true
           media_player_entity_id: media_player.home_assistant_voice_09dbbd_media_player
-          message: Hey, someone's on the stairs to floor two
+          message: psst, stairs detection
         target:
           entity_id: tts.openai_gpt_4o_mini_tts
     - conditions:
@@ -235,6 +242,28 @@
           message: Hey. The office door's just been opened
         target:
           entity_id: tts.openai_gpt_4o_mini_tts
+    - conditions:
+      - condition: trigger
+        id:
+        - night_time_start
+      sequence:
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: 0.24
+        target:
+          entity_id: media_player.home_assistant_voice_09dbbd_media_player
+    - conditions:
+      - condition: trigger
+        id:
+        - day_time_start
+      sequence:
+      - action: media_player.volume_set
+        metadata: {}
+        data:
+          volume_level: 0.6
+        target:
+          entity_id: media_player.home_assistant_voice_09dbbd_media_player
   mode: single
 - id: '1698694409909'
   alias: Time - Hourly triggers
@@ -1981,21 +2010,24 @@
     enabled: false
   mode: single
 - id: '1716730824609'
-  alias: Call Alexa Script Every 20 Minutes During Daytime
-  description: ''
-  trigger:
-  - platform: time_pattern
-    minutes: /11
-  condition:
+  alias: Voice - Call Alexa Script Every 20 Minutes During Daytime
+  description: This automation calls a specified Alexa script every 20 minutes during
+    daytime hours, ensuring continuous engagement with Alexa while certain conditions
+    are met. It triggers during the day, when a designated person is home and before
+    sunset.
+  triggers:
+  - minutes: /11
+    trigger: time_pattern
+  conditions:
   - condition: sun
     before: sunset
     after: sunrise
   - condition: state
     entity_id: person.cam
     state: home
-  action:
-  - service: script.alexa_display_ha_dashboard_show_8
-    data: {}
+  actions:
+  - data: {}
+    action: script.alexa_display_ha_dashboard_show_8
 - id: '1717369553910'
   alias: C Bedroom lights auto-off
   triggers:
@@ -2642,7 +2674,11 @@
   mode: single
 - id: '1733346292899'
   alias: Motion Alert Enhanced
-  description: ''
+  description: This automation triggers notifications and plays sounds when motion
+    is detected across multiple sensors. It sends alerts to mobile devices and displays
+    notifications on connected devices. If the person is not home, it sends high-priority
+    alerts only to the mobile phone, ensuring that critical notifications are received
+    promptly.
   triggers:
   - id: normal_alert
     entity_id:
@@ -2695,6 +2731,8 @@
     - binary_sensor.presence_sensor_fp2_c8ec_presence_sensor_6
     - binary_sensor.presence_sensor_fp2_c8ec_presence_sensor_2
     - binary_sensor.presence_sensor_fp2_c8ec_presence_sensor_1
+    - binary_sensor.c10_vehicle
+    - binary_sensor.c10_person
     to: 'on'
     trigger: state
   actions:
@@ -2705,7 +2743,10 @@
       title: '{{ trigger.to_state.attributes.device_class | default(''Motion'') }}'
       message: '{{ name }}{{ '' turned on'' if is_light else '''' }}'
   - parallel:
-    - if: '{{ is_state(''input_boolean.sonos_play_notifications'', ''on'') }}'
+    - if:
+      - condition: template
+        value_template: '{{ is_state(''input_boolean.sonos_play_notifications'', ''on'')
+          }}'
       then:
       - action: media_player.play_media
         continue_on_error: true
@@ -3234,107 +3275,42 @@
     value_template: "{{ state_attr('automation.motion_ai_summary', 'last_triggered')
       is none or\n   (now() - state_attr('automation.motion_ai_summary', 'last_triggered'))
       > timedelta(minutes=1) }}\n"
+    enabled: false
   actions:
-  - alias: Camera feed prompts for the AI
-    choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ trigger.id == ''driveway'' }}'
-      sequence:
-      - alias: 'AI prompt: Driveway & Road'
-        data:
-          remember: true
-          duration: 2
-          max_frames: 2
-          include_filename: true
-          target_width: 1280
-          max_tokens: 100
-          temperature: 0.2
-          generate_title: true
-          expose_images: true
-          provider: 01JGCADAG52GEGWZGPST01164A
-          image_entity:
-          - camera.c08_clear
-          message: 'Check for persons on the brick driveway or its adjacent garden.
-            If found, report their movement (entering or exiting) and note any delivery
-            cues (uniform, branded vehicle, or carried items). If no persons are detected,
-            look for vehicles stopping on the driveway or in front of it and specify
-            if they are branded or used for deliveries. Otherwise, examine the road
-            spanning the driveway’s width for similar vehicles. When multiple events
-            occur, choose the one nearest to the property. Respond with one sentence
-            detailing the subject, direction (if applicable), action, location, and
-            any delivery or service type. If only passing vehicles, pedestrians, shadows,
-            animals, or peripheral motion is seen, return ''false_alarm''. Do not
-            mention timestamps, weather, or lighting.
+  - alias: 'AI prompt: Driveway & Road'
+    data:
+      remember: true
+      duration: 2
+      max_frames: 2
+      include_filename: true
+      target_width: 1280
+      max_tokens: 100
+      temperature: 0.2
+      generate_title: true
+      expose_images: true
+      provider: 01JGCADAG52GEGWZGPST01164A
+      image_entity:
+      - camera.c08_clear
+      message: 'Check for persons on the brick driveway or its adjacent garden. If
+        found, report their movement (entering or exiting) and note any delivery cues
+        (uniform, branded vehicle, or carried items). If no persons are detected,
+        look for vehicles stopping on the driveway or in front of it and specify if
+        they are branded or used for deliveries. Otherwise, examine the road spanning
+        the driveway’s width for similar vehicles. When multiple events occur, choose
+        the one nearest to the property. Respond with one sentence detailing the subject,
+        direction (if applicable), action, location, and any delivery or service type.
+        If only passing vehicles, pedestrians, shadows, animals, or peripheral motion
+        is seen, return ''false_alarm''. Do not mention timestamps, weather, or lighting.
 
-            '
-          use_memory: true
-        response_variable: response
-        action: llmvision.stream_analyzer
-      alias: Driveway prompt
-    default: []
-  - alias: Notifications
-    choose:
-    - conditions:
-      - condition: template
-        value_template: '{{ response.response_text != ''false_alarm'' }}'
-        alias: If it is NOT a false alarm, proceed with notifications
-      sequence:
-      - variables:
-          notify_id: '{{ now().timestamp() }}'
-      - action: tts.speak
-        metadata: {}
-        data:
-          cache: true
-          media_player_entity_id: media_player.sonos_speaker
-          message: '{{ response.response_text }}'
-        target:
-          entity_id: tts.home_assistant_cloud
-      - alias: Issue notifications
-        parallel:
-        - data:
-            message: '{{ response.response_text }}'
-            title: Motion
-            notification_id: motion-{{ notify_id }}
-            ttl: 30000
-            color: '#ff8080'
-            icon: mdi:motion-sensor
-          action: notify.mobile_app_phone_c
-          alias: 'Notify: C phone'
-          enabled: false
-        - alias: 'Notify: E phone'
-          data:
-            message: '{{ response.response_text }}'
-            title: Motion
-            notification_id: motion-{{ notify_id }}
-            ttl: 30000
-            color: '#ff8080'
-            icon: mdi:motion-sensor
-          action: notify.mobile_app_phone_e
-          enabled: false
-        - data:
-            title: Motion
-            message: '{{ response.response_text }}'
-          action: rest_command.send_hass_agent_notification
-          alias: 'Notify: C PC'
-          enabled: false
-        - sequence:
-          - data:
-              title: Motion
-              message: '{{ response.response_text }}'
-              data:
-                tag: c-tablet-{{ notify_id }}
-            action: notify.mobile_app_ipad
-          - delay:
-              seconds: 30
-          - data:
-              message: clear_notification
-              data:
-                tag: c-tablet-{{ notify_id }}
-            action: notify.mobile_app_ipad
-          alias: 'Notify: C iPad'
-          enabled: false
-        enabled: false
+        '
+      use_memory: true
+    response_variable: response
+    action: llmvision.stream_analyzer
+  - action: persistent_notification.create
+    metadata: {}
+    data:
+      title: test
+      message: '{{ response.response_text }}'
   mode: single
 - id: '1736585694735'
   alias: Pets - Food and Water Alerts
@@ -3413,7 +3389,9 @@
   mode: single
 - id: '1737635258526'
   alias: Update Train Service Summary
-  description: Process train messages through AI and update summary display
+  description: Process train messages through AI and update summary display with the
+    latest travel alerts. The automation triggers when a new message is available
+    and ensures a timely update while processing inputs with predefined rules.
   triggers:
   - entity_id: sensor.trains_east_croydon_to_purley_1m_walk
     attribute: message
@@ -4006,47 +3984,37 @@
         enabled: false
   mode: single
 - id: '1754578346859'
-  alias: AI - Camera Motion Insights
-  description: This automation analyzes camera footage when motion is detected, providing
-    alerts and insights based on AI processing. It captures images and creates a one-sentence
-    analysis before logging it.
+  alias: Example - AI analysis of camera stream
+  description: 'This is an example of using the ai_task.generate_data action with
+    a camera feed. '
   triggers:
   - trigger: state
     entity_id:
-    - binary_sensor.c09_motion
-    from: 'off'
-    to: 'on'
+    - sensor.a_a_activewindow_2
+    to: unavailable
+    from: unknown
   actions:
   - variables:
-      camera_entity: camera.c09_clear
-      extra_instructions: ''
-  - delay:
-      seconds: 5
+      camera_entity: camera.c10_clear
   - alias: Analyse camera image
     action: ai_task.generate_data
     data:
-      task_name: '{{ this.entity_id }}'
-      instructions: 'Give a 1 sentence analysis of what is happening on this camera
-        picture. {{ extra_instructions }}
-
-        '
+      task_name: test_cam
       structure:
         analysis:
           selector:
-            text:
+            number:
       attachments:
         media_content_id: media-source://camera/{{ camera_entity }}
         media_content_type: ''
+      instructions: How many white cars are parked on the driveway next to my black
+        car (the one with silver windowframes). Return just the number.
     response_variable: result
-  - alias: Write analysis to logbook
-    action: logbook.log
+  - action: persistent_notification.create
+    metadata: {}
     data:
-      entity_id: '{{ camera_entity }}'
-      message: 'analysis: {{ result.data.analysis }}'
-      domain: ai_task
-      name: '{{ states[camera_entity].name }}'
-  - delay:
-      seconds: 60
+      title: AI Analysis - Example response
+      message: '{{ result.data.analysis }}'
   mode: single
   max_exceeded: silent
 - id: '1754782454647'
@@ -4063,9 +4031,9 @@
   - action: ai_task.generate_data
     data:
       task_name: Front door opened comment
-      instructions: 'Generate a concise, clear, friendly and natural sounding notification
-        that someone has just opened the front door of my house. Only respond with
-        notification message, nothing else. '
+      instructions: 'Generate a concise, clear, and natural sounding notification
+        informing me that the front door or the house has just been opened. Only respond
+        with notification message, nothing else. '
     response_variable: generated_text
   - action: tts.speak
     metadata: {}
@@ -4076,3 +4044,266 @@
     target:
       entity_id: tts.openai_gpt_4o_mini_tts
   mode: single
+- id: '1755101270973'
+  alias: Driveway - Classify and Publish
+  description: Triggered by driveway motion. This automation classifies detected events
+    using LLM Vision and publishes results. It ensures that the AI service is called
+    only once per throttle window, effectively counting AI usage and preventing duplicate
+    events.
+  triggers:
+  - id: motion_on
+    entity_id: binary_sensor.c10_motion
+    to: 'on'
+    trigger: state
+  - id: vehicle_on
+    entity_id: binary_sensor.c10_vehicle
+    to: 'on'
+    trigger: state
+  - id: person_on
+    entity_id: binary_sensor.c10_person
+    to: 'on'
+    trigger: state
+  - id: door_vibration
+    entity_id: binary_sensor.vs00_vibration
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: template
+    value_template: '{{ (as_timestamp(now()) - (as_timestamp(states(''input_datetime.last_ai_call''))
+      or 0)) > throttle_s }}
+
+      '
+  - condition: numeric_state
+    entity_id: input_number.ai_calls_today
+    below: 100
+  - condition: template
+    value_template: '{{ trigger.id == ''motion_on'' or is_state(''binary_sensor.c10_motion'',''on'')
+      }}
+
+      '
+  actions:
+  - choose:
+    - conditions: "{{ states('input_text.last_event_key') == current_key and\n   (now_ts
+        - (states('input_number.last_event_ts') | int(0))) < 5 }}\n"
+      sequence:
+      - stop: Duplicate event suppressed
+  - data:
+      entity_id: input_text.last_event_key
+      value: '{{ current_key }}'
+    action: input_text.set_value
+  - data:
+      entity_id: input_number.last_event_ts
+      value: '{{ now_ts }}'
+    action: input_number.set_value
+  - choose:
+    - conditions: '{{ has_service(''llmvision'',''stream_analyzer'') }}'
+      sequence:
+      - data:
+          entity_id: input_datetime.last_ai_call
+          datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+        action: input_datetime.set_datetime
+      - data:
+          entity_id: input_number.ai_calls_today
+          value: '{{ (states(''input_number.ai_calls_today'') | int) + 1 }}'
+        action: input_number.set_value
+      - action: llmvision.stream_analyzer
+        data:
+          remember: false
+          use_memory: false
+          duration: 1
+          max_frames: 1
+          include_filename: false
+          target_width: 1280
+          max_tokens: 100
+          generate_title: false
+          expose_images: false
+          provider: 01JGCADAG52GEGWZGPST01164A
+          message: Analyse this single frame per your System prompt.
+          image_entity:
+          - '{{ cam_id }}'
+        response_variable: ai_raw
+      - variables:
+          ai_ok: '{% set s = (ai_raw or '''') %} {{ s is string and s.startswith(''{'')
+            and (''"actor"'' in s) and (''"dad_bay"'' in s) }}'
+      - choose:
+        - conditions: '{{ ai_ok and has_service(''mqtt'',''publish'') }}'
+          sequence:
+          - data:
+              topic: driveway/ai/last
+              payload: '{{ ai_raw }}'
+              retain: true
+            action: mqtt.publish
+        - conditions: '{{ not ai_ok }}'
+          sequence:
+          - data:
+              title: Driveway — AI error
+              message: LLM Vision returned invalid payload; skipped publish.
+            action: persistent_notification.create
+    - conditions: '{{ not has_service(''llmvision'',''stream_analyzer'') }}'
+      sequence:
+      - data:
+          title: Driveway — LLM Vision unavailable
+          message: Service llmvision.stream_analyzer not found; classification skipped.
+        action: persistent_notification.create
+  mode: queued
+  max: 5
+  variables:
+    cam_id: camera.c10_clear
+    mp_id: media_player.living_room
+    current_key: '{{ trigger.id }}|{{ trigger.entity_id }}'
+    now_ts: '{{ as_timestamp(now()) | int }}'
+    last_call_ts: '{{ as_timestamp(states(''input_datetime.last_ai_call'')) or 0 }}'
+    ai_cap: 100
+    throttle_s: 60
+- id: '1755101381315'
+  alias: Driveway — infer events and announce
+  description: Uses the AI JSON (sensor.driveway_ai and template sensors) to flip
+    dad_is_out and announce high-confidence events. Performs single-frame-safe inference;
+    no temporal assumptions.
+  triggers:
+  - entity_id:
+    - sensor.driveway_ai
+    - sensor.ai_actor
+    - sensor.ai_direction
+    - sensor.ai_dad_bay
+    - sensor.ai_confidence
+    - sensor.ai_alert_text
+    trigger: state
+  conditions: []
+  actions:
+  - choose:
+    - conditions: '{{ dad_bay == ''occupied'' and is_state(''input_boolean.dad_is_out'',''on'')
+        and conf >= 0.6 }}'
+      sequence:
+      - target:
+          entity_id: input_boolean.dad_is_out
+        action: input_boolean.turn_off
+      - choose:
+        - conditions: "{{ is_state('input_boolean.quiet_hours','off')\n   and has_service('tts','speak')\n
+            \  and states(mp_id) not in ['unknown','unavailable'] }}"
+          sequence:
+          - action: tts.speak
+            target:
+              entity_id: tts.openai_gpt_4o_mini_tts
+            data:
+              media_player_entity_id: '{{ mp_id }}'
+              message: '{{ alert if alert|length > 0 else ''Dad has arrived.'' }}'
+      - stop: Dad arrival handled
+    - conditions: '{{ dad_bay == ''empty'' and is_state(''input_boolean.dad_is_out'',''off'')
+        and conf >= 0.6 }}'
+      sequence:
+      - target:
+          entity_id: input_boolean.dad_is_out
+        action: input_boolean.turn_on
+      - choose:
+        - conditions: "{{ is_state('input_boolean.quiet_hours','off')\n   and has_service('tts','speak')\n
+            \  and states(mp_id) not in ['unknown','unavailable'] }}"
+          sequence:
+          - action: tts.speak
+            target:
+              entity_id: tts.openai_gpt_4o_mini_tts
+            data:
+              media_player_entity_id: '{{ mp_id }}'
+              message: '{{ alert if alert|length > 0 else ''Dad is leaving.'' }}'
+      - stop: Dad departure handled
+    - conditions: '{{ actor in [''guest'',''delivery''] and conf >= 0.8 }}'
+      sequence:
+      - choose:
+        - conditions: "{{ is_state('input_boolean.quiet_hours','off')\n   and has_service('tts','speak')\n
+            \  and states(mp_id) not in ['unknown','unavailable'] }}"
+          sequence:
+          - action: tts.speak
+            target:
+              entity_id: tts.openai_gpt_4o_mini_tts
+            data:
+              media_player_entity_id: '{{ mp_id }}'
+              message: '{{ alert if alert|length > 0 else (actor | title) ~ '' at
+                the door.'' }}'
+  - choose:
+    - conditions: '{{ actor == ''none'' or conf < 0.6 }}'
+      sequence:
+      - stop: Low-confidence or none — no action
+  mode: queued
+  max: 10
+  variables:
+    actor: '{{ states(''sensor.ai_actor'') }}'
+    direction: '{{ states(''sensor.ai_direction'') }}'
+    dad_bay: '{{ states(''sensor.ai_dad_bay'') }}'
+    conf: '{{ states(''sensor.ai_confidence'') | float(0) }}'
+    alert: '{{ states(''sensor.ai_alert_text'') }}'
+    mp_id: media_player.sonos_speaker
+- id: '1755265911129'
+  alias: Bed - AI Count People in Bed
+  description: This automation analyzes a live image from a bedroom camera to determine
+    the number of people in bed, while ignoring pets and objects. It ensures the operation
+    is performed periodically with a cooldown period.
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.presence_sensor_fp2_07a0_presence_sensor_5
+    - binary_sensor.presence_sensor_fp2_07a0_presence_sensor_2
+    - binary_sensor.withings_c_in_bed
+  conditions:
+  - condition: template
+    value_template: '{{ (as_timestamp(now()) - as_timestamp(last_run, 0)) > cooldown_sec
+      }}
+
+      '
+  actions:
+  - action: ai_task.generate_data
+    data:
+      task_name: bed_people_count
+      instructions: "You are analyzing a live image from a bedroom camera to determine
+        how many people are in the bed.\nRules: - Count visible people in the bed,
+        including clear bulges/heads under covers that indicate a person. - Ignore
+        pets, pillows, and objects. - If uncertain, choose the best estimate and lower
+        confidence accordingly.\nOutput (STRICT JSON, no extra text): {\n  \"people_count\":
+        integer 0-2,\n  \"confidence\": number 0.0–1.0\n}\n"
+      structure:
+        people_count:
+          selector:
+            number:
+              min: 0
+              max: 2
+              step: 1
+          required: true
+        confidence:
+          selector:
+            number:
+              min: 0
+              max: 1
+              step: 0.01
+          required: true
+      attachments:
+        media_content_id: media-source://camera/{{ camera_entity }}
+        media_content_type: image/jpeg
+    response_variable: result
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{{ result is defined and result.data is defined }}'
+      sequence:
+      - action: mqtt.publish
+        data:
+          topic: '{{ mqtt_topic }}'
+          payload: '{{ result.data | tojson }}'
+          retain: true
+    default:
+    - action: mqtt.publish
+      data:
+        topic: '{{ mqtt_topic }}'
+        payload: '{{ {"people_count": 0, "confidence": 0.0} | tojson }}
+
+          '
+        retain: true
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.bed_ai_last_run
+    data:
+      datetime: '{{ now().isoformat() }}'
+  mode: queued
+  variables:
+    camera_entity: camera.c07_profile000_mainstream
+    mqtt_topic: homeassistant/sensor/bed_analysis/state
+    last_run: '{{ states(''input_datetime.bed_ai_last_run'') }}'
+    cooldown_sec: 120

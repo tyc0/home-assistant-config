@@ -1,0 +1,211 @@
+# | START: driveway_detection.yaml
+# | PATH: /config/packages/ai/driveway_detection.yaml
+
+
+# ╭────────────────────╮
+# │ INPUT BOOLEAN
+# ╰────────────────────╯
+input_boolean:
+  dad_car_in_driveway:
+    name: Dad car in driveway
+    icon: mdi:car-estate
+
+
+
+# ╭────────────────────╮
+# │ MQTT SENSOR
+# ╰────────────────────╯
+mqtt:
+  sensor:
+    - name: "Driveway Vehicle Analysis"
+      unique_id: driveway_vehicle_analysis
+      state_topic: "homeassistant/sensor/driveway_analysis/state"
+      value_template: "{{ value_json.actor | default('unknown') }}"
+      json_attributes_topic: "homeassistant/sensor/driveway_analysis/state"
+
+
+
+# ╭────────────────────╮
+# │ INPUT DATETIME
+# ╰────────────────────╯
+input_datetime:
+
+  # ➔ Driveway AI last run input datetime
+  #   Input datetime for the driveway AI last run
+  driveway_ai_last_run:
+    name: Driveway AI Last Run
+    has_date: true
+    has_time: true
+
+
+# ╭────────────────────╮
+# │ AUTOMATION
+# ╰────────────────────╯
+automation:
+
+# ➔ Automation to detect Dad's car in driveway
+#    Will update MQTT sensor with the result
+  - id: driveway_ai_detect
+    alias: Driveway • AI detect Dad's car (structured)
+    mode: queued
+    variables:
+      camera_entity: camera.c10_clear
+      mqtt_topic: homeassistant/sensor/driveway_analysis/state
+      last_run: "{{ states('input_datetime.driveway_ai_last_run') }}"
+      motion_cooldown_sec: 60
+      periodic_cooldown_sec: 300
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.c10_vehicle
+        to: "on"
+        id: motion
+      - trigger: time_pattern
+        minutes: "/5"
+        id: periodic_day
+    condition:
+      - condition: or
+        conditions:
+          - condition: and
+            conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'motion' }}"
+              - condition: template
+                value_template: >
+                  {{ (as_timestamp(now()) - as_timestamp(last_run, 0)) > motion_cooldown_sec }}
+          - condition: and
+            conditions:
+              - condition: template
+                value_template: "{{ trigger.id == 'periodic_day' }}"
+              - condition: sun
+                after: sunrise
+                before: sunset
+              - condition: template
+                value_template: >
+                  {{ (as_timestamp(now()) - as_timestamp(last_run, 0)) > periodic_cooldown_sec }}
+    actions:
+      - action: ai_task.generate_data
+        data:
+          task_name: "driveway_presence"
+          instructions: >
+            You are analyzing a live image from my driveway camera.
+
+            Layout:
+            - Left bay: Reserved only for Dad’s white car. It is either empty or occupied by Dad’s car.
+            - Right bay: Always occupied by my black car with silver window trim (irrelevant for detection).
+
+            Output:
+            Return a single JSON object in this exact format, with no extra text:
+            {
+              "actor": "dad|guest|delivery|none|unknown",
+              "dad_bay": "occupied|empty|none|unknown",
+              "direction": "arriving|leaving|stationary|unknown",
+              "confidence": number 0.0–1.0
+            }
+
+            Heuristics:
+            - "dad": Dad’s white car in left bay, or a person interacting with it (approaching, entering/exiting, parking, leaving).
+            - "guest": Non-delivery vehicle stopped in front of driveway, with person movement between it and the door.
+            - "delivery": Any person walking from road onto driveway, or branded delivery vehicle stopped in front.
+            - "none": No relevant vehicle or person activity.
+            - Decide using vehicle location, appearance, person movement, and bay occupancy.
+
+            Return STRICT JSON only — no text before or after.
+          structure:
+            actor:
+              selector:
+                select:
+                  options: ["dad","guest","delivery","none","unknown"]
+              required: true
+            dad_bay:
+              selector:
+                select:
+                  options: ["occupied","empty","none","unknown"]
+              required: true
+            direction:
+              selector:
+                select:
+                  options: ["arriving","leaving","stationary","unknown"]
+              required: true
+            confidence:
+              selector:
+                number:
+                  min: 0
+                  max: 1
+                  step: 0.01
+              required: true
+          attachments:
+            media_content_id: "media-source://camera/{{ camera_entity }}"
+            media_content_type: image/jpeg
+        response_variable: result
+
+      - choose:
+          - conditions: "{{ result is defined and result.data is defined }}"
+            sequence:
+              - action: mqtt.publish
+                data:
+                  topic: "{{ mqtt_topic }}"
+                  payload: "{{ result.data | tojson }}"
+                  retain: true
+        default:
+          - action: mqtt.publish
+            data:
+              topic: "{{ mqtt_topic }}"
+              payload: >
+                {{ {"actor":"unknown","dad_bay":"unknown","direction":"unknown","confidence":0.0} | tojson }}
+              retain: true
+
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.driveway_ai_last_run
+        data:
+          datetime: "{{ now().isoformat() }}"
+
+# ➔ Automation to set Dad's car in driveway boolean from analysis
+#    Will update input boolean with the result
+  - id: driveway_set_dad_boolean
+    alias: Driveway • Set Dad boolean from analysis
+    mode: restart
+    variables:
+      analysis_entity: sensor.driveway_vehicle_analysis
+      on_conf: 0.7
+      off_conf: 0.7
+      stale_after_sec: 1200
+      manual_cooldown_sec: 180
+    triggers:
+      - trigger: template
+        id: occupied
+        value_template: >-
+          {{ state_attr(analysis_entity,'dad_bay') == 'occupied'
+             and (state_attr(analysis_entity,'confidence') | float(0)) >= on_conf }}
+      - trigger: template
+        id: empty
+        value_template: >-
+          {{ state_attr(analysis_entity,'dad_bay') in ['empty','none']
+             and (state_attr(analysis_entity,'confidence') | float(0)) >= off_conf }}
+      - trigger: template
+        id: stale
+        value_template: >-
+          {{ (as_timestamp(now())
+              - as_timestamp(states[analysis_entity].last_changed, 0)) > stale_after_sec }}
+    conditions:
+      - condition: template
+        value_template: >-
+          {{ (as_timestamp(now())
+              - as_timestamp(states.input_boolean.dad_car_in_driveway.last_changed, 0))
+              > manual_cooldown_sec }}
+    actions:
+      - choose:
+          - conditions: "{{ trigger.id == 'occupied' }}"
+            sequence:
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.dad_car_in_driveway
+          - conditions: "{{ trigger.id in ['empty','stale'] }}"
+            sequence:
+              - action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.dad_car_in_driveway
+
+
+
+# | END: driveway_detection.yaml

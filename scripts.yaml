@@ -4413,3 +4413,43 @@ test_tts_script:
         message: Okay, I’ll leave the lights on.
       target:
         entity_id: assist_satellite.home_assistant_voice_09dbbd_assist_satellite
+weather_and_comfort_report:
+  alias: Weather and Comfort Report
+  sequence:
+  - action: ai_task.generate_data
+    data:
+      task_name: weather comfort report
+      instructions: 'Based on the current conditions:
+
+        - Outdoor temperature: {{ states(''sensor.t02_temperature'') }}°C
+
+        - Weather condition: {{ states(''weather.pirateweather'') }}
+
+        - Indoor temperature: {{ states(''sensor.t03'') }}°C
+
+        - Indoor humidity: {{ states(''sensor.hub_2_8ab7'') }}%
+
+
+        Generate a funny weather description and assess indoor comfort level.
+
+        '
+      structure:
+        weather_description:
+          description: A humorous description of the current weather outside
+          required: true
+          selector:
+            text:
+        indoor_comfort:
+          description: Assessment of how comfortable it is inside compared to outside
+          required: true
+          selector:
+            text:
+    response_variable: comfort_report
+  - action: notify.persistent_notification
+    data:
+      title: "\U0001F3E0 Home climate report"
+      message: "\U0001F324️ **Weather outside:**\n{{ comfort_report.data.weather_description
+        }}\n\n\U0001F6CB️ **Indoor comfort:**\n{{ comfort_report.data.indoor_comfort
+        }}\n"
+  description: Generate a funny weather description and assess indoor comfort level
+    based on current indoor and outdoor conditions.

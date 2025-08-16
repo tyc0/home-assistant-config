@@ -1,0 +1,40 @@
+# | START: frontend_server_stats.yaml
+# |  PATH: /config/packages/frontend_server_stats.yaml
+
+
+# ╭────────────────────╮
+# │    TEMPLATE        │
+# ╰────────────────────╯
+template:
+
+# ➔ Addons Frontend List
+#   Used in the copy button of the Addons list in the frontend
+  - sensor:
+      - name: addons_frontend_list
+        unique_id: addons_frontend_list
+        state: >-
+          {% set items = states.update
+            | selectattr('state','eq','off')
+            | map(attribute='entity_id')
+            | select('in', integration_entities('Supervisor'))
+            | list | sort %}
+          {% set names = items
+            | map('replace','update.','')
+            | map('replace','_update','')
+            | map('replace','_',' ')
+            | map('title')
+            | list %}
+
+
+# ➔ Addons Frontend Count
+#   Used in the copy button of the Addons list in the frontend
+      - name: addons_frontend_count
+        state: >-
+          {{ states.update
+             | map(attribute='entity_id')
+             | select('in', integration_entities('Supervisor'))
+             | list | count }}
+
+
+
+# | END: frontend_server_stats.yaml

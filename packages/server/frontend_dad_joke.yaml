@@ -6,6 +6,9 @@
 # │    REST SENSOR     │
 # ╰────────────────────╯
 rest:
+
+  # ➔ Dad Joke
+  #   Displays a dad joke
   - resource: "https://icanhazdadjoke.com/"
     method: GET
     headers:
@@ -26,10 +29,15 @@ rest:
 # │ OPTIONAL: LAST UPDATED     │
 # ╰────────────────────────────╯
 template:
+
+# ➔ Dad Joke Last Updated
+#   Displays the last updated time of the dad joke
   - sensor:
       - name: "Dad Joke Last Updated"
         unique_id: "dad_joke_last_updated"
         state: "{{ now().strftime('%Y-%m-%d %H:%M') }}"
         icon: "mdi:clock-outline"
+
+
 
 # | END: jokes.yaml
