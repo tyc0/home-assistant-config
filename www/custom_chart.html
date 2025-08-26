@@ -29,10 +29,10 @@
 
 <script>
     async function fetchData(entity_id) {
-        const url = 'https://0lzzezo208hjmjairhsh1gjzwn72kts9.ui.nabu.casa/api/states/' + entity_id;
+        const url = 'https://`<OBSFUSCATED>`.ui.nabu.casa/api/states/' + entity_id;
         const response = await fetch(url, {
             headers: {
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIzMTM3MGM3NWQyNGE0NDZkYjcwZTJmMzM2OTMwZTM1YyIsImlhdCI6MTcyMjkyOTU5MSwiZXhwIjoyMDM4Mjg5NTkxfQ.mTX4eVC_HGMEYHHC0BZBCUVulGnn1COgWWmhntKmiiw',
+                'Authorization': 'Bearer `<BEAREAR_TOKEN>`',
                 'Content-Type': 'application/json'
             }
         });
@@ -75,3 +75,4 @@
 
 </body>
 </html>
+
